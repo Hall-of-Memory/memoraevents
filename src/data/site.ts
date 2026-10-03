@@ -1,5 +1,5 @@
 export const brand = {
-  name: 'Hall of Memory',
+  name: 'MEMORA EVENT',
   eyebrow: 'Momente. Stilvoll inszeniert.',
   description:
     'Hochwertige Event-Erlebnisse rund um Fotobox, Fotospiegel und Magazinbox – mit Raum für alles, was als Nächstes kommt.',

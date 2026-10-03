@@ -218,7 +218,7 @@ const measureFrame = (cdp, sessionId, variant) => evaluate(cdp, sessionId, `(()=
     insetInner:frame.dataset.frameInsetInner??null,insetOuter:frame.dataset.frameInsetOuter??null,
     frame:{width:r.width,height:r.height},image:{width:ir.width,height:ir.height,naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight},
     objectFit:getComputedStyle(image).objectFit,backgroundImage:before.backgroundImage,sliderValue:slider?.value??null,
-    products:products?{display:getComputedStyle(products).display,backgroundImage:getComputedStyle(products).backgroundImage,rect:{width:products.getBoundingClientRect().width,height:products.getBoundingClientRect().height}}:null,
+    products:products?{display:getComputedStyle(products).display,backgroundImage:getComputedStyle(products).backgroundImage,backgroundColor:getComputedStyle(products).backgroundColor,rect:{width:products.getBoundingClientRect().width,height:products.getBoundingClientRect().height}}:null,
     productGrid:productGrid?{display:getComputedStyle(productGrid).display,columns:getComputedStyle(productGrid).gridTemplateColumns,rect:{width:productGrid.getBoundingClientRect().width,height:productGrid.getBoundingClientRect().height}}:null,
     firstProduct:firstProduct?{rect:{width:firstProduct.getBoundingClientRect().width,height:firstProduct.getBoundingClientRect().height}}:null,
     url:location.pathname+location.search+location.hash,
@@ -267,7 +267,7 @@ const assertDemo = (measurement, viewport) => {
 
   // There is no customer- or brand-authorized exact logo pixel contract. Guard only
   // against implausibly tiny/huge rendering and ensure the logo remains contained.
-  visualCheck(within(measurement.logo.rect.width, 40, 100) && within(measurement.logo.rect.height, 48, 120), 'VIS-DESIGN-LOGO-SIZE', `${viewport.name}: logo geometry is outside the supported visual range (${measurement.logo.rect.width}x${measurement.logo.rect.height})`);
+  visualCheck(within(measurement.logo.rect.width, 100, 190) && within(measurement.logo.rect.height, 55, 140), 'VIS-DESIGN-LOGO-SIZE', `${viewport.name}: logo geometry is outside the supported visual range (${measurement.logo.rect.width}x${measurement.logo.rect.height})`);
   visualCheck(measurement.logo.rect.top >= measurement.header.top - 1 && measurement.logo.rect.bottom <= measurement.header.bottom + 1 && measurement.logo.rect.left >= measurement.header.left - 1 && measurement.logo.rect.right <= measurement.header.right + 1, 'VIS-INVARIANT-HEADER-CONTAINMENT', `${viewport.name}: logo escapes the header bounds`);
   visualCheck(measurement.nav.top >= measurement.header.top - 1 && measurement.nav.bottom <= measurement.header.bottom + 1, 'VIS-INVARIANT-HEADER-CONTAINMENT', `${viewport.name}: navigation escapes the header bounds`);
 
@@ -365,7 +365,7 @@ const main = async () => {
         visualCheck(/url\(/.test(frame.backgroundImage), 'VIS-INVARIANT-FRAME-MASK', `${viewport.name}: frame mask is not rendered`);
         visualCheck(frame.products && frame.productGrid && frame.firstProduct, 'VIS-INVARIANT-FRAME-LANDING-CONTENT', `${viewport.name}: frame detail lost landing-page product content`);
         visualEqual(frame.productGrid.display, 'grid', 'VIS-DESIGN-PRODUCT-LAYOUT', `${viewport.name}: frame detail product grid lost landing-page styling`);
-        visualCheck(frame.products.backgroundImage !== 'none', 'VIS-DESIGN-PRODUCT-LAYOUT', `${viewport.name}: frame detail product section lost redesign background`);
+        visualEqual(frame.products.backgroundColor, 'rgb(251, 243, 222)', 'VIS-DESIGN-PRODUCT-LAYOUT', `${viewport.name}: frame detail must share the T064 cream brand surface`);
         visualCheck(frame.products.rect.width >= 250 && frame.products.rect.height >= 500, 'VIS-DESIGN-PRODUCT-GEOMETRY', `${viewport.name}: frame detail product section has no visible styled geometry`);
         visualCheck(frame.firstProduct.rect.width >= 250 && frame.firstProduct.rect.height >= 300, 'VIS-DESIGN-PRODUCT-GEOMETRY', `${viewport.name}: frame detail product card has no visible styled geometry`);
         const normalized = normalizeUrl(origin, frame.url);
