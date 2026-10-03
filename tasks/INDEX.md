@@ -66,3 +66,5 @@
 | T061 | done | Produktionsdomain-Korrektur auf `memoraevents.de`: INWX → Cloudflare → Worker live; `www` kanonisiert, Zwischen-Domain kundenseitig zur Löschung eingereicht |
 | T062 | done | GitHub-Repository auf `Hall-of-Memory/memoraevents` umbenannt; Repo-/Pages-Verträge, Redirect, Remote und Pages-Runtime verifiziert |
 | T063 | done | Goldletter-Versuch als echte noindex GitHub-Pages-Labseite veröffentlicht und revisionsgebunden verifiziert |
+
+| T064 | active | MEMORA EVENT Relaunch: Creme-/Gold-Design, neues Kundenlogo und Review ohne Deployment |

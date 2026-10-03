@@ -92,4 +92,9 @@ const gallery = defineCollection({
   }),
 });
 
-export const collections = { site, offers, packages, benefits, steps, faqs, gallery };
+const futureServices = defineCollection({
+  loader: file('src/content/future-services.json'),
+  schema: z.object({ id: z.string(), title: z.string().min(1), status: z.literal('planned'), sortOrder: z.number().int().nonnegative(), source }),
+});
+
+export const collections = { site, offers, packages, benefits, steps, faqs, gallery, futureServices };

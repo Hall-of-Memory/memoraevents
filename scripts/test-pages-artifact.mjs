@@ -69,7 +69,7 @@ try {
   const frameComparisonHtml = readFileSync(join(source, 'demo', 'rahmen', 'index.html'), 'utf8');
   const frameImageSources = collectFrameImageSources(frameComparisonHtml);
   const goldletterHtml = readFileSync(join(source, 'demo', 'goldletters', 'index.html'), 'utf8');
-  const goldletterImageSources = collectImageSourcesByClass(goldletterHtml, 'material-glyph-image');
+  const goldletterImageSources = collectImageSourcesByClass(goldletterHtml, 'brand-source-image');
   const goldletterUniqueSources = [...new Set(goldletterImageSources)];
 
   assert.deepEqual(
@@ -88,11 +88,11 @@ try {
   assert.deepEqual(readFileSync(join(source, '_redirects')), protectedRedirects);
 
   assert.match(goldletterHtml, /<meta name="robots" content="noindex,nofollow">/);
-  assert.equal(goldletterImageSources.length, 36, 'goldletter lab must render three complete 12-glyph material wordmarks');
-  assert.equal(goldletterUniqueSources.length, 9, 'MEMORAEVENTS must reuse exactly nine unique confirmed glyph assets');
+  assert.equal(goldletterImageSources.length, 1, 'former goldletter route must use the single supplied MEMORA EVENT logo');
+  assert.equal(goldletterUniqueSources.length, 1, 'brand route must not render synthetic or alternate logos');
   for (const glyphSource of goldletterUniqueSources) {
-    assert.ok(glyphSource.startsWith(`${pagesBase}design-lab/memoraevents-gold/`), `goldletter source must stay inside Pages base: ${glyphSource}`);
-    assert.match(glyphSource, /u00(41|45|4d|4e|4f|52|53|54|56)\.png$/);
+    assert.ok(glyphSource.startsWith(`${pagesBase}brand/`), `goldletter source must stay inside Pages base: ${glyphSource}`);
+    assert.match(glyphSource, /memora-event-logo\.png$/);
     const relativePath = glyphSource.slice(pagesBase.length);
     assert.ok(statSync(join(source, relativePath)).size > 0, `goldletter asset must exist and be non-empty: ${relativePath}`);
   }

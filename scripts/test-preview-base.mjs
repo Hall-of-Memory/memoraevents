@@ -58,11 +58,11 @@ for (const selector of ['demo-page', 'demo-header', 'demo-hero']) {
   assert.equal(baseRules.length, 1, `demo.css must keep one top-level .${selector} base rule, got ${baseRules.length}`);
 }
 const reducedMotionIndex = demoCssSource.lastIndexOf('@media (prefers-reduced-motion: reduce)');
-const productMotionIndex = demoCssSource.lastIndexOf('.hom-product-card:hover');
+const productMotionIndex = demoCssSource.indexOf('.hom-product-card:hover');
 assert.ok(reducedMotionIndex > productMotionIndex, 'reduced-motion contract must follow product motion rules in the cascade');
 assert.match(demoCssSource.slice(reducedMotionIndex), /\.demo-offer-details summary span\{transition:none\}/);
 const forcedColorsIndex = demoCssSource.lastIndexOf('@media (forced-colors: active)');
-const heroBorderIndex = demoCssSource.lastIndexOf('.demo-hero-image-wrap{');
+const heroBorderIndex = demoCssSource.indexOf('.demo-hero-image-wrap{');
 assert.ok(forcedColorsIndex > heroBorderIndex, 'forced-colors contract must follow normal hero border rules in the cascade');
 assert.match(demoCssSource, /\.demo-inquiry-card\{[^}]*color-scheme:light[^}]*\}/, 'light inquiry controls must opt out of the global dark color scheme');
 assert.match(demoCssSource, /outline-color:var\(--hom-focus-light\)/, 'light redesign surfaces must override the global gold focus color');

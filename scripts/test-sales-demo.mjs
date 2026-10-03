@@ -162,11 +162,11 @@ try {
   assert.match(attr(csp, 'content'), /form-action 'none'/);
 
   assert.match(demoText, /Private Designpreview/);
-  assert.match(demoText, /Every Star Has a Memory/);
+  assert.match(demoText, /Momente. Stilvoll inszeniert./);
   assert.match(demoText, /Fotobox/);
   assert.match(demoText, /Fotospiegel/);
   assert.match(demoText, /Magazinbox/);
-  assert.match(demoText, /Warum Hall of Memory/);
+  assert.match(demoText, /Warum MEMORA EVENT/);
   assert.match(demoText, /Pakete/);
   assert.match(demoText, /Galerie/);
   assert.match(demoText, /So funktioniert/);
@@ -195,13 +195,13 @@ try {
   const images = elements(demo, 'img');
   assert.equal(images.length, 4, 'two primary logo placements, one contextual dark logo and one event photo should be visible');
   const imageSources = images.map((image) => attr(image, 'src'));
-  assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-primary.svg').length, 2);
-  assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-dark.jpg').length, 1);
+  assert.equal(imageSources.filter((src) => src === '/brand/memora-event-logo.png').length, 3);
+  assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-dark.jpg').length, 0);
   assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-light.jpg').length, 0);
   assert.equal(imageSources.filter((src) => src === '/demo/hall-of-memory-example-event.webp').length, 1);
   for (const image of images) {
     const src = attr(image, 'src');
-    assert.ok(['/brand/hall-of-memory-logo-primary.svg', '/brand/hall-of-memory-logo-dark.jpg', '/demo/hall-of-memory-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
+    assert.ok(['/brand/memora-event-logo.png', '/demo/hall-of-memory-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
     assert.ok(attr(image, 'alt'), 'every visible demo image needs alt text');
     assert.ok(statSync(localAssetPath(src)).size > 0, `missing local image asset ${src}`);
   }
@@ -226,11 +226,7 @@ try {
   assert.equal(stellarFundusPackage.source_image_brief_sha256, 'db8702a797fff95c0380c2e8d320d9fd9dee139b57c2b653478eaf89b1bd7442');
   assert.equal(sha256(join(stellarFundusRoot, 'package', 'assets', 'hall-of-memory-stellar-frame-primary-raster.png')), '0a5e97d3f2593168929b2e8067141dd1834f2cf305d8e84ce89b8cf8ca23acef');
   const publicBrand = join(repo, 'public', 'brand');
-  const publicBrandFiles = {
-    'hall-of-memory-logo-primary.svg': '76f3055f5e16081ad58b555263b4a92dec5fc52a87abe238c8f8c6459f573c13',
-    'hall-of-memory-logo-dark.jpg': '4bf4bd0a524af72cc7a9375531e1a00f9d385d62318666fb662aef5f3f040c22',
-    'hall-of-memory-logo-light.jpg': '7bd29e4f79b830ea6c97a75118098abfc36a70d616bfba8093b8f01253211c3e',
-  };
+  const publicBrandFiles = { 'memora-event-logo.png': '9ef5f42659bd9c9a822a20421b0f1de4570b27692ccf72881f64507738ff9c22' };
   for (const [name, expectedHash] of Object.entries(publicBrandFiles)) {
     assert.equal(sha256(join(publicBrand, name)), expectedHash, `public customer brand export drifted: ${name}`);
   }
@@ -321,7 +317,7 @@ try {
   assert.match(demoPageSource, /DemoExperience/);
   assert.match(demoExperienceSource, /from '\.\.\/data\/demo'/);
   assert.match(demoExperienceSource, /PUBLIC_WHATSAPP_NUMBER/);
-  assert.match(demoExperienceSource, /hall-of-memory-logo-dark\.jpg/);
+  assert.match(demoExperienceSource, /memora-event-logo\.png/);
   assert.match(demoExperienceSource, /wa\.me/);
   assert.match(demoExperienceSource, /frameMaskByVariant/);
   assert.match(demoExperienceSource, /import\.meta\.env\.BASE_URL/);
