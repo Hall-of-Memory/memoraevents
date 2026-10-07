@@ -1,0 +1,49 @@
+---
+import MemoraHeader from '../../components/landing/MemoraHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { demoOffers, demoPackages, demoSite } from '../../data/demo';
+import { packagesForOffer } from '../../lib/package-projection';
+import '../../styles/demo.css';
+import '../../styles/product.css';
+export function getStaticPaths() {
+  return demoOffers.map((offer) => ({ params: { slug: offer.slug }, props: { offer } }));
+}
+const { offer } = Astro.props;
+const assetBase = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const home = `${assetBase}demo/`;
+const packages = packagesForOffer(demoPackages, offer.id);
+const others = demoOffers.filter((item) => item.id !== offer.id);
+---
+<BaseLayout title={`${offer.title} — MEMORA EVENT`} description={offer.description} noIndex={demoSite.launchStatus !== 'production'} bodyClass="demo-page" formActionSource="'none'">
+  <MemoraHeader homeHref={home} {assetBase} />
+  <main id="main-content" tabindex="-1">
+    <section class="memora-product-hero shell">
+      <div>
+        <a class="memora-back" href={`${home}#angebote`}>← Alle Produkte</a>
+        <p class="eyebrow">{offer.kicker}</p>
+        <h1>{offer.title}.<br /><em>Dein Fotomoment.</em></h1>
+        <p class="memora-product-lead">{offer.description}</p>
+        <a class="button button-primary" href={`${home}#anfrage`}>Anfragebereich ansehen →</a>
+      </div>
+      <div class="memora-product-stage" aria-label={`Gestalterische Vorschau ${offer.title}`}>
+        <span aria-hidden="true">{offer.motif === 'flash' ? '◎' : offer.motif === 'mirror' ? '◈' : 'M'}</span>
+        <strong>{offer.title}</strong><small>Produktaufnahme folgt</small>
+      </div>
+    </section>
+    <section class="memora-product-details shell" aria-labelledby="product-details-title">
+      <header><p class="eyebrow">Das Erlebnis</p><h2 id="product-details-title">Für deinen Anlass.<br /><em>Mit deinem Stil.</em></h2></header>
+      <div><p>{offer.moreInfo}</p><ul>{offer.highlights.map((highlight) => <li>{highlight}</li>)}</ul></div>
+    </section>
+    <section class="hom-packages" aria-labelledby="product-packages-title">
+      <div class="shell"><header class="hom-section-heading"><p class="eyebrow">Pakete & Preise</p><h2 id="product-packages-title">Dein Event.<br /><em>Dein passender Umfang.</em></h2></header>
+        {packages.length ? <div class="memora-product-package-grid">{packages.map((item) => <article class="hom-package-card" data-offer-id={item.offerId}><h3>{item.name}</h3><p>{item.summary}</p>{item.priceLabel !== null && <strong class="hom-package-price">{item.priceLabel}</strong>}<ul>{item.features.map((feature) => <li>{feature}</li>)}</ul></article>)}</div> : <p class="memora-product-empty">Die freigegebenen Pakete und Preise folgen. Produktdetails und mögliche Extras stimmen wir passend zum gewählten Paket ab.</p>}
+      </div>
+    </section>
+    <section class="memora-product-related shell" aria-labelledby="related-title">
+      <header class="hom-section-heading"><p class="eyebrow">Weitere Fotomomente</p><h2 id="related-title">Entdecke auch <em>unsere anderen Produkte.</em></h2></header>
+      <div class="memora-product-package-grid">{others.map((item) => <a class="hom-package-card" href={`${assetBase}produkte/${item.slug}/`}><h3>{item.title}</h3><p>{item.description}</p><span class="memora-product-link">Produkt entdecken →</span></a>)}</div>
+    </section>
+    <section class="memora-product-cta"><div class="shell"><p class="eyebrow">Dein Event beginnt hier</p><h2>Ein Moment.<br /><em>Viele Erinnerungen.</em></h2><p>Sieh dir den vorgesehenen Anfrageablauf mit Datum, Ort und Produktwahl an.</p><a class="button button-primary" href={`${home}#anfrage`}>Zum Anfragebereich →</a></div></section>
+  </main>
+  <footer class="site-footer demo-footer shell"><a class="demo-brand" href={home} aria-label="MEMORA EVENT Start"><img src={`${assetBase}brand/memora-event-logo.png`} alt="MEMORA EVENT" width="502" height="348" loading="lazy" decoding="async" /></a><p>Fotobox · Fotospiegel · Magazinbox<br /><a href={`${assetBase}impressum/`}>Impressum</a> · <a href={`${assetBase}datenschutz/`}>Datenschutz</a></p><a href={home}>Zur Startseite ↑</a></footer>
+</BaseLayout>
