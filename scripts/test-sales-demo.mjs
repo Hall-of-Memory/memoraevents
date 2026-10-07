@@ -300,7 +300,10 @@ try {
   assert.equal(descendants(form, (node) => hasAttr(node, 'data-demo-inquiry-status')).length, 0);
 
   const demoScripts = elements(demo, 'script').filter((node) => attr(node, 'src'));
-  assert.equal(demoScripts.length, 0, 'base Stage-1 demo must not ship mock inquiry behavior');
+  assert.equal(demoScripts.length, 1, 'Stage-1 demo ships only its navigation script');
+  assert.equal(attr(demoScripts[0], 'src'), '/memora-navigation.js');
+  const navigationSource = readFileSync(join(outDir, 'memora-navigation.js'), 'utf8');
+  assert.doesNotMatch(navigationSource, /fetch\s*\(|XMLHttpRequest|sendBeacon|inquiry|submit|FormData/i, 'navigation must not send inquiries or network requests');
   assert.doesNotMatch(demoHtml, /demo-inquiry\.js/);
 
   assert.ok(descendants(production, (node) => hasAttr(node, 'data-inquiry-form'))[0]);

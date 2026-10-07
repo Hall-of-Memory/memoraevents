@@ -143,7 +143,7 @@ try {
   assert.match(attr(csp, 'content'), /object-src 'none'/);
   assert.match(attr(csp, 'content'), /https:\/\/inquiry\.example\.invalid/);
   for (const script of elements(document, 'script').filter((node) => attr(node, 'src'))) {
-    assert.ok(attr(script, 'src').startsWith('/_astro/'), 'shipped scripts must be first-party bundles');
+    assert.ok((attr(script, 'src').startsWith('/_astro/') || attr(script, 'src') === '/memora-navigation.js'), 'shipped scripts must be first-party bundles');
     assert.ok(
       attr(script, 'type') === 'module' || hasAttr(script, 'defer') || hasAttr(script, 'async'),
       'scripts must not block HTML parsing',
