@@ -319,8 +319,25 @@ const main = async () => {
     for (const viewport of viewports) {
       const demo = await openPage(cdp, `${origin}/demo/`, viewport);
       try {
+        if (viewport.name === 'mobile') {
+          const menu = await evaluate(cdp, demo.sessionId, `(() => {
+            const toggle = document.querySelector('.memora-menu-toggle');
+            const nav = document.querySelector('#memora-navigation');
+            const collapsed = !!toggle && !toggle.hidden && toggle.getAttribute('aria-expanded') === 'false' && nav?.hidden;
+            toggle?.click();
+            return { collapsed, opened: toggle?.getAttribute('aria-expanded') === 'true' && !nav?.hidden };
+          })()`);
+          visualCheck(menu.collapsed && menu.opened, 'VIS-INVARIANT-NAV-TOGGLE', 'mobile: menu must start collapsed and expose navigation on activation');
+        }
         const measurement = await measureDemo(cdp, demo.sessionId);
         assertDemo(measurement, viewport);
+        if (viewport.name === 'mobile') {
+          const closed = await evaluate(cdp, demo.sessionId, `(() => {
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+            return document.querySelector('#memora-navigation')?.hidden && document.activeElement === document.querySelector('.memora-menu-toggle');
+          })()`);
+          visualCheck(closed, 'VIS-INVARIANT-NAV-TOGGLE', 'mobile: Escape must close menu and return focus');
+        }
         const screenshotBytes = await captureFullPage(cdp, demo.sessionId, join(artifacts, `${viewport.name}-demo.png`));
         summaries.push({ view: viewport.name, route: '/demo/', screenshotBytes, settled: demo.settled });
         if (viewport.name === 'desktop') {

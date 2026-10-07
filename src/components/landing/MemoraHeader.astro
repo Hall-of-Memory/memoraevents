@@ -1,0 +1,20 @@
+---
+interface Props { homeHref: string; assetBase: string; local?: boolean; }
+const { homeHref, assetBase, local = false } = Astro.props;
+const sectionHref = (id: string) => local ? `#${id}` : `${homeHref}#${id}`;
+---
+<header class="site-header demo-header shell">
+  <a href={homeHref} class="demo-brand" aria-label="MEMORA EVENT Start">
+    <img src={`${assetBase}brand/memora-event-logo.png`} alt="MEMORA EVENT" width="502" height="348" loading="eager" decoding="async" />
+    <span class="demo-brand-copy"><small>Momente. Stilvoll inszeniert.</small></span>
+  </a>
+  <button type="button" class="memora-menu-toggle" aria-expanded="false" aria-controls="memora-navigation" hidden>Menü <span aria-hidden="true">☰</span></button>
+  <nav class="demo-nav" id="memora-navigation" aria-label="Hauptnavigation">
+    <a href={sectionHref('angebote')}>Produkte</a>
+    <a href={sectionHref('pakete')}>Pakete & Preise</a>
+    <a href={sectionHref('galerie')}>Galerie</a>
+    <a href={sectionHref('kontakt')}>FAQ & Kontakt</a>
+    <a href={sectionHref('anfrage')} class="nav-cta">Anfragebereich</a>
+  </nav>
+</header>
+<script is:inline src={`${assetBase}memora-navigation.js`} defer></script>

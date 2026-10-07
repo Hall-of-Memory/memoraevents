@@ -58,8 +58,8 @@ const packageGroups = offers
 <section class="hom-products" id="angebote" aria-labelledby="hom-products-title">
   <div class="shell">
     <header class="hom-section-heading">
-      <p class="eyebrow">Drei Erlebnisse · ein Erinnerungsgefühl</p>
-      <h2 id="hom-products-title">Welcher Moment passt <em>zu deinem Event?</em></h2>
+      <p class="eyebrow">Unsere Produkte</p>
+      <h2 id="hom-products-title">Drei Möglichkeiten.<br /><em>Dein besonderer Moment.</em></h2>
       <p>Fotobox, Fotospiegel oder Magazinbox: Alle drei Angebote setzen den Fotomoment anders in Szene. Die Details stimmen wir passend zu deinem Anlass ab.</p>
     </header>
 
@@ -68,7 +68,7 @@ const packageGroups = offers
         <article id={`angebot-${offer.slug}`} class="demo-offer-card hom-product-card" data-motif={offer.motif}>
           <div class="hom-product-visual" aria-hidden="true">
             <span class="hom-product-number">0{index + 1}</span>
-            <span class="hom-product-star">✧</span>
+            <span class="hom-product-star">{offer.motif === 'flash' ? '◎' : offer.motif === 'mirror' ? '◈' : 'M'}</span>
             <strong>{offer.title}</strong>
           </div>
           <div class="hom-product-body">
@@ -82,6 +82,7 @@ const packageGroups = offers
               <summary>Mehr erfahren <span aria-hidden="true">+</span></summary>
               <p>{offer.moreInfo}</p>
             </details>
+            <a class="memora-product-link" href={`${assetBase}produkte/${offer.slug}/`}>Produkt entdecken <span aria-hidden="true">→</span></a>
             <div class="hom-product-actions">
               <a href="#anfrage" aria-label={`Unverbindliche Anfrage für ${offer.title}`}>Unverbindlich anfragen</a>
               {productWhatsAppHref(offer.title) && (
@@ -100,22 +101,6 @@ const packageGroups = offers
   </div>
 </section>
 
-<section class="memora-future" id="eventdetails" aria-labelledby="future-title">
-  <div class="shell">
-    <header class="hom-section-heading">
-      <p class="eyebrow">Mehr für deinen Anlass</p>
-      <h2 id="future-title">Die Schönheit liegt <em>im Detail.</em></h2>
-      <p>MEMORA EVENT wächst mit deinen Anlässen. Diese Bereiche sind in Planung; konkrete Leistungen und Preise folgen.</p>
-    </header>
-    <div class="memora-future-grid">
-      {futureServices.map((service, index) => <article>
-        <span class="memora-future-number" aria-hidden="true">0{index + 4}</span>
-        <p class="eyebrow">In Planung</p>
-        <h3>{service.title}</h3>
-      </article>)}
-    </div>
-  </div>
-</section>
 
 <section class="hom-benefits" aria-labelledby="hom-benefits-title">
   <div class="shell">
@@ -131,6 +116,22 @@ const packageGroups = offers
           <p>{benefit.text}</p>
         </article>
       ))}
+    </div>
+  </div>
+</section>
+<section class="memora-future" id="eventdetails" aria-labelledby="future-title">
+  <div class="shell">
+    <header class="hom-section-heading">
+      <p class="eyebrow">Mehr für deinen Anlass</p>
+      <h2 id="future-title">Die Schönheit liegt <em>im Detail.</em></h2>
+      <p>MEMORA EVENT wächst mit deinen Anlässen. Diese Bereiche sind in Planung; konkrete Leistungen und Preise folgen.</p>
+    </header>
+    <div class="memora-future-grid">
+      {futureServices.map((service, index) => <article>
+        <span class="memora-future-number" aria-hidden="true">0{index + 4}</span>
+        <p class="eyebrow">In Planung</p>
+        <h3>{service.title}</h3>
+      </article>)}
     </div>
   </div>
 </section>
@@ -175,6 +176,21 @@ const packageGroups = offers
         <a href="#anfrage">Passendes Paket anfragen <span aria-hidden="true">→</span></a>
       </div>
     )}
+  </div>
+</section>
+
+<section class="memora-occasions" id="anlaesse" aria-labelledby="occasions-title">
+  <div class="shell">
+    <header class="hom-section-heading">
+      <p class="eyebrow">Für deinen Anlass</p>
+      <h2 id="occasions-title">Was gibt es <em>zu feiern?</em></h2>
+      <p>Entdecke die drei Fotomomente und finde das Erlebnis, das zu deiner Veranstaltung passt.</p>
+    </header>
+    <div class="memora-occasion-grid">
+      <a href="#angebote"><span aria-hidden="true">♡</span><h3>Hochzeit</h3><p>Ein Tag voller Emotionen. Erinnerungen für euch und eure Gäste.</p><small>Produkte entdecken →</small></a>
+      <a href="#angebote"><span aria-hidden="true">✧</span><h3>Geburtstag</h3><p>Gemeinsam lachen, zusammen feiern und den Moment festhalten.</p><small>Produkte entdecken →</small></a>
+      <a href="#angebote"><span aria-hidden="true">◇</span><h3>Firmenevent</h3><p>Menschen zusammenbringen und besondere Begegnungen in Bildern sammeln.</p><small>Produkte entdecken →</small></a>
+    </div>
   </div>
 </section>
 

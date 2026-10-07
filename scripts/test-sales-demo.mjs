@@ -190,7 +190,7 @@ try {
   assert.equal(inquiryChoices.length, 0, 'disabled Stage-1 inquiry must not expose product-preselection behavior');
   assert.doesNotMatch(demoHtml, /mailto:|tel:/i);
   assert.doesNotMatch(demoHtml, /wa\.me\//i, 'WhatsApp must stay unlinked until a real business number is configured');
-  assert.doesNotMatch(demoText, /€|EUR|\b[0-9]+(?:[.,][0-9]{2})?\s*Euro\b/i);
+  assert.doesNotMatch(demoText, /€|\bEUR\b|\b[0-9]+(?:[.,][0-9]{2})?\s*Euro\b/i);
 
   const images = elements(demo, 'img');
   assert.equal(images.length, 4, 'two primary logo placements, one contextual dark logo and one event photo should be visible');
@@ -249,10 +249,25 @@ try {
       );
     } else {
       assert.ok(
-        ['/demo/', '/impressum/', '/datenschutz/'].includes(href),
+        ['/demo/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href),
         `unexpected external or dead demo link ${href}`,
       );
     }
+  }
+
+  // T065: public product links must resolve to real static pages with unchanged customer content.
+  const offers = JSON.parse(readFileSync(join(repo, 'src/content/offers.json'), 'utf8'));
+  for (const offer of offers) {
+    const productHtml = readFileSync(join(outDir, 'produkte', offer.slug, 'index.html'), 'utf8');
+    const product = parse(productHtml);
+    const productText = textContent(elements(product, 'main')[0]);
+    assert.equal(elements(product, 'h1').length, 1);
+    assert.ok(productText.includes(offer.description), `${offer.slug}: customer description changed`);
+    assert.ok(productText.includes(offer.moreInfo), `${offer.slug}: customer details changed`);
+    for (const highlight of offer.highlights) assert.ok(productText.includes(highlight));
+    assert.equal(elements(product, 'form').length, 0, 'product pages must not bypass disabled inquiry');
+    assert.doesNotMatch(productHtml, /melody-fotobox|maps\.app\.goo\.gl|tel:|mailto:/i);
+    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/demo/#anfrage'));
   }
 
   const form = elements(demo, 'form').find((node) => hasAttr(node, 'data-demo-inquiry-disabled'));

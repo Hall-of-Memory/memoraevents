@@ -51,6 +51,13 @@ assert.match(demo, /<aside class="hom-customer-card" aria-label="Vorschau des pe
 assert.doesNotMatch(demo, /<div class="hom-gallery-grid"/);
 assert.equal((demo.match(/aria-label="Unverbindliche Anfrage für (?:Fotobox|Fotospiegel|Magazinbox)"/g) ?? []).length, 3);
 
+for (const slug of ['fotobox', 'fotospiegel', 'magazinbox']) {
+  assert.ok(demo.includes(`${base}produkte/${slug}/`), `product link escaped preview base: ${slug}`);
+  const product = await readFile(path.join(root, `produkte/${slug}/index.html`), 'utf8');
+  assert.ok(product.includes(`${base}demo/#anfrage`), `product inquiry escaped preview base: ${slug}`);
+  assert.match(product, /noindex,nofollow/);
+}
+
 const demoCssSource = await readFile(path.resolve('src/styles/demo.css'), 'utf8');
 const productionCssSource = await readFile(path.resolve('src/styles/inquiry-production.css'), 'utf8');
 for (const selector of ['demo-page', 'demo-header', 'demo-hero']) {

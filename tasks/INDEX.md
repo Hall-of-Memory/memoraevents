@@ -68,3 +68,4 @@
 | T063 | done | Goldletter-Versuch als echte noindex GitHub-Pages-Labseite veröffentlicht und revisionsgebunden verifiziert |
 
 | T064 | active | MEMORA EVENT Relaunch: Creme-/Gold-Design, neues Kundenlogo und Review ohne Deployment |
+| T065 | active | Kundenreferenz: bildfüllender Hero, runde Karten und Produktseiten für MEMORA EVENT |

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import MemoraHeader from './landing/MemoraHeader.astro';
 import LandingFaqContact from './landing/LandingFaqContact.astro';
 import LandingInquiry from './landing/LandingInquiry.astro';
 import LandingShowcase from './landing/LandingShowcase.astro';
@@ -206,33 +207,21 @@ const isPortraitAssetFrame = frameVariant === 10;
     </div>
   )}
 
-  <header class="site-header demo-header shell">
-    <a href={homeHref} class="demo-brand" aria-label="MEMORA EVENT Start">
-      <img src={`${assetBase}brand/memora-event-logo.png`} alt="MEMORA EVENT" width="502" height="348" loading="eager" decoding="async" />
-      <span class="demo-brand-copy"><small>Momente. Stilvoll inszeniert.</small></span>
-    </a>
-    <nav class="demo-nav" aria-label="Hauptnavigation">
-      <a href="#angebote">Angebote</a>
-      <a href="#pakete">Pakete</a>
-      <a href="#galerie">Galerie</a>
-      <a href="#ablauf">So funktioniert’s</a>
-      <a href="#anfrage" class="nav-cta">Anfragebereich</a>
-    </nav>
-  </header>
+  <MemoraHeader {homeHref} {assetBase} local />
 
   <main id="main-content" tabindex="-1">
-    <section class="demo-hero shell" aria-labelledby="demo-title">
+    <section class:list={["demo-hero", { "demo-hero-comparison": Boolean(frameVariant) }]} aria-labelledby="demo-title">
       <div class="demo-hero-copy">
-        <p class="eyebrow">MEMORA EVENT · Event-Erlebnisse</p>
+        <p class="eyebrow">Für die Momente, die bleiben</p>
         <p class="demo-signature">Momente. Stilvoll inszeniert.</p>
-        <h1 id="demo-title">Besondere Momente.<br /><em>Bleibende Erinnerungen.</em></h1>
+        <h1 id="demo-title">Dein Event.<br /><em>Unvergessliche Erinnerungen.</em></h1>
         <p class="demo-hero-text">
           Fotobox, Fotospiegel und Magazinbox machen Erinnerungen zum Teil deines Events –
           persönlich, hochwertig und mit Raum für genau den Moment, der zu deinem Anlass passt.
         </p>
         <div class="hero-actions">
           <a class="button button-primary" href="#anfrage">Anfrage ansehen <span aria-hidden="true">→</span></a>
-          <a class="button button-ghost" href="#angebote">Angebote entdecken</a>
+          <a class="button button-ghost" href="#pakete">Pakete & Preise</a>
         </div>
         <div class="demo-hero-points" aria-label="MEMORA EVENT auf einen Blick">
           <span>Fotobox</span>
@@ -254,11 +243,11 @@ const isPortraitAssetFrame = frameVariant === 10;
 
     <section class="demo-intro-strip" aria-label="Event-Fokus">
       <div class="shell">
-        <p>Erlebnis zuerst.</p>
+        <p>Dein Anlass.</p>
         <span aria-hidden="true"></span>
-        <p>Klare Anfrage.</p>
+        <p>Dein Fotomoment.</p>
         <span aria-hidden="true"></span>
-        <p>Persönliche Galerie danach.</p>
+        <p>Deine Erinnerungen.</p>
       </div>
     </section>
 
@@ -308,7 +297,7 @@ const isPortraitAssetFrame = frameVariant === 10;
       <img src={`${assetBase}brand/memora-event-logo.png`} alt="MEMORA EVENT" width="502" height="348" loading="lazy" decoding="async" />
       <span class="demo-brand-copy"><small>Momente. Stilvoll inszeniert.</small></span>
     </a>
-    <p>Event-Erlebnisse mit Raum für Erinnerungen. · <a href={`${assetBase}impressum/`}>Impressum</a> · <a href={`${assetBase}datenschutz/`}>Datenschutz</a></p>
+    <p>Fotobox · Fotospiegel · Magazinbox<br />Event-Erlebnisse mit Raum für Erinnerungen.<br /><a href={`${assetBase}impressum/`}>Impressum</a> · <a href={`${assetBase}datenschutz/`}>Datenschutz</a></p>
     <a href="#anfrage">Anfragebereich <span aria-hidden="true">↑</span></a>
   </footer>
 
