@@ -69,3 +69,5 @@
 
 | T064 | active | MEMORA EVENT Relaunch: Creme-/Gold-Design, neues Kundenlogo und Review ohne Deployment |
 | T065 | active | Kundenreferenz: bildfüllender Hero, runde Karten und Produktseiten für MEMORA EVENT |
+
+| T066 | active | Kundeneigene Gerätefotos auf Angebotskarten und Produktseiten |
