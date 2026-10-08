@@ -193,7 +193,7 @@ try {
   assert.doesNotMatch(demoText, /€|\bEUR\b|\b[0-9]+(?:[.,][0-9]{2})?\s*Euro\b/i);
 
   const images = elements(demo, 'img');
-  assert.equal(images.length, 4, 'two primary logo placements, one contextual dark logo and one event photo should be visible');
+  assert.equal(images.length, 6, 'three logos, one event photo and two customer product photos should be visible');
   const imageSources = images.map((image) => attr(image, 'src'));
   assert.equal(imageSources.filter((src) => src === '/brand/memora-event-logo.png').length, 3);
   assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-dark.jpg').length, 0);
@@ -201,7 +201,7 @@ try {
   assert.equal(imageSources.filter((src) => src === '/demo/hall-of-memory-example-event.webp').length, 1);
   for (const image of images) {
     const src = attr(image, 'src');
-    assert.ok(['/brand/memora-event-logo.png', '/demo/hall-of-memory-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
+    assert.ok(['/brand/memora-event-logo.png', '/demo/hall-of-memory-example-event.webp', '/products/memora-fotobox.jpeg', '/products/memora-fotospiegel.jpeg'].includes(src), `unexpected demo image source ${src}`);
     assert.ok(attr(image, 'alt'), 'every visible demo image needs alt text');
     assert.ok(statSync(localAssetPath(src)).size > 0, `missing local image asset ${src}`);
   }

@@ -1,4 +1,5 @@
 ---
+import { productMedia } from '../../data/product-media';
 import futureServices from '../../content/future-services.json';
 import { packagesForOffer, resolveGalleryAssetSrc } from '../../lib/package-projection';
 
@@ -66,11 +67,11 @@ const packageGroups = offers
     <div class="hom-product-grid">
       {offers.map((offer, index) => (
         <article id={`angebot-${offer.slug}`} class="demo-offer-card hom-product-card" data-motif={offer.motif}>
-          <div class="hom-product-visual" aria-hidden="true">
+          {productMedia[offer.slug] ? <div class="hom-product-photo"><img src={`${assetBase}${productMedia[offer.slug].src}`} alt={productMedia[offer.slug].alt} width={productMedia[offer.slug].width} height={productMedia[offer.slug].height} loading="lazy" decoding="async" /></div> : <div class="hom-product-visual" aria-hidden="true">
             <span class="hom-product-number">0{index + 1}</span>
             <span class="hom-product-star">{offer.motif === 'flash' ? '◎' : offer.motif === 'mirror' ? '◈' : 'M'}</span>
             <strong>{offer.title}</strong>
-          </div>
+          </div>}
           <div class="hom-product-body">
             <p class="hom-product-kicker">{offer.kicker}</p>
             <h3>{offer.title}</h3>
