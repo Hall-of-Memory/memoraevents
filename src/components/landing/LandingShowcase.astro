@@ -1,5 +1,5 @@
 ---
-import { productMedia } from '../../data/product-media';
+import EventIllustration from '../illustrations/EventIllustration.astro';
 import futureServices from '../../content/future-services.json';
 import { packagesForOffer, resolveGalleryAssetSrc } from '../../lib/package-projection';
 
@@ -65,13 +65,9 @@ const packageGroups = offers
     </header>
 
     <div class="hom-product-grid">
-      {offers.map((offer, index) => (
+      {offers.map((offer) => (
         <article id={`angebot-${offer.slug}`} class="demo-offer-card hom-product-card" data-motif={offer.motif}>
-          {productMedia[offer.slug] ? <div class="hom-product-photo"><img src={`${assetBase}${productMedia[offer.slug].src}`} alt={productMedia[offer.slug].alt} width={productMedia[offer.slug].width} height={productMedia[offer.slug].height} loading="lazy" decoding="async" /></div> : <div class="hom-product-visual" aria-hidden="true">
-            <span class="hom-product-number">0{index + 1}</span>
-            <span class="hom-product-star">{offer.motif === 'flash' ? '◎' : offer.motif === 'mirror' ? '◈' : 'M'}</span>
-            <strong>{offer.title}</strong>
-          </div>}
+          <EventIllustration kind={offer.slug} />
           <div class="hom-product-body">
             <p class="hom-product-kicker">{offer.kicker}</p>
             <h3>{offer.title}</h3>
@@ -129,9 +125,11 @@ const packageGroups = offers
     </header>
     <div class="memora-future-grid">
       {futureServices.map((service, index) => <article>
+        <EventIllustration kind={service.id} />
         <span class="memora-future-number" aria-hidden="true">0{index + 4}</span>
         <p class="eyebrow">In Planung</p>
         <h3>{service.title}</h3>
+        {service.id === 'papeterie' && <p class="memora-paper-types">Flyer · Karten · Visitenkarten · Hochzeitskarten · Einladungskarten</p>}
       </article>)}
     </div>
   </div>

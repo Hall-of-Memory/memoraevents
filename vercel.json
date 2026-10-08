@@ -4,7 +4,8 @@
     "deploymentEnabled": {
       "codex/memora-event-relaunch": false,
       "codex/memora-reference-design": false,
-      "codex/memora-product-photos": false
+      "codex/memora-product-photos": false,
+      "codex/memora-animated-illustrations": false
     }
   }
 }

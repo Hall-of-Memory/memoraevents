@@ -1,5 +1,5 @@
 ---
-import { productMedia } from '../../data/product-media';
+import EventIllustration from '../../components/illustrations/EventIllustration.astro';
 import MemoraHeader from '../../components/landing/MemoraHeader.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { demoOffers, demoPackages, demoSite } from '../../data/demo';
@@ -10,7 +10,6 @@ export function getStaticPaths() {
   return demoOffers.map((offer) => ({ params: { slug: offer.slug }, props: { offer } }));
 }
 const { offer } = Astro.props;
-const media = productMedia[offer.slug];
 const assetBase = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const home = `${assetBase}demo/`;
 const packages = packagesForOffer(demoPackages, offer.id);
@@ -27,10 +26,7 @@ const others = demoOffers.filter((item) => item.id !== offer.id);
         <p class="memora-product-lead">{offer.description}</p>
         <a class="button button-primary" href={`${home}#anfrage`}>Anfragebereich ansehen →</a>
       </div>
-      {media ? <figure class="memora-product-photo"><img src={`${assetBase}${media.src}`} alt={media.alt} width={media.width} height={media.height} loading="eager" decoding="async" /><figcaption>{offer.title} — Originalaufnahme unserer Geräte</figcaption></figure> : <div class="memora-product-stage" aria-label={`Gestalterische Vorschau ${offer.title}`}>
-        <span aria-hidden="true">{offer.motif === 'flash' ? '◎' : offer.motif === 'mirror' ? '◈' : 'M'}</span>
-        <strong>{offer.title}</strong><small>Produktaufnahme folgt</small>
-      </div>}
+      <EventIllustration kind={offer.slug} large />
     </section>
     <section class="memora-product-details shell" aria-labelledby="product-details-title">
       <header><p class="eyebrow">Das Erlebnis</p><h2 id="product-details-title">Für deinen Anlass.<br /><em>Mit deinem Stil.</em></h2></header>

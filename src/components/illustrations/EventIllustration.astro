@@ -1,0 +1,65 @@
+---
+interface Props { kind: string; large?: boolean; }
+const { kind, large = false } = Astro.props;
+---
+<div class:list={['memora-illustration', { 'memora-illustration-large': large }]} data-illustration={kind} aria-hidden="true">
+<svg viewBox="0 0 320 250" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+  <ellipse cx="160" cy="224" rx="104" ry="9" fill="#b89254" opacity=".1" />
+  <circle cx="160" cy="121" r="91" fill="#f7edd9" />
+  <g class="memora-illustration-object" stroke="#9b743c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  {kind === 'fotobox' && <>
+    <path d="M138 158h44v57h-44z" fill="#3e3832" stroke="#3e3832" /><rect x="146" y="167" width="6" height="38" rx="3" fill="#cfad72" stroke="none" />
+    <path d="M112 216h96l8 9H104z" fill="#3e3832" stroke="#3e3832" />
+    <rect x="102" y="34" width="116" height="135" rx="13" fill="#3e3832" stroke="#3e3832" />
+    <rect x="108" y="40" width="104" height="123" rx="9" stroke="#d8b773" stroke-width="3" />
+    <circle cx="160" cy="72" r="17" stroke="#ebcf91" stroke-width="4" /><circle cx="160" cy="72" r="11" fill="#292723" stroke="none" />
+    <rect x="121" y="103" width="78" height="45" rx="4" fill="#f4e9d1" stroke="#d8b773" />
+    <path d="m132 135 17-16 14 12 12-10 15 15" stroke="#bb965c" /><circle cx="179" cy="114" r="4" fill="#d8b773" stroke="none" />
+    <path class="memora-illustration-glint" d="m224 55 3-8 3 8 8 3-8 3-3 8-3-8-8-3z" fill="#d8b773" stroke="none" />
+  </>}
+  {kind === 'fotospiegel' && <>
+    <path d="m114 217-6 10m96-10 7 10" stroke="#3e3832" stroke-width="6" />
+    <rect x="105" y="21" width="110" height="30" rx="6" fill="#3e3832" stroke="#3e3832" />
+    <rect x="104" y="57" width="112" height="163" rx="12" fill="#45403a" stroke="#45403a" />
+    <rect x="111" y="64" width="98" height="149" rx="8" fill="#ede5d8" stroke="#d2ad6d" stroke-width="4" />
+    <path d="m117 72 85 128m-85-101 80 112" stroke="#fffdf7" stroke-width="10" opacity=".6" />
+    <circle cx="160" cy="88" r="14" fill="#45403a" stroke="#d2ad6d" stroke-width="4" />
+    <rect x="124" y="117" width="72" height="77" rx="5" fill="#e0cfb4" stroke="#b89254" />
+    <path d="m133 177 16-18 17 14 11-9 11 14" /><circle cx="178" cy="132" r="5" fill="#c6a36b" stroke="none" />
+    <path class="memora-illustration-glint" d="m82 89 3-9 3 9 9 3-9 3-3 9-3-9-9-3z" fill="#d8b773" stroke="none" />
+  </>}
+  {kind === 'magazinbox' && <>
+    <rect x="81" y="23" width="158" height="201" rx="3" fill="#3e3832" stroke="#3e3832" />
+    <rect x="91" y="33" width="138" height="181" fill="#fffdf7" stroke="#d4c09c" />
+    <path d="m99 39 9 175m12-175-3 175m104-175-9 175m-12-175 4 175" stroke="#e5dbc9" />
+    <text x="160" y="67" text-anchor="middle" fill="#584631" stroke="none" font-family="Georgia,serif" font-size="23" letter-spacing="2">MEMORA</text>
+    <path d="M106 78h108" stroke="#c3a477" /><path d="M106 91h32m-32 7h23m53 89h32m-23 7h23" stroke="#c6b292" stroke-width="1" />
+    <circle cx="155" cy="111" r="12" fill="#e9d6b4" /><path d="M145 124h20l15 53h-50z" fill="#f7edd9" /><path d="m145 132-19 20m39-20 15 18m-36 28-4 26m27-26 5 26" />
+    <text x="160" y="207" text-anchor="middle" fill="#9b743c" stroke="none" font-family="Georgia,serif" font-size="8" letter-spacing="2">DEIN MOMENT</text>
+    <path class="memora-illustration-glint" d="m251 87 3-9 3 9 9 3-9 3-3 9-3-9-9-3z" fill="#d8b773" stroke="none" />
+  </>}
+  {kind === 'papeterie' && <>
+    <g transform="rotate(-12 160 122)"><rect x="76" y="57" width="90" height="132" rx="3" fill="#ddc59e" /><rect x="87" y="42" width="90" height="132" rx="3" fill="#fffdf7" /><rect x="94" y="49" width="76" height="118" rx="2" stroke="#cfad72" stroke-width="1" /><path d="M105 111h53m-44 9h36m-31 9h26" stroke-width="1" /><path d="m121 81 6-6 6 6-6 8z" fill="#d6b57a" /></g>
+    <g transform="rotate(10 206 127)"><rect x="168" y="66" width="72" height="105" rx="3" fill="#f3e7d1" /><path d="M181 94h45m-41 10h37m-33 12h28" stroke-width="1" /><circle cx="205" cy="143" r="8" stroke="#c6a36b" /></g>
+    <g class="memora-illustration-detail"><rect x="96" y="150" width="133" height="65" rx="4" fill="#e8d4b1" /><path d="m99 154 64 39 63-39m-126 58 42-30m81 30-41-30" /><circle cx="163" cy="187" r="12" fill="#b58c52" stroke="#b58c52" /><path d="m158 187 5 5 5-8" stroke="#fbf3de" /></g>
+    <rect x="184" y="194" width="65" height="32" rx="3" fill="#fffdf7" /><path d="M193 205h22m-22 8h43" stroke-width="1" />
+  </>}
+  {kind === 'gastgeschenke' && <>
+    <path d="M97 95h105l-6 113H104z" fill="#eeddbf" /><path d="M124 96V78c0-33 52-33 52 0v18" stroke="#b89254" stroke-width="4" /><path d="M97 108h104" stroke="#d1b17b" />
+    <path d="M150 109v97" stroke="#bf985f" stroke-width="9" />
+    <g class="memora-illustration-detail"><path d="M150 111c-44-3-36-34-18-23l18 23c44-3 36-34 18-23z" fill="#d6b57a" /><path d="m150 112-14 24m14-24 14 24" stroke-width="4" /></g>
+    <rect x="181" y="146" width="58" height="65" rx="8" fill="#fffdf7" /><rect x="180" y="139" width="60" height="14" rx="3" fill="#c6a36b" /><path d="M207 170c-11-13-24 4 3 18 27-14 14-31 3-18l-3 3z" fill="#e6cc9e" stroke-width="1" />
+    <path class="memora-illustration-glint" d="m86 59 3-9 3 9 9 3-9 3-3 9-3-9-9-3z" fill="#d8b773" stroke="none" />
+  </>}
+  {kind === 'eventdekoration' && <>
+    <path d="M95 213V93a65 65 0 0 1 130 0v120" stroke="#c6a36b" stroke-width="5" /><path d="M107 213V95a53 53 0 0 1 106 0v118" stroke="#dcc298" />
+    <path d="m93 112 29-40m-27 22 29-18m-26 1 7-23m104 32 16 28" stroke="#9d9b70" />
+    {[ [104,68], [119,54], [94,89], [218,91] ].map(([x,y])=><g transform={`translate(${x} ${y})`}><circle cx="-6" cy="0" r="9" fill="#ead5b1" /><circle cx="5" cy="-6" r="9" fill="#f8eedb" /><circle cx="7" cy="7" r="9" fill="#e0c599" /><circle r="5" fill="#c6a36b" /></g>)}
+    <rect x="129" y="191" width="12" height="28" rx="2" fill="#fffdf7" /><rect x="173" y="179" width="12" height="40" rx="2" fill="#fffdf7" /><path class="memora-illustration-glint" d="M135 189c-6-7 1-12 0-16 8 7 4 14 0 16zm44-12c-6-7 1-12 0-16 8 7 4 14 0 16z" fill="#d8b773" stroke="none" />
+  </>}
+  </g>
+</svg>
+</div>
+<style is:global>
+.memora-illustration{display:grid;place-items:center;height:250px;background:#f3ead8;overflow:hidden}.memora-illustration svg{display:block;width:min(100%,320px);height:250px}.memora-illustration-large{height:440px;border-radius:24px}.memora-illustration-large svg{width:100%;height:100%;max-height:420px}.memora-illustration-object{transform-origin:160px 200px;animation:memora-drift 2.2s ease-in-out 2}.memora-illustration-glint{animation:memora-glow 2.2s ease-in-out 2}.memora-illustration:hover .memora-illustration-detail{animation:memora-drift 1.8s ease-in-out 1}@keyframes memora-drift{50%{transform:translateY(-4px) rotate(1deg)}}@keyframes memora-glow{50%{opacity:.45}}@media(prefers-reduced-motion:reduce){.memora-illustration *{animation:none!important}}@media(min-width:601px) and (max-width:860px){.hom-product-card .memora-illustration{height:100%;min-height:280px}}@media(max-width:600px){.memora-illustration-large{height:330px}}
+</style>
