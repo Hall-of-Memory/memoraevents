@@ -12,3 +12,16 @@ const toggle = document.querySelector('.memora-menu-toggle');
     nav.addEventListener('click', (event) => { if (event.target instanceof Element && event.target.closest('a')) setExpanded(false); });
     document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && mobile.matches && toggle.getAttribute('aria-expanded') === 'true') { setExpanded(false); toggle.focus(); } });
   }
+
+const illustrations = document.querySelectorAll('.memora-illustration');
+if ('IntersectionObserver' in window) {
+  const reveal = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('memora-animate');
+        reveal.unobserve(entry.target);
+      }
+    }
+  }, { threshold: 0.25 });
+  illustrations.forEach((illustration) => reveal.observe(illustration));
+}

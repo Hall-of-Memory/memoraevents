@@ -15,3 +15,5 @@ Plan: Implementieren; npm ci + npm run verify; Browserprüfung aller sechs Illus
 ## Review-Evidenz
 
 npm ci / Build bestanden. Quality: 31.439 Byte HTML, 25.582 Byte CSS (Demo weiterhin unter 26 KiB), 18.340 Byte initialer HTML/CSS/JS-Gzip-Transfer. Browser-Readback bei 390/834/1440 px: sechs Illustrationen auf der Landingpage, je eine auf den drei Produktseiten, kein Overflow; Reduced Motion schaltet sämtliche Illustrator-Animationen aus. Original-Logo-Bytes unverändert. Erster kanonischer Lauf: 21 PASS / 2 FAIL (lokales Inquiry-Spike-Netzwerk und HTML-Budget); redundante SVG-Verzierungen entfernt, Quality wieder bestanden. Finaler kanonischer Lauf gestartet; CI verbindlich vor Merge. Desktop-/Mobile-Screenshots in review/animated-illustrations-*.jpg und review/animated-services-*.jpg.
+
+Animationsbeginn erst bei Sichtbarkeit: IntersectionObserver im vorhandenen lokalen Navigationsscript setzt pro Illustration einmal die Startklasse. Kein neuer Script-Request; keine Netzwerk-/Formularaktionen. Ohne JS bleiben vollständige statische Illustrationen sichtbar.
