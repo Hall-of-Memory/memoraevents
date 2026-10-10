@@ -22,8 +22,8 @@ export const inquiryLimits = {
 
 // This is the production inquiry allow-list. Demo data remains isolated in src/data/demo.ts.
 export const productionInquiryCatalog = [
-  { offerId: 'fotobox', packageIds: [] },
-  { offerId: 'fotospiegel', packageIds: [] },
+  { offerId: 'fotobox', packageIds: ['fotobox-digital', 'fotobox-starter', 'fotobox-classic', 'fotobox-premium', 'fotobox-party', 'fotobox-flatrate'] },
+  { offerId: 'fotospiegel', packageIds: ['fotospiegel-digital', 'fotospiegel-starter', 'fotospiegel-classic', 'fotospiegel-premium', 'fotospiegel-party', 'fotospiegel-flatrate'] },
   { offerId: 'magazinbox', packageIds: [] },
 ] as const;
 

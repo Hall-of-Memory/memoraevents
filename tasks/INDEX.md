@@ -73,3 +73,5 @@
 | T066 | active | Kundeneigene Gerätefotos auf Angebotskarten und Produktseiten |
 
 | T067 | active | Dunkleres Logo und dezente animierte Produkt-/Servicezeichnungen |
+
+| T068 | active | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |

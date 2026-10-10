@@ -153,3 +153,5 @@ html{scroll-padding-top:150px}
 
 
 .demo-brand>img,.hom-customer-card img{filter:contrast(1.4) invert(1) brightness(1.7) invert(1) saturate(.65);mix-blend-mode:multiply}.memora-future-grid article{overflow:hidden}.memora-future-grid .memora-illustration{margin:-30px -30px 24px;height:190px}.memora-future-grid .memora-illustration svg{height:190px}.memora-paper-types{font-size:.8rem;line-height:1.8;color:#6d6154}
+
+.memora-price-table{width:100%;border-collapse:collapse;font-size:.82rem}.memora-price-table th,.memora-price-table td{text-align:left;padding:10px 4px;border-bottom:1px solid #dfd1b5}.memora-price-table td:last-child{text-align:right;white-space:nowrap;color:#765222;font-weight:600}
