@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MemoraHeader from '../components/landing/MemoraHeader.astro';
+import { demoOffers, demoPackages } from '../data/demo';
+import { packagesForOffer } from '../lib/package-projection';
+import '../styles/demo.css';
+const assetBase = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const home = `${assetBase}demo/`;
+const groups = demoOffers.map((offer) => ({ offer, packages: packagesForOffer(demoPackages, offer.id) })).filter((group) => group.packages.length);
+---
+<BaseLayout title="Pakete & Preise — MEMORA EVENT" description="Fotobox ab 249 Euro und Fotospiegel ab 299 Euro pro Event. Vergleiche unsere Digital- und Druckpakete." noIndex={true} bodyClass="demo-page" formActionSource="'none'">
+  <MemoraHeader homeHref={home} {assetBase} />
+  <main id="main-content" tabindex="-1" class="shell memora-prices">
+    <p class="eyebrow">Dein Event. Dein Paket.</p>
+    <h1>Pakete <em>& Preise.</em></h1>
+    <p>Wähle zwischen rein digitalen Fotos und Paketen mit Sofortdruck. Alle Preise gelten pro Event.</p>
+    <div class="memora-price-groups">
+      {groups.map(({ offer, packages }) => <section aria-labelledby={`preis-${offer.id}`}>
+        <h2 id={`preis-${offer.id}`}>{offer.title}</h2>
+        <table class="memora-price-table">
+          <thead><tr><th>Paket</th><th>Ausdrucke</th><th>Preis</th></tr></thead>
+          <tbody>{packages.map((item) => <tr><th scope="row">{item.name}</th><td>{item.summary.replace(' Ausdrucke', '').replace('Ohne', 'Keine')}</td><td>{item.priceLabel?.replace(' / Event', '')}</td></tr>)}</tbody>
+        </table>
+        <a class="button button-ghost" href={`${assetBase}produkte/${offer.slug}/`}>Mehr zur {offer.title} →</a>
+      </section>)}
+    </div>
+    <p>Weitere Ausstattung und Lieferung stimmen wir mit dir ab. Für die Magazinbox erhältst du ein individuelles Angebot.</p>
+    <a class="button button-primary" href={`${home}#anfrage`}>Zum Anfragebereich →</a>
+  </main>
+  <footer class="site-footer demo-footer shell"><a href={home}>MEMORA EVENT</a><p><a href={`${assetBase}impressum/`}>Impressum</a> · <a href={`${assetBase}datenschutz/`}>Datenschutz</a></p></footer>
+</BaseLayout>
+<style>
+.memora-prices{padding-block:64px 88px}.memora-prices>p{max-width:650px;color:#6d6154}.memora-price-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;margin-block:48px}.memora-price-groups .button{margin-top:24px}@media(max-width:700px){.memora-price-groups{grid-template-columns:1fr;gap:40px}}
+</style>

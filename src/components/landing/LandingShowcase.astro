@@ -153,25 +153,8 @@ const packageGroups = offers
       </div>
     ) : (
       <div class="hom-packages-copy hom-package-groups">
-        {packageGroups.map(({ offer, packages: offerPackages }) => (
-          <section class="hom-package-group" aria-labelledby={`pakete-${offer.slug}`}>
-            <h3 id={`pakete-${offer.slug}`}>{offer.title}</h3>
-            <div class="hom-package-list">
-              {offerPackages.map((item) => (
-                <article class="hom-package-card" data-offer-id={item.offerId}>
-                  <h4>{item.name}</h4>
-                  <p>{item.summary}</p>
-                  {item.priceLabel !== null && <strong class="hom-package-price">{item.priceLabel}</strong>}
-                  {item.features.length > 0 && (
-                    <ul>
-                      {item.features.map((feature) => <li>{feature}</li>)}
-                    </ul>
-                  )}
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
+        {packageGroups.map(({ offer, packages: offerPackages }) => <p><strong>{offer.title} ab {offerPackages[0]?.priceLabel}</strong></p>)}
+        <a href={`${assetBase}preise/`}>Alle Pakete & Preise ansehen →</a>
         <a href="#anfrage">Passendes Paket anfragen <span aria-hidden="true">→</span></a>
       </div>
     )}

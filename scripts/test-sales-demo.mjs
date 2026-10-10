@@ -190,7 +190,10 @@ try {
   assert.equal(inquiryChoices.length, 0, 'disabled Stage-1 inquiry must not expose product-preselection behavior');
   assert.doesNotMatch(demoHtml, /mailto:|tel:/i);
   assert.doesNotMatch(demoHtml, /wa\.me\//i, 'WhatsApp must stay unlinked until a real business number is configured');
-  assert.doesNotMatch(demoText, /€|\bEUR\b|\b[0-9]+(?:[.,][0-9]{2})?\s*Euro\b/i);
+  const approvedPackages = JSON.parse(readFileSync(join(repo, 'src/content/packages.json'), 'utf8'));
+  const pricePageText = textContent(parse(readFileSync(join(outDir, 'preise/index.html'), 'utf8')));
+  for (const item of approvedPackages) assert.ok(pricePageText.includes(item.priceLabel.replace(' / Event', '')), `missing approved package price ${item.id}`);
+  assert.match(demoHtml, /href="\/preise\/"/);
 
   const images = elements(demo, 'img');
   assert.equal(images.length, 4, 'three logos and one event photo; products use decorative SVG illustrations');
@@ -249,7 +252,7 @@ try {
       );
     } else {
       assert.ok(
-        ['/demo/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href),
+        ['/preise/', '/demo/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href),
         `unexpected external or dead demo link ${href}`,
       );
     }
