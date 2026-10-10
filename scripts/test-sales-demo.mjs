@@ -195,13 +195,13 @@ try {
   const images = elements(demo, 'img');
   assert.equal(images.length, 4, 'three logos and one event photo; products use decorative SVG illustrations');
   const imageSources = images.map((image) => attr(image, 'src'));
-  assert.equal(imageSources.filter((src) => src === '/brand/memora-event-logo.png').length, 3);
+  assert.equal(imageSources.filter((src) => src === '/brand/memora-event-logo.svg').length, 3);
   assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-dark.jpg').length, 0);
   assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-light.jpg').length, 0);
   assert.equal(imageSources.filter((src) => src === '/demo/hall-of-memory-example-event.webp').length, 1);
   for (const image of images) {
     const src = attr(image, 'src');
-    assert.ok(['/brand/memora-event-logo.png', '/demo/hall-of-memory-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
+    assert.ok(['/brand/memora-event-logo.svg', '/demo/hall-of-memory-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
     assert.ok(attr(image, 'alt'), 'every visible demo image needs alt text');
     assert.ok(statSync(localAssetPath(src)).size > 0, `missing local image asset ${src}`);
   }
@@ -226,7 +226,7 @@ try {
   assert.equal(stellarFundusPackage.source_image_brief_sha256, 'db8702a797fff95c0380c2e8d320d9fd9dee139b57c2b653478eaf89b1bd7442');
   assert.equal(sha256(join(stellarFundusRoot, 'package', 'assets', 'hall-of-memory-stellar-frame-primary-raster.png')), '0a5e97d3f2593168929b2e8067141dd1834f2cf305d8e84ce89b8cf8ca23acef');
   const publicBrand = join(repo, 'public', 'brand');
-  const publicBrandFiles = { 'memora-event-logo.png': '9ef5f42659bd9c9a822a20421b0f1de4570b27692ccf72881f64507738ff9c22' };
+  const publicBrandFiles = { 'memora-event-logo.svg': 'e7ec7c3c25905f706eab5c116187ca601d15b89c13d828966b80ab75da3278a4' };
   for (const [name, expectedHash] of Object.entries(publicBrandFiles)) {
     assert.equal(sha256(join(publicBrand, name)), expectedHash, `public customer brand export drifted: ${name}`);
   }
@@ -335,7 +335,7 @@ try {
   assert.match(demoPageSource, /DemoExperience/);
   assert.match(demoExperienceSource, /from '\.\.\/data\/demo'/);
   assert.match(demoExperienceSource, /PUBLIC_WHATSAPP_NUMBER/);
-  assert.match(demoExperienceSource, /memora-event-logo\.png/);
+  assert.match(demoExperienceSource, /memora-event-logo\.svg/);
   assert.match(demoExperienceSource, /wa\.me/);
   assert.match(demoExperienceSource, /frameMaskByVariant/);
   assert.match(demoExperienceSource, /import\.meta\.env\.BASE_URL/);

@@ -56,7 +56,7 @@ const productWhatsAppHref = (product: string) =>
 
 const assetBase = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const homeHref = isPreview ? `${assetBase}demo/` : assetBase;
-const contactLogoSrc = `${assetBase}brand/memora-event-logo.png`;
+const contactLogoSrc = `${assetBase}brand/memora-event-logo.svg`;
 const frameMaskByVariant: Record<FrameVariant, string> = {
   1: `${assetBase}fundus/hall-of-memory-frame-01.png`,
   2: `${assetBase}fundus/hall-of-memory-frame-02.png`,
@@ -294,7 +294,7 @@ const isPortraitAssetFrame = frameVariant === 10;
 
   <footer class="site-footer demo-footer shell">
     <a href={homeHref} class="demo-brand" aria-label="MEMORA EVENT Start">
-      <img src={`${assetBase}brand/memora-event-logo.png`} alt="MEMORA EVENT" width="502" height="348" loading="lazy" decoding="async" />
+      <img src={`${assetBase}brand/memora-event-logo.svg`} alt="MEMORA EVENT" width="389" height="270" loading="lazy" decoding="async" />
       <span class="demo-brand-copy"><small>Momente. Stilvoll inszeniert.</small></span>
     </a>
     <p>Fotobox · Fotospiegel · Magazinbox<br />Event-Erlebnisse mit Raum für Erinnerungen.<br /><a href={`${assetBase}impressum/`}>Impressum</a> · <a href={`${assetBase}datenschutz/`}>Datenschutz</a></p>

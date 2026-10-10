@@ -92,7 +92,7 @@ try {
   assert.equal(goldletterUniqueSources.length, 1, 'brand route must not render synthetic or alternate logos');
   for (const glyphSource of goldletterUniqueSources) {
     assert.ok(glyphSource.startsWith(`${pagesBase}brand/`), `goldletter source must stay inside Pages base: ${glyphSource}`);
-    assert.match(glyphSource, /memora-event-logo\.png$/);
+    assert.match(glyphSource, /memora-event-logo\.svg$/);
     const relativePath = glyphSource.slice(pagesBase.length);
     assert.ok(statSync(join(source, relativePath)).size > 0, `goldletter asset must exist and be non-empty: ${relativePath}`);
   }
