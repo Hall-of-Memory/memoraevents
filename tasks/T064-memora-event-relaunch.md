@@ -29,3 +29,11 @@ Die alte Goldletter-Experimentroute zeigt jetzt nur das bereitgestellte Logo; sy
 ## Review-Evidenz
 
 Siehe docs/memora-relaunch-review.md. Node 22.23.2, kanonischer Verify: 22 PASS / 1 FAIL / 0 BLOCKED. Einzige offene Prüfung ist der bereits vorher umgebungsbedingt fehlschlagende lokale Inquiry-Spike. Visual, Kontraste, Formulare, Build und sämtliche anderen Gates grün. HTML-Offlinevorschau und Browser-Screenshots erstellt. Status bleibt active bis Kundenreview und technischer Freigabe; kein Merge/Deployment.
+
+## Original-Weblogo — 10.10.2026
+
+Kunde lieferte das Designer-ZIP und beauftragte ausdrücklich den Austausch. Original-SVG byteidentisch übernommen (`e7ec7c3c25905f706eab5c116187ca601d15b89c13d828966b80ab75da3278a4`); Header, Footer, Kontakt, Produktseiten, Legal-Seiten und Logo-Lab auf die SVG umgestellt. Bestehende Größen und autorisierte dunklere CSS-Darstellung bleiben erhalten. Vorläufiges Screenshot-PNG entfernt; Favicon unverändert. SVG-Abhängigkeit erledigt, übrige T010-Eingaben weiterhin offen. Domain, Worker, DNS, Mail, Secrets und Deployment-Architektur unverändert. Verifikation folgt im PR.
+
+Verifikation Original-SVG: `npm ci` unter Node 22.23.3 erfolgreich; `test:demo` und `test:pages-artifact` bestanden (byteidentischer SVG-Hash, drei Logos, korrekte Pages-Unterpfade). SVG ohne Scripts oder externe Ressourcen. Der kanonische `npm run verify` wurde gestartet und nach dem Hängen bei `test:inquiry-migrations` im lokalen Wrangler/D1-Start abgebrochen; die vollständige CI bleibt vor einem Merge erforderlich. Kein lokaler Chrome/Chromium vorhanden, daher noch keine Browser-Layoutfreigabe.
+
+Zusätzlich `test:quality` bestanden; Astro Check: 74 Dateien, 0 Fehler/Warnings/Hints. `git diff --check` sauber.
