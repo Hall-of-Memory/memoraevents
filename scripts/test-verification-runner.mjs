@@ -42,7 +42,7 @@ try {
   const summaryPath = join(reportDir, 'step-summary.md');
   const reportPath = join(reportDir, 'report.json');
   publishVerificationReport(multiReport, { GITHUB_STEP_SUMMARY: summaryPath, VERIFICATION_REPORT_PATH: reportPath }, () => {});
-  assert.match(await readFile(summaryPath, 'utf8'), /Hall of Memory Verify/);
+  assert.match(await readFile(summaryPath, 'utf8'), /MEMORA EVENT Verify/);
   const persisted = JSON.parse(await readFile(reportPath, 'utf8'));
   assert.equal(persisted.counts.failed, 2);
   assert.deepEqual(persisted.results.filter(({ status }) => status === 'fail').map(({ id }) => id), ['alpha', 'gamma']);

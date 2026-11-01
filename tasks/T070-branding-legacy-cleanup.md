@@ -54,3 +54,11 @@ Die erste T070-Fassung bündelte 19 Dateien einschließlich AGENTS.md und Deploy
 
 - Der separate Dokumentations-PR übernimmt aus der zuvor umfangreichen T070-Fassung nur aktuelle Projekt- und Betriebsdokumente. Historische Quellennamen, gebundene Asset-Dateinamen, Cloudflare-Worker und GitHub-Org bleiben weiterhin unverändert.
 - Der Domain-Altredirect und www-TLS bleiben bis zum authentifizierten Cloudflare-Provider-Readback offen; ein Frontend-Commit allein kann diese Providerregeln nicht wirksam setzen.
+
+
+## Nachprüfung und restliche aktive Anzeigen — 01.11.2026
+
+- PR #97 ist in `main` gemergt: `92248dc19733b1c50fd69aee13d37e6b6173b1ec`. GitHub-Verify und Pages-Runtime auf genau diesem Commit sind PASS; die öffentliche Pages-Receipt bestätigt den Commit. Cloudflare `memoraevents.de/demo/` liefert den neuen Bildpfad und `MEMORA EVENT`.
+- Verbleibender aktiver interner Text: Verify-Summary `Hall of Memory Verify` und Kommentar in `.env.example`. Beides wird im eigenen PR samt Regression korrigiert, ohne technische Worker-/Org-/Asset-IDs umzubenennen.
+- Die alten Domains `hallofmemory.de` (weiterhin HTTP 200 auf alter Hostadresse) und `www.hallofmemory.de` (TLS/HTTP 525) benötigen Provider- und TLS-Konfiguration; eine globale Static-Assets-`_redirects`-Regel auf der primären Domain wäre die falsche Ursache und würde deren korrekte Auslieferung beeinträchtigen.
+- `AGENTS.md` und `docs/deployment-handover.md` enthalten jeweils noch eine alte Markenformulierung. Beide betroffenen Dateien liegen in einer höher eingestuften Reviewklasse und werden nicht als in diesem PR bereits behoben ausgegeben.
