@@ -36,3 +36,11 @@ GitHub-Org Hall-of-Memory, bestehender Cloudflare-Worker hall-of-memory, Pages-R
 - Zweite npm-ci/verify-Prüfung unter Node 22.23.4 und explizitem Chrome 156: 21 PASS, 2 FAIL. Demo-, Quality-, Build-, Preview-Base-, Pages-, Domain-, Release-Safety- und Astro-Gates PASS.
 - Verbleibende lokale Fehler ohne Zusammenhang zum T070-Branding: Inquiry-Spike liefert human-verification-unavailable statt received; Visual CDP-Timeout bei Page.navigate. Code für diese Fremdfehler nicht verändert. GitHub-CI als unabhängige Zielumgebung noch ausstehend.
 - Cloudflare-Provider-CLI (Wrangler whoami) ist nicht authentifiziert. Legacy-Host und dessen www-TLS können daher noch nicht autorisiert umgestellt werden. Nur tatsächlicher HTTP-Readback dokumentiert.
+
+## Integration / Produktionsgrenze — 01.11.2026
+
+- PR #96 zu Commit e76b2a7d385d273ebf9ac555290b8c496d82adb3 eröffnet: https://github.com/Hall-of-Memory/memoraevents/pull/96
+- GitHub Verify SUCCESS, Workflow-Run 41308719281; Cloudflare Workers Builds und Vercel Preview SUCCESS. Der lokale Inquiry-Spike und CDP-Navigations-Timeout waren nicht reproduzierbar als GitHub-CI-Fehler.
+- Branchschutz auf main: required check verify, strict, Admin-Enforcement, keine verpflichtenden Fremdreviews. Der direkte Merge über Grabowski wurde ausdrücklich mit direct_pr_merge blockiert: Captain pr-merge ist der vorgeschriebene Pfad. Keine Umgehung des kontrollierten Mergepfads.
+- Auf beiden Operatorhosts war die Captain-CLI nicht im PATH verfügbar; der Captain-Merge konnte daher nicht ausgelöst werden. main und die produktive Domain gelten bis zu einem neuen erfolgreichen Readback nicht als aktualisiert.
+- Legacy-Redirect hallofmemory.de -> memoraevents.de und www-TLS-Fehler bleiben mangels authentifiziertem Cloudflare-Providerzugriff offen.
