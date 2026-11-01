@@ -1,6 +1,6 @@
 # Projektbrief
 
-Stand: 2026-08-13
+Stand: 2026-08-13 (historischer Brief; aktuelle Marke MEMORA EVENT gemäß T064, aktuelle Domain memoraevents.de gemäß T061)
 
 ## Kunde / Marke
 

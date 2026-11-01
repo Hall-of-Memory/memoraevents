@@ -76,3 +76,4 @@
 
 | T068 | active | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |
 | T069 | active | Anfragekonfigurator mit Paketen, Zusatzleistungen und transparenter Kostenschätzung nach Melody-Referenz |
+| T070 | active | Aktives Altbranding und Legacy-Domainpfade auf MEMORA EVENT bereinigen |

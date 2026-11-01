@@ -95,7 +95,7 @@ try {
     const metalProfiles = descendants(hero, (node) => hasClass(node, 'demo-frame-metal-profile'));
     assert.equal(metalProfiles.length, 0, `variant ${variant} must render the supplied transparent frame asset directly without synthetic metal-offset layers`);
     const variantEventPhoto = descendants(hero, (node) => hasClass(node, 'demo-hero-event-photo'))[0];
-    assert.equal(attr(variantEventPhoto, 'src'), '/demo/hall-of-memory-example-event.webp', `variant ${variant} must keep the sample event photo`);
+    assert.equal(attr(variantEventPhoto, 'src'), '/demo/memora-event-example-event.webp', `variant ${variant} must keep the sample event photo`);
     assert.match(variantHtml, /\/frame-comparison\.js/);
     assert.ok(statSync(localAssetPath(mask)).size > 0, `missing local frame asset ${mask}`);
     assert.doesNotMatch(attr(hero, 'style') ?? '', /https?:/i, `variant ${variant} frame introduced a remote dependency`);
@@ -114,7 +114,7 @@ try {
   assert.equal(descendants(comparison, (node) => hasAttr(node, 'data-frame-mode')).length, 0, 'overview must not expose image-mode controls');
   assert.equal(descendants(comparison, (node) => hasAttr(node, 'data-frame-shell-toggle')).length, 0, 'overview must not expose the shell control');
   assert.equal(descendants(comparison, (node) => hasAttr(node, 'data-frame-size')).length, 0, 'overview must not expose the image-size slider');
-  assert.equal(elements(comparison, 'img').filter((node) => attr(node, 'src') === '/demo/hall-of-memory-example-event.webp').length, 0, 'overview must not render the sample event photo');
+  assert.equal(elements(comparison, 'img').filter((node) => attr(node, 'src') === '/demo/memora-event-example-event.webp').length, 0, 'overview must not render the sample event photo');
   assert.doesNotMatch(comparisonHtml, /\/frame-comparison\.js/, 'overview must not load the detail-page frame control script');
   const floralOverview = descendants(comparison, (node) => attr(node, 'data-frame-kind') === 'floral-source')[0];
   assert.ok(floralOverview, 'V6 overview must render the replacement full-frame source directly');
@@ -228,10 +228,10 @@ try {
   assert.equal(imageSources.filter((src) => src === '/brand/memora-event-logo.svg').length, 3);
   assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-dark.jpg').length, 0);
   assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-light.jpg').length, 0);
-  assert.equal(imageSources.filter((src) => src === '/demo/hall-of-memory-example-event.webp').length, 1);
+  assert.equal(imageSources.filter((src) => src === '/demo/memora-event-example-event.webp').length, 1);
   for (const image of images) {
     const src = attr(image, 'src');
-    assert.ok(['/brand/memora-event-logo.svg', '/demo/hall-of-memory-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
+    assert.ok(['/brand/memora-event-logo.svg', '/demo/memora-event-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
     assert.ok(attr(image, 'alt'), 'every visible demo image needs alt text');
     assert.ok(statSync(localAssetPath(src)).size > 0, `missing local image asset ${src}`);
   }
@@ -261,7 +261,11 @@ try {
     assert.equal(sha256(join(publicBrand, name)), expectedHash, `public customer brand export drifted: ${name}`);
   }
   assert.doesNotMatch(demoHtml, /hall-of-memory-mark-0[12]\.webp/);
-  assert.match(demoHtml, /\/demo\/hall-of-memory-example-event\.webp/);
+  assert.match(demoHtml, /\/demo\/memora-event-example-event\.webp/);
+  // Regressionsschutz MEMORA EVENT: sichtbarer Name und aktiver Bildpfad.
+  assert.match(demoHtml, /<title>MEMORA EVENT/);
+  assert.match(demoHtml, /<meta property="og:title" content="MEMORA EVENT/);
+  assert.doesNotMatch(demoText, /Hall of Memory|hallofmemory/i);
   assert.match(demoText, /Eventaufnahme/);
   assert.doesNotMatch(demoText, /Kein Logo wird mehr als vermeintliches Eventfoto eingesetzt/);
 
