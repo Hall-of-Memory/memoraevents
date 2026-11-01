@@ -33,6 +33,8 @@ assert.equal(multiReport.ok, false);
 assert.equal(multiReport.preflightOk, true);
 assert.equal(multiReport.counts.failed, 2);
 assert.deepEqual(multiReport.results.filter(({ status }) => status === 'fail').map(({ id }) => id), ['alpha', 'gamma']);
+assert.match(renderConsoleSummary(multiReport), /MEMORA EVENT VERIFY SUMMARY/);
+assert.doesNotMatch(renderConsoleSummary(multiReport), /HALL OF MEMORY/i);
 assert.match(renderConsoleSummary(multiReport), /VERIFY-INVARIANT-ALPHA/);
 assert.match(renderConsoleSummary(multiReport), /VERIFY-INVARIANT-GAMMA/);
 assert.match(renderMarkdownSummary(multiReport), /DESIGN-SENSITIVE/);
