@@ -43,7 +43,6 @@ const { isPreview, offers, packages, inquiryConfig } = Astro.props;
 
   {isPreview ? (
     <form class="inquiry-card demo-inquiry-card" data-demo-inquiry-disabled autocomplete="off" aria-label="Anfrageformular – noch nicht aktiv" aria-disabled="true">
-      <p class="demo-form-legal"><a href={(import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/') + 'demo/konfigurator/'}>Produkte und Pakete interaktiv zusammenstellen (ohne Versand) →</a></p>
       <p class="demo-form-legal" role="status"><strong>Entwicklungsstand:</strong> Das Anfrageformular ist noch nicht aktiv. Bitte noch keine Kontaktdaten eintragen; es werden derzeit keine Anfragen übermittelt.</p>
       <InquiryEventFields
         {offers}

@@ -195,33 +195,6 @@ try {
   for (const item of approvedPackages) assert.ok(pricePageText.includes(item.priceLabel.replace(' / Event', '')), `missing approved package price ${item.id}`);
   assert.match(demoHtml, /href="\/preise\/"/);
 
-  // T069: choice preview is truly side-effect-free until inquiry production approval.
-  const configuratorHtml = readFileSync(join(outDir, 'demo', 'konfigurator', 'index.html'), 'utf8');
-  const configurator = parse(configuratorHtml);
-  assert.match(configuratorHtml, /noindex,nofollow/);
-  assert.match(configuratorHtml, /form-action 'none'/);
-  assert.equal(elements(configurator, 'form').length, 0, 'preview must not collect or submit personal data');
-  assert.equal(elements(configurator, 'section').filter((node) => hasAttr(node, 'data-wizard-step')).length, 4);
-  assert.equal(elements(configurator, 'input').filter((node) => ['name','email','phone','message'].includes(attr(node, 'name'))).length, 0);
-  const wizardPackages = elements(configurator, 'input').filter((node) => attr(node, 'name') === 'wizardPackage' && attr(node, 'value'));
-  assert.equal(wizardPackages.length, approvedPackages.length);
-  for (const item of approvedPackages) {
-    assert.ok(wizardPackages.some((node) =>
-      attr(node, 'value') === item.id &&
-      attr(node, 'data-offer-id') === item.offerId &&
-      attr(node, 'data-package-price-label') === item.priceLabel
-    ), 'configurator package must retain approved price and offer binding: ' + item.id);
-    const expected = '/demo/konfigurator/?produkt=' + item.offerId + '&paket=' + item.id;
-    const priceOverview = parse(readFileSync(join(outDir, 'preise', 'index.html'), 'utf8'));
-    assert.ok(elements(priceOverview, 'a').some((node) => attr(node, 'href') === expected), 'price overview must preselect exact package: ' + item.id);
-  }
-  assert.match(configuratorHtml, /Die Anfrageübermittlung ist bis zur Freigabe/);
-  assert.match(configuratorHtml, /Unverbindliche Anfrage – noch nicht aktiv/);
-  assert.ok(elements(configurator, 'button').some((node) => hasAttr(node, 'disabled') && /noch nicht aktiv/.test(textContent(node))), 'preview submit must remain disabled');
-  const configuratorClient = readFileSync(join(repo, 'src/scripts/configurator-preview.ts'), 'utf8');
-  assert.doesNotMatch(configuratorClient, /fetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|FormData/, 'selection preview must never transmit or persist inputs');
-
-
   const images = elements(demo, 'img');
   assert.equal(images.length, 4, 'three logos and one event photo; products use decorative SVG illustrations');
   const imageSources = images.map((image) => attr(image, 'src'));
@@ -279,7 +252,7 @@ try {
       );
     } else {
       assert.ok(
-        ['/preise/', '/demo/', '/demo/konfigurator/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href),
+        ['/preise/', '/demo/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href),
         `unexpected external or dead demo link ${href}`,
       );
     }
@@ -297,7 +270,7 @@ try {
     for (const highlight of offer.highlights) assert.ok(productText.includes(highlight));
     assert.equal(elements(product, 'form').length, 0, 'product pages must not bypass disabled inquiry');
     assert.doesNotMatch(productHtml, /melody-fotobox|maps\.app\.goo\.gl|tel:|mailto:/i);
-    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/demo/konfigurator/?produkt=' + offer.id));
+    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/demo/#anfrage'));
   }
 
   const form = elements(demo, 'form').find((node) => hasAttr(node, 'data-demo-inquiry-disabled'));

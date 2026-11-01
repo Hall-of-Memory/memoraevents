@@ -90,16 +90,13 @@ Keiner dieser Punkte wird durch Melodys öffentlich gezeigte Konditionen ersetzt
 
 - 01.11.2026: Kundenwunsch und differenzierter Melody-/Memora-Vergleich aus Projektkonversation übernommen; kein Livebuchungsabschluss bei der Referenz behauptet.
 - GitHub-Readback: main 8441a32bfb73380ba87898309e5d201fdf82ca36; tasks/INDEX.md bis T068; src/release/production-approvals.json mit legal/publicMedia/productContent=false. Nur Planung, keine Website-, Backend-, Preis- oder Deploymentänderung.
-## Implementierungsslice 1 — 01.11.2026
+## Implementierungsslice A — 01.11.2026
 
-**Umgesetzt auf `feat/t069-configurator-preview`, bewusst noch nicht produktiv freigegeben:**
+**Erster eigenständig testbarer Slice für das bestehende T069-Ziel:**
 
-- Eigenständiger vierstufiger, `noindex,nofollow`-geschützter Preview-Konfigurator unter `/demo/konfigurator/` mit Produktwahl, Veranstaltung (nur Ort/Stadt, Datum, Anlass), Paketwahl/Extras und Übersicht.
-- Freigegebene zwölf Pakete werden direkt aus dem bestehenden Contentmodell projiziert; Preis- und Produktlinks übernehmen `produkt` und `paket` korrekt als Vorbelegung.
-- Preisvorschau rechnet in Cent, zeigt ausschließlich bestätigte Paketpreise und ausdrücklich nur unverbindliche Zwischensummen. Magazinbox/variable Beträge bleiben `auf Anfrage`.
-- Neue Zod-validierte `extras`-Contentstruktur mit **leerem** Katalog bis zu Arams konkreter Leistungs-/Preisfreigabe; synthetische Extras nur in isolierten Tests.
-- Tastaturzugängliche Schritte, Zurücknavigation ohne Eingabeverlust, mobile Übersicht und Fehlerhinweise; keine Browserpersistenz, Netzwerkübermittlung, persönlichen Kontaktdatenfelder oder vermeintliche Buchungsbestätigung.
-- Die bestehende Stage-1-Anfrage bleibt unverändert deaktiviert; der neue Vorschaupfad ist an Produktseiten, Preisübersicht und Demo-Anfrageabschnitt verlinkt.
-- Kontrakt-, Sales-Demo-, Preview-Base-, Astro- und Quality-Prüfungen lokal erfolgreich. Erweiterte browserbasierte CDP-Negativ-/Positivtests für drei Viewports sind im bestehenden Visual-Vertrag integriert; lokaler Browserlauf blockiert an fehlendem Chrome/Chromium. GitHub CI auf dem exakten Feature-PR-Head ist noch erforderlich.
-
-**Nicht erledigt:** Arams bestätigte Extras/Preise, der produktive Versand einschließlich Backend-Erweiterung um Extras, Legal-/Retention-/Kontaktfreigaben, produktiver E2E-Beleg und eine verbindliche Buchungsengine. Nicht diese fehlenden Belege durch einen Preview-Merge als erledigt ausgeben.
+- Freigegebenes Paketmodell bleibt unverändert (zwölf Fotobox-/Fotospiegelpakete).
+- `src/lib/configurator-preview.ts` berechnet Preise in Cent und lehnt fremde Produkt-/Paketkombinationen und nicht erlaubte Extras ab. Variabel bepreiste Leistungen sind keine angeblich feste Endsumme.
+- `src/content/extras.json` ist absichtlich leer, bis Aram einzelne Extras einschließlich Preisen und Kombinationsregeln bestätigt. Die ergänzte Astro-Content-Schema-Prüfung verhindert unvollständige/erfundene feste Extra-Preise.
+- `scripts/test-inquiry-contract.mjs` prüft bekannte Paketpreise, Synthetik-Extras, unpassende Kombinationen und offene Magazinbox-Kosten.
+- Dieser Grundlagenslice ändert keine öffentlichen Routen und aktiviert keinen Versand. Eine eigenständige nachfolgende UI-Änderung setzt den vierstufigen Konfigurator und dessen Produkt-/Paket-Verlinkung um.
+- Weitere produktive Umsetzung des Anfragevertrags und der Betreiberzustellung bleibt abhängig von bestehenden T008/T009/T010/T011/T049/T057 sowie bestätigten zusätzlichen Fachregeln.
