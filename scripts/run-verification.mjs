@@ -193,7 +193,7 @@ export function renderConsoleSummary(report) {
 
 export function renderMarkdownSummary(report) {
   const lines = [
-    '## Hall of Memory Verify',
+    '## MEMORA EVENT Verify',
     '',
     `**Result:** ${report.ok ? 'PASS ✅' : 'FAIL ❌'} — ${report.counts.passed} passed, ${report.counts.failed} failed, ${report.counts.blocked} blocked`,
     '',
