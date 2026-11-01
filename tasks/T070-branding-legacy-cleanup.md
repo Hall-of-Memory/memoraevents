@@ -37,6 +37,11 @@ GitHub-Org Hall-of-Memory, bestehender Cloudflare-Worker hall-of-memory, Pages-R
 - Verbleibende lokale Fehler ohne Zusammenhang zum T070-Branding: Inquiry-Spike liefert human-verification-unavailable statt received; Visual CDP-Timeout bei Page.navigate. Code für diese Fremdfehler nicht verändert. GitHub-CI als unabhängige Zielumgebung noch ausstehend.
 - Cloudflare-Provider-CLI (Wrangler whoami) ist nicht authentifiziert. Legacy-Host und dessen www-TLS können daher noch nicht autorisiert umgestellt werden. Nur tatsächlicher HTTP-Readback dokumentiert.
 
+
+## Eingrenzung auf den zuerst lieferbaren Besucherpfad — 01.11.2026
+
+Die erste T070-Fassung bündelte 19 Dateien einschließlich AGENTS.md und Deployment-Runbook; der echte Review-Gate-Readback klassifizierte das als high_critical (viele Dateien und Policy-/Deployment-Pfade). Der vorliegende PR #96 wurde deshalb auf den wirksamen öffentlichen Website-Slice eingegrenzt: Hero-Dateipfad (bytegleich), interne Site-ID, unveränderte Markenanzeige und passende Tests sowie diese Projektaufgabe. Das ist eine echte Scope-Reduktion, keine Änderung der Review-Regeln. Bereits erstellte Änderungen an Einstiegs-/Entwicklerdokumentation und Verify-Loglabels sind für eine getrennte dokumentationsspezifische Nachlieferung vorgesehen; diese Inhalte gelten nicht als bereits in main erledigt. Historische Asset-IDs, Cloudflare-Worker und GitHub-Org bleiben absichtlich unangetastet. Legacy-Domain-Weiterleitung bleibt ohne Provider-Readback separat offen.
+
 ## Integration / Produktionsgrenze — 01.11.2026
 
 - PR #96 zu Commit e76b2a7d385d273ebf9ac555290b8c496d82adb3 eröffnet: https://github.com/Hall-of-Memory/memoraevents/pull/96

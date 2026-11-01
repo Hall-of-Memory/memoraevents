@@ -1,6 +1,6 @@
 # Kanonische Kundenanforderungen — Hall of Memory
 
-Stand: 2026-08-13 (historisch; spätere Marken-/Designentscheidung MEMORA EVENT und Creme-/Gold-Palette aus T064 ist vorrangig)
+Stand: 2026-08-13
 
 ## Autorität
 

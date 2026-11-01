@@ -1,12 +1,12 @@
-# MEMORA EVENT
+# Hall of Memory
 
-Kanonisches Arbeitsrepository für **MEMORA EVENT**.
+Kanonisches Arbeitsrepository für **Hall of Memory**.
 
 ## Website
 
 **Produktions- und Primärdomain:** `https://memoraevents.de`
 
-Die Domain ist bei INWX registriert; der Registrarzugriff liegt beim Betreiber. Der aktuelle Domain-Pivot und DNS-Cutover zur Zielplattform sind in T061 dokumentiert. T045/T059/T060 bleiben historische Evidenz der früheren Domainpfade. Die Cloudflare-Produktionsdomain ist gemäß T061 live; GitHub Pages bleibt technischer Fallback.
+Die Domain ist bei INWX registriert; der Registrarzugriff liegt bei Hall of Memory. Der aktuelle Domain-Pivot und DNS-Cutover zur Zielplattform sind in T061 dokumentiert. T045/T059/T060 bleiben historische Evidenz der früheren Domainpfade. Bis der neue Domain-Readback vollständig grün ist, bleibt die GitHub-Pages-Preview nur als technischer Übergangs-Fallback bestehen.
 
 ## Ziel
 
@@ -14,7 +14,7 @@ Eine hochwertige, moderne und erweiterbare Event-Website mit Schwerpunkt auf Fot
 
 ## Eigentum und technische Rollen
 
-- **Domain/Registrar:** INWX für `memoraevents.de`; Registrarzugriff beim Betreiber.
+- **Domain/Registrar:** INWX für `memoraevents.de`; Registrarzugriff bei Hall of Memory.
 - **GitHub:** kanonisches Source-Repo `Hall-of-Memory/memoraevents` für Quellcode, Pull Requests, CI und nachvollziehbare Änderungshistorie.
 - **Cloudflare:** vorgesehene produktive Auslieferung und später die serverseitigen Produktbausteine gemäß T009.
 - **GitHub Pages:** nur Übergangs-Preview; nicht die Produktionsplattform.

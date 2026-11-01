@@ -1,6 +1,6 @@
-# Mitwirken an MEMORA EVENT
+# Mitwirken an Hall of Memory
 
-Das Projekt MEMORA EVENT liegt in einem kundenkontrollierten GitHub-Repository. Die öffentliche Website und die Sichtbarkeit des Source-Repositories werden bewusst getrennt behandelt; T045 dokumentiert die historische Privatsphäre-/Tarifentscheidung, T061 den aktuellen Domainpfad.
+Hall of Memory liegt in einem kundenkontrollierten GitHub-Repository. Die öffentliche Website und die Sichtbarkeit des Source-Repositories werden bewusst getrennt behandelt; T045 dokumentiert die historische Privatsphäre-/Tarifentscheidung, T061 den aktuellen Domainpfad.
 
 ## Kanonischer Ablauf
 

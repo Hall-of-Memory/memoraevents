@@ -1,8 +1,6 @@
-# MEMORA EVENT — Business + Legal Ground Truth
+# Hall of Memory — Business + Legal Ground Truth
 
 Stand: 2026-09-14
-
-Aktuelle öffentliche Marke: MEMORA EVENT seit T064. Das Dokument enthält historische Betreiber-/Freigabefakten; alte Identitäten darin sind keine aktuelle Branding-Vorgabe.
 Status: Working Ground Truth für T057 (`blocked_external`)
 
 Dieses Dokument ist die kanonische fachliche Eingabe für die noch offenen **V1-Legal-/Privacy-/Inquiry-Gates**. Es ersetzt keine finale Rechtsprüfung und erfindet keine unbekannten Betreiber-, Vertrags- oder Retentiondaten.

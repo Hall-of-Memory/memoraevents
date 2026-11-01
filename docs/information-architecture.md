@@ -1,10 +1,10 @@
 # Informationsarchitektur / Designsystem
 
-Stand: 2026-08-11; Marken-/Farbkorrektur gemäß T064 vom 03.10.2026
+Stand: 2026-08-11
 
 ## Prinzip
 
-MEMORA EVENT wird als erweiterbare Event-Marke aufgebaut, nicht als starre Einprodukt-Fotoboxseite.
+Hall of Memory wird als erweiterbare Event-Marke aufgebaut, nicht als starre Einprodukt-Fotoboxseite.
 
 ## Reihenfolge
 
@@ -19,7 +19,7 @@ Nicht vorhandene Inhaltsbereiche werden nicht mit erfundenem Material aufgefüll
 
 ## Design
 
-- cremeweiße, beige und warmgoldene Gestaltung gemäß aktuellem T064-Relaunch
+- eigenständige Schwarz-/Gold-Richtung
 - großzügige Typografie und Abstände
 - mobile-first Reduktion der Navigation
 - wiederkehrende CTA-Hierarchie
