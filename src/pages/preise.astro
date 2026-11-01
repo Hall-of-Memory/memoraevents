@@ -18,14 +18,14 @@ const groups = demoOffers.map((offer) => ({ offer, packages: packagesForOffer(de
       {groups.map(({ offer, packages }) => <section aria-labelledby={`preis-${offer.id}`}>
         <h2 id={`preis-${offer.id}`}>{offer.title}</h2>
         <table class="memora-price-table">
-          <thead><tr><th>Paket</th><th>Ausdrucke</th><th>Preis</th></tr></thead>
-          <tbody>{packages.map((item) => <tr><th scope="row">{item.name}</th><td>{item.summary.replace(' Ausdrucke', '').replace('Ohne', 'Keine')}</td><td>{item.priceLabel?.replace(' / Event', '')}</td></tr>)}</tbody>
+          <thead><tr><th>Paket</th><th>Ausdrucke</th><th>Preis</th><th>Auswahl</th></tr></thead>
+          <tbody>{packages.map((item) => <tr><th scope="row">{item.name}</th><td>{item.summary.replace(' Ausdrucke', '').replace('Ohne', 'Keine')}</td><td>{item.priceLabel?.replace(' / Event', '')}</td><td><a href={`${assetBase}demo/konfigurator/?produkt=${encodeURIComponent(offer.id)}&paket=${encodeURIComponent(item.id)}`}>Zusammenstellen</a></td></tr>)}</tbody>
         </table>
         <a class="button button-ghost" href={`${assetBase}produkte/${offer.slug}/`}>Mehr zur {offer.title} →</a>
       </section>)}
     </div>
     <p>Weitere Ausstattung und Lieferung stimmen wir mit dir ab. Für die Magazinbox erhältst du ein individuelles Angebot.</p>
-    <a class="button button-primary" href={`${home}#anfrage`}>Zum Anfragebereich →</a>
+    <a class="button button-primary" href={`${assetBase}demo/konfigurator/`}>Auswahl zusammenstellen (Vorschau) →</a>
   </main>
   <footer class="site-footer demo-footer shell"><a href={home}>MEMORA EVENT</a><p><a href={`${assetBase}impressum/`}>Impressum</a> · <a href={`${assetBase}datenschutz/`}>Datenschutz</a></p></footer>
 </BaseLayout>

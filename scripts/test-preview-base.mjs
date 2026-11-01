@@ -47,6 +47,17 @@ const prices = await readFile(path.join(root, 'preise/index.html'), 'utf8');
 assert.match(prices, /249 €|249 &#/);
 assert.ok(prices.includes(`${base}produkte/fotobox/`));
 assert.ok(prices.includes(`${base}produkte/fotospiegel/`));
+const wizard = await readFile(path.join(root, 'demo/konfigurator/index.html'), 'utf8');
+assert.match(wizard, /noindex,nofollow/);
+assert.match(wizard, /form-action 'none'/);
+assert.match(wizard, /data-wizard-step="0"/);
+assert.match(wizard, /data-wizard-step="3"/);
+assert.doesNotMatch(wizard, /name="email"|name="phone"|type="submit"/);
+for (const entry of JSON.parse(await readFile('src/content/packages.json','utf8'))) {
+  assert.ok(prices.includes(base + 'demo/konfigurator/?produkt=' + entry.offerId + '&amp;paket=' + entry.id),
+    'preview-base price deep link must preserve offer+package: ' + entry.id);
+}
+
 assert.match(demo, /Vorschau Kundenbereich/);
 assert.doesNotMatch(demo, /Beispielzugang ansehen/);
 assert.doesNotMatch(demo, /Customer Journey|Datenstruktur|Private Formular-Preview|Business-Nummer noch offen/i);
@@ -58,7 +69,7 @@ assert.equal((demo.match(/aria-label="Unverbindliche Anfrage für (?:Fotobox|Fot
 for (const slug of ['fotobox', 'fotospiegel', 'magazinbox']) {
   assert.ok(demo.includes(`${base}produkte/${slug}/`), `product link escaped preview base: ${slug}`);
   const product = await readFile(path.join(root, `produkte/${slug}/index.html`), 'utf8');
-  assert.ok(product.includes(`${base}demo/#anfrage`), `product inquiry escaped preview base: ${slug}`);
+  assert.ok(product.includes(`${base}demo/konfigurator/?produkt=${slug}`), `product configurator link escaped preview base: ${slug}`);
   assert.match(product, /noindex,nofollow/);
 }
 

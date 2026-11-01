@@ -100,3 +100,13 @@ Keiner dieser Punkte wird durch Melodys öffentlich gezeigte Konditionen ersetzt
 - `scripts/test-inquiry-contract.mjs` prüft bekannte Paketpreise, Synthetik-Extras, unpassende Kombinationen und offene Magazinbox-Kosten.
 - Dieser Grundlagenslice ändert keine öffentlichen Routen und aktiviert keinen Versand. Eine eigenständige nachfolgende UI-Änderung setzt den vierstufigen Konfigurator und dessen Produkt-/Paket-Verlinkung um.
 - Weitere produktive Umsetzung des Anfragevertrags und der Betreiberzustellung bleibt abhängig von bestehenden T008/T009/T010/T011/T049/T057 sowie bestätigten zusätzlichen Fachregeln.
+
+## Implementierungsslice B — 01.11.2026
+
+- Eigenständige vierstufige, noindex-geschützte, nicht sendende Vorschau unter `/demo/konfigurator/` auf `feat/t069-configurator-ui`.
+- Produkt- und Preisseite verlinken direkt zur Auswahl mit exakter Vorbelegung beider IDs.
+- Eventort, Datum und Anlass; Paket-/Extraauswahl, Preisübersicht und schrittweise Navigation sind clientseitig nutzbar, ohne Kontaktdaten oder Übermittlung.
+- Passende Zusatzleistungen erscheinen erst nach konkret freigegebenem Katalog; keine Melody-Preise übernommen.
+- Tests für Base-Path, Paket-Deep-Links, mobile Viewports, Zurück/Ändern und fehlende Versandmöglichkeit wurden in bestehende Verify-Suite integriert.
+- Ursprünglicher kompletter Feature-Head `a4f266fe77b458bc56c1dead8a7467d608a260a5` war mit GitHub-Verify erfolgreich; die getrennten finalen PR-Heads benötigen jeweils neue CI-Prüfung und revisionsgebundenen Readback.
+- Kein produktiver Anfrageversand, kein erfundenes Impressum, keine Änderung an T008/T009/T010/T011/T049/T057.
