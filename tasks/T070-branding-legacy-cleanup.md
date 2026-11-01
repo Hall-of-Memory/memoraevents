@@ -62,3 +62,10 @@ Die erste T070-Fassung bündelte 19 Dateien einschließlich AGENTS.md und Deploy
 - Verbleibender aktiver interner Text: Verify-Summary `Hall of Memory Verify` und Kommentar in `.env.example`. Beides wird im eigenen PR samt Regression korrigiert, ohne technische Worker-/Org-/Asset-IDs umzubenennen.
 - Die alten Domains `hallofmemory.de` (weiterhin HTTP 200 auf alter Hostadresse) und `www.hallofmemory.de` (TLS/HTTP 525) benötigen Provider- und TLS-Konfiguration; eine globale Static-Assets-`_redirects`-Regel auf der primären Domain wäre die falsche Ursache und würde deren korrekte Auslieferung beeinträchtigen.
 - `AGENTS.md` und `docs/deployment-handover.md` enthalten jeweils noch eine alte Markenformulierung. Beide betroffenen Dateien liegen in einer höher eingestuften Reviewklasse und werden nicht als in diesem PR bereits behoben ausgegeben.
+
+
+## Dokumentations-Restkorrektur — 01.11.2026
+
+- PR #98 (nur Verify-Bericht, Regressionstest, `.env.example` und dieses Journal) wurde mit grünem Verify und revisionsgebundener Selbstreview über Captain in main gemergt: `910db5580894a3411e6835447269fd8d116b565d`.
+- Im getrennten Folge-PR wird die lediglich sprachliche Altmarke in `AGENTS.md` und `docs/deployment-handover.md` korrigiert. GitHub-Org, Workername, DNS-/Asset-IDs, Zoneninformationen und Stage-2-Launch-Gates bleiben unverändert.
+- Öffentliche DNS-Readbacks von 01.11.2026 zeigen für `hallofmemory.de` ebenfalls Cloudflare-Nameserver `quentin.ns.cloudflare.com` und `tia.ns.cloudflare.com`; Apex und www lösen Cloudflare-Anycast-Adressen auf. Der lokale Wrangler ist dennoch nicht authentifiziert, und es existiert kein nachgewiesener Schreibzugriff auf die Legacy-Zone. Daher keine erfundene Redirect-/TLS-Provideränderung; `hallofmemory.de` und `www.hallofmemory.de` müssen nach realem Provider-Write nochmals extern abgenommen werden.

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Diese Datei ist der operative Arbeitsvertrag für Coding-Agenten in Hall of Memory.
+Diese Datei ist der operative Arbeitsvertrag für Coding-Agenten im Projekt MEMORA EVENT.
 
 ## 1. Autorität und Kontext
 
