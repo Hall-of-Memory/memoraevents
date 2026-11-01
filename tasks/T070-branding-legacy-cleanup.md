@@ -47,5 +47,10 @@ Die erste T070-Fassung bündelte 19 Dateien einschließlich AGENTS.md und Deploy
 - PR #96 zu Commit e76b2a7d385d273ebf9ac555290b8c496d82adb3 eröffnet: https://github.com/Hall-of-Memory/memoraevents/pull/96
 - GitHub Verify SUCCESS, Workflow-Run 41308719281; Cloudflare Workers Builds und Vercel Preview SUCCESS. Der lokale Inquiry-Spike und CDP-Navigations-Timeout waren nicht reproduzierbar als GitHub-CI-Fehler.
 - Branchschutz auf main: required check verify, strict, Admin-Enforcement, keine verpflichtenden Fremdreviews. Der direkte Merge über Grabowski wurde ausdrücklich mit direct_pr_merge blockiert: Captain pr-merge ist der vorgeschriebene Pfad. Keine Umgehung des kontrollierten Mergepfads.
-- Auf beiden Operatorhosts war die Captain-CLI nicht im PATH verfügbar; der Captain-Merge konnte daher nicht ausgelöst werden. main und die produktive Domain gelten bis zu einem neuen erfolgreichen Readback nicht als aktualisiert.
+- Der vorgesehene Captain-Pfad ist inzwischen über das installierte Grabowski-Grip verfügbar. Nach risikoskaliertem Review (zwei unabhängige Prüfungen, Gate PASS), grüner GitHub-CI und korrektem terminalem Work-Lane-Closeout wurde PR #96 revisionsgebunden in main gemergt (2980ce00b3b243b5503be863ef0bb2bc788a64d6). Live-Readback: memoraevents.de/demo/ nutzt das neue Bild, der alte aktiv eingebundene Bildpfad fehlt und das neue Asset liefert 200. GitHub Pages wird separat über main-CI gespiegelt.
 - Legacy-Redirect hallofmemory.de -> memoraevents.de und www-TLS-Fehler bleiben mangels authentifiziertem Cloudflare-Providerzugriff offen.
+
+## Nachtrag: aktuelle Dokumentation
+
+- Der separate Dokumentations-PR übernimmt aus der zuvor umfangreichen T070-Fassung nur aktuelle Projekt- und Betriebsdokumente. Historische Quellennamen, gebundene Asset-Dateinamen, Cloudflare-Worker und GitHub-Org bleiben weiterhin unverändert.
+- Der Domain-Altredirect und www-TLS bleiben bis zum authentifizierten Cloudflare-Provider-Readback offen; ein Frontend-Commit allein kann diese Providerregeln nicht wirksam setzen.
