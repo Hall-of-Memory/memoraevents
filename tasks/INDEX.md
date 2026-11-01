@@ -75,3 +75,4 @@
 | T067 | active | Dunkleres Logo und dezente animierte Produkt-/Servicezeichnungen |
 
 | T068 | active | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |
+| T070 | active | Aktives Altbranding und Legacy-Domainpfade auf MEMORA EVENT bereinigen |
