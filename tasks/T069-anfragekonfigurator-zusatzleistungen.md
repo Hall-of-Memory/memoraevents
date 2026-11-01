@@ -1,6 +1,6 @@
 ---
 id: T069
-status: planned
+status: active
 priority: P0
 dependencies: [T004, T056]
 ---
@@ -90,3 +90,16 @@ Keiner dieser Punkte wird durch Melodys öffentlich gezeigte Konditionen ersetzt
 
 - 01.11.2026: Kundenwunsch und differenzierter Melody-/Memora-Vergleich aus Projektkonversation übernommen; kein Livebuchungsabschluss bei der Referenz behauptet.
 - GitHub-Readback: main 8441a32bfb73380ba87898309e5d201fdf82ca36; tasks/INDEX.md bis T068; src/release/production-approvals.json mit legal/publicMedia/productContent=false. Nur Planung, keine Website-, Backend-, Preis- oder Deploymentänderung.
+## Implementierungsslice 1 — 01.11.2026
+
+**Umgesetzt auf `feat/t069-configurator-preview`, bewusst noch nicht produktiv freigegeben:**
+
+- Eigenständiger vierstufiger, `noindex,nofollow`-geschützter Preview-Konfigurator unter `/demo/konfigurator/` mit Produktwahl, Veranstaltung (nur Ort/Stadt, Datum, Anlass), Paketwahl/Extras und Übersicht.
+- Freigegebene zwölf Pakete werden direkt aus dem bestehenden Contentmodell projiziert; Preis- und Produktlinks übernehmen `produkt` und `paket` korrekt als Vorbelegung.
+- Preisvorschau rechnet in Cent, zeigt ausschließlich bestätigte Paketpreise und ausdrücklich nur unverbindliche Zwischensummen. Magazinbox/variable Beträge bleiben `auf Anfrage`.
+- Neue Zod-validierte `extras`-Contentstruktur mit **leerem** Katalog bis zu Arams konkreter Leistungs-/Preisfreigabe; synthetische Extras nur in isolierten Tests.
+- Tastaturzugängliche Schritte, Zurücknavigation ohne Eingabeverlust, mobile Übersicht und Fehlerhinweise; keine Browserpersistenz, Netzwerkübermittlung, persönlichen Kontaktdatenfelder oder vermeintliche Buchungsbestätigung.
+- Die bestehende Stage-1-Anfrage bleibt unverändert deaktiviert; der neue Vorschaupfad ist an Produktseiten, Preisübersicht und Demo-Anfrageabschnitt verlinkt.
+- Kontrakt-, Sales-Demo-, Preview-Base-, Astro- und Quality-Prüfungen lokal erfolgreich. Erweiterte browserbasierte CDP-Negativ-/Positivtests für drei Viewports sind im bestehenden Visual-Vertrag integriert; lokaler Browserlauf blockiert an fehlendem Chrome/Chromium. GitHub CI auf dem exakten Feature-PR-Head ist noch erforderlich.
+
+**Nicht erledigt:** Arams bestätigte Extras/Preise, der produktive Versand einschließlich Backend-Erweiterung um Extras, Legal-/Retention-/Kontaktfreigaben, produktiver E2E-Beleg und eine verbindliche Buchungsengine. Nicht diese fehlenden Belege durch einen Preview-Merge als erledigt ausgeben.

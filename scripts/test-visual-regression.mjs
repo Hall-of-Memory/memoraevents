@@ -404,6 +404,31 @@ const main = async () => {
       } finally {
         await cdp.send('Target.closeTarget', { targetId: framePage.targetId });
       }
+
+      // T069: independent preview route must actually handle package deep links
+      // and a back/forward customer journey without a real submission.
+      const wizardPage = await openPage(cdp, origin + '/demo/konfigurator/?produkt=fotobox&paket=fotobox-classic', viewport);
+      try {
+        const initial = await evaluate(cdp, wizardPage.sessionId, '(() => ({offer:document.querySelector("input[name=wizardOffer]:checked")?.value,packageId:document.querySelector("input[name=wizardPackage]:checked")?.value,price:document.querySelector("[data-wizard-price]")?.textContent,step:document.querySelector("[data-configurator-preview]")?.dataset.activeStep,width:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,forms:document.querySelectorAll("form").length}))()');
+        visualEqual(initial.offer, 'fotobox', 'VIS-INVARIANT-WIZARD-DEEP-LINK', viewport.name + ': product preselection lost');
+        visualEqual(initial.packageId, 'fotobox-classic', 'VIS-INVARIANT-WIZARD-DEEP-LINK', viewport.name + ': package preselection lost');
+        visualCheck(initial.price.includes('349'), 'VIS-INVARIANT-WIZARD-PRICE', viewport.name + ': confirmed package price not visible');
+        visualEqual(initial.forms, 0, 'VIS-INVARIANT-WIZARD-NO-SUBMIT', viewport.name + ': preview must not contain a real form');
+        visualCheck(initial.width <= initial.client + 1, 'VIS-INVARIANT-WIZARD-OVERFLOW', viewport.name + ': preview overflows horizontally');
+        if (viewport.name === 'desktop') {
+          const flow = await evaluate(cdp, wizardPage.sessionId, '(() => { const root=document.querySelector("[data-configurator-preview]");const next=document.querySelector("[data-wizard-next]");const back=document.querySelector("[data-wizard-back]");next.click();const event=document.querySelector("[name=wizardEvent]");event.value="Hochzeit";const date=document.querySelector("[name=wizardDate]");const d=new Date();d.setFullYear(d.getFullYear()+1);date.value=[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");const city=document.querySelector("[name=wizardLocation]");city.value="Lübeck";next.click();const eventStep=root.dataset.activeStep;next.click();const reviewStep=root.dataset.activeStep;const summary=document.querySelector("[data-review-price]")?.textContent;back.click();const editStep=root.dataset.activeStep;const upgrade=document.querySelector("input[value=fotobox-party]");upgrade.checked=true;upgrade.dispatchEvent(new Event("change",{bubbles:true}));next.click();return {eventStep,reviewStep,editStep,finalStep:root.dataset.activeStep,summary,upgraded:document.querySelector("[data-review-price]")?.textContent,errors:document.querySelector("[data-wizard-error]")?.hidden};})()');
+          visualEqual(flow.eventStep, '2', 'VIS-INVARIANT-WIZARD-STEPS', 'desktop: event step did not advance');
+          visualEqual(flow.reviewStep, '3', 'VIS-INVARIANT-WIZARD-STEPS', 'desktop: review did not advance');
+          visualEqual(flow.editStep, '2', 'VIS-INVARIANT-WIZARD-BACK', 'desktop: back navigation lost');
+          visualEqual(flow.finalStep, '3', 'VIS-INVARIANT-WIZARD-STEPS', 'desktop: edited package did not return to review');
+          visualCheck(flow.summary.includes('349') && flow.upgraded.includes('449'), 'VIS-INVARIANT-WIZARD-PRICE', 'desktop: price did not update after back/edit');
+          visualCheck(flow.errors, 'VIS-INVARIANT-WIZARD-FORM', 'desktop: valid event details were rejected');
+        }
+        const screenshotBytes = await captureFullPage(cdp, wizardPage.sessionId, join(artifacts, viewport.name + '-wizard.png'));
+        summaries.push({ view: viewport.name, route: '/demo/konfigurator/', screenshotBytes, settled: wizardPage.settled });
+      } finally {
+        await cdp.send('Target.closeTarget', { targetId: wizardPage.targetId });
+      }
     }
     await writeFile(join(artifacts, 'summary.json'), `${JSON.stringify({
       schemaVersion: 1,
