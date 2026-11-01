@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { centsFromApprovedPriceLabel, estimatePreviewSelection, euroAmount } from '../src/lib/configurator-preview.ts';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -163,6 +164,40 @@ for (const invalidGallerySrc of [
     `gallery source ${invalidGallerySrc} must fail closed instead of escaping BASE_URL or contradicting img-src CSP`,
   );
 }
+
+
+const actualExtras = JSON.parse(readFileSync(join(repo, 'src/content/extras.json'), 'utf8'));
+assert.deepEqual(actualExtras, [], 'do not invent unapproved customer extras');
+assert.equal(packages.length, 12, 'use only the twelve customer-approved package tiers');
+assert.equal(centsFromApprovedPriceLabel('249 € / Event'), 24900);
+assert.equal(euroAmount(24900).includes('249'), true);
+assert.throws(() => centsFromApprovedPriceLabel('ab 249 €'), /Unrecognized/);
+const previewEstimate = estimatePreviewSelection(offers, packages, [], {
+  offerId: 'fotobox', packageId: 'fotobox-digital', extraIds: [],
+});
+assert.equal(previewEstimate.subtotalCents, 24900);
+assert.equal(previewEstimate.hasOpenPrice, false);
+const quoteEstimate = estimatePreviewSelection(offers, packages, [
+  { id: 'custom-layout', title: 'Synthetische Testleistung', offerIds: ['fotobox'], pricing: 'quote', priceCents: null },
+], { offerId: 'fotobox', packageId: 'fotobox-starter', extraIds: ['custom-layout'] });
+assert.equal(quoteEstimate.subtotalCents, 29900);
+assert.equal(quoteEstimate.hasOpenPrice, true, 'quoted add-ons must not claim a fixed total');
+const fixedEstimate = estimatePreviewSelection(offers, packages, [
+  { id: 'approved-test', title: 'Synthetisch', offerIds: ['fotobox'], pricing: 'fixed', priceCents: 1500 },
+], { offerId: 'fotobox', packageId: 'fotobox-digital', extraIds: ['approved-test'] });
+assert.equal(fixedEstimate.subtotalCents, 26400);
+assert.throws(() => estimatePreviewSelection(offers, packages, [], {
+  offerId: 'fotospiegel', packageId: 'fotobox-digital', extraIds: [],
+}), /Package does not belong/);
+assert.throws(() => estimatePreviewSelection(offers, packages, [], {
+  offerId: 'fotobox', packageId: 'fotobox-digital', extraIds: ['unknown-extra'],
+}), /Invalid extra/);
+assert.throws(() => estimatePreviewSelection(offers, packages, [
+  { id: 'synthetic', title: 'Synthetisch', offerIds: ['fotospiegel'], pricing: 'fixed', priceCents: 1000 },
+], { offerId: 'fotobox', packageId: 'fotobox-digital', extraIds: ['synthetic'] }), /Invalid extra/);
+assert.equal(estimatePreviewSelection(offers, packages, [], {
+  offerId: 'magazinbox', packageId: '', extraIds: [],
+}).subtotalCents, null, 'unpriced Magazinbox must stay open');
 
 const demoExperienceSource = readFileSync(join(repo, 'src', 'components', 'DemoExperience.astro'), 'utf8');
 const showcaseSource = readFileSync(

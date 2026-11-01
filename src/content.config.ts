@@ -92,9 +92,30 @@ const gallery = defineCollection({
   }),
 });
 
+const extras = defineCollection({
+  loader: file('src/content/extras.json'),
+  schema: z.object({
+    id: z.string().regex(/^[a-z0-9-]+$/),
+    title: z.string().min(1),
+    description: z.string().min(1),
+    offerIds: z.array(z.enum(['fotobox', 'fotospiegel', 'magazinbox'])).min(1),
+    pricing: z.enum(['fixed', 'quote']),
+    priceCents: z.number().int().nonnegative().nullable(),
+    sortOrder: z.number().int().nonnegative(),
+    source: z.literal('customer-provided'),
+  }).superRefine((item, ctx) => {
+    if (item.pricing === 'fixed' && item.priceCents === null) {
+      ctx.addIssue({ code: 'custom', message: 'Approved fixed extras need a price in cents' });
+    }
+    if (item.pricing === 'quote' && item.priceCents !== null) {
+      ctx.addIssue({ code: 'custom', message: 'Quoted extras must not claim a fixed price' });
+    }
+  }),
+});
+
 const futureServices = defineCollection({
   loader: file('src/content/future-services.json'),
   schema: z.object({ id: z.string(), title: z.string().min(1), status: z.literal('planned'), sortOrder: z.number().int().nonnegative(), source }),
 });
 
-export const collections = { site, offers, packages, benefits, steps, faqs, gallery, futureServices };
+export const collections = { site, offers, packages, benefits, steps, faqs, gallery, futureServices, extras };
