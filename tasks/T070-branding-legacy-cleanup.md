@@ -36,6 +36,7 @@ GitHub-Org Hall-of-Memory, bestehender Cloudflare-Worker hall-of-memory, Pages-R
 - Zweite npm-ci/verify-Prüfung unter Node 22.23.4 und explizitem Chrome 156: 21 PASS, 2 FAIL. Demo-, Quality-, Build-, Preview-Base-, Pages-, Domain-, Release-Safety- und Astro-Gates PASS.
 - Verbleibende lokale Fehler ohne Zusammenhang zum T070-Branding: Inquiry-Spike liefert human-verification-unavailable statt received; Visual CDP-Timeout bei Page.navigate. Code für diese Fremdfehler nicht verändert. GitHub-CI als unabhängige Zielumgebung noch ausstehend.
 - Cloudflare-Provider-CLI (Wrangler whoami) ist nicht authentifiziert. Legacy-Host und dessen www-TLS können daher noch nicht autorisiert umgestellt werden. Nur tatsächlicher HTTP-Readback dokumentiert.
+- Nach PR #98 verblieb eine eigenständige **Konsolen**-Überschrift `HALL OF MEMORY VERIFY SUMMARY` in `renderConsoleSummary`; der Markdown-Bericht war bereits auf MEMORA EVENT. Diese konkrete Ausgabe wird im isolierten T070-Nachtrag auf `MEMORA EVENT VERIFY SUMMARY` geändert und positiv/negativ regressionsgetestet. `npm ci` und `npm run test:verification-runner` unter Node 22.23.4 PASS; Frischer lokaler `npm run verify` auf dem korrigierten Worktree: **21 PASS / 2 FAIL** (`inquiry-spike`, `visual-regression`, identisch zu den bereits dokumentierten fremden Lokalfehlern); Konsolen-Überschrift und Runner-Regression PASS. Hauptbranch-/Produktivnachweis erst nach GitHub-Verify und Merge.
 
 
 ## Eingrenzung auf den zuerst lieferbaren Besucherpfad — 01.11.2026
