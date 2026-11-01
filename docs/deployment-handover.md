@@ -4,7 +4,7 @@ Stand: 2026-10-01
 
 Dieses Runbook trennt zwei Stufen:
 
-1. **Domain-Arbeitsstand:** die gepflegte Hall-of-Memory-Website wird unter `https://memoraevents.de` erreichbar und dort weiterentwickelt; sie bleibt bis zur inhaltlichen/rechtlichen Freigabe `noindex` und das produktive Anfrageformular bleibt fail-closed.
+1. **Domain-Arbeitsstand:** die gepflegte MEMORA-EVENT-Website ist unter `https://memoraevents.de` erreichbar und wird dort weiterentwickelt; sie bleibt bis zur inhaltlichen/rechtlichen Freigabe `noindex` und das produktive Anfrageformular bleibt fail-closed.
 2. **Vollständige V1-Produktion:** Anfrage-Worker, Turnstile, Access, D1, Email-Binding und finale Recht-/Inhaltsfreigaben werden erst nach den Gates aus T008/T010/T011 aktiviert.
 
 Die korrigierte Kundenentscheidung vom 30.09.2026 setzt `memoraevents.de` als neue Primärdomain und autorisiert Stufe 1. Sie ist keine pauschale Freigabe neuer kostenpflichtiger Dienste oder der Backend-Stufe 2.
