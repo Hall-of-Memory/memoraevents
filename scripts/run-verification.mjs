@@ -181,7 +181,7 @@ const statusLabel = (status) => status === 'pass' ? 'PASS' : status === 'fail' ?
 const durationLabel = (milliseconds) => milliseconds ? `${(milliseconds / 1000).toFixed(1)}s` : '—';
 
 export function renderConsoleSummary(report) {
-  const lines = ['\n=== HALL OF MEMORY VERIFY SUMMARY ==='];
+  const lines = ['\n=== MEMORA EVENT VERIFY SUMMARY ==='];
   for (const result of report.results) {
     lines.push(`${statusLabel(result.status).padEnd(7)} ${result.id.padEnd(24)} ${result.classes.join('+').padEnd(37)} ${result.status === 'fail' ? result.failureCode : ''}`.trimEnd());
   }
@@ -193,7 +193,7 @@ export function renderConsoleSummary(report) {
 
 export function renderMarkdownSummary(report) {
   const lines = [
-    '## Hall of Memory Verify',
+    '## MEMORA EVENT Verify',
     '',
     `**Result:** ${report.ok ? 'PASS ✅' : 'FAIL ❌'} — ${report.counts.passed} passed, ${report.counts.failed} failed, ${report.counts.blocked} blocked`,
     '',

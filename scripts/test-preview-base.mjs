@@ -155,7 +155,7 @@ const overview = await readFile(path.join(root, 'demo/rahmen/index.html'), 'utf8
 for (let variant = 1; variant <= 10; variant += 1) {
   assert.match(overview, new RegExp(`${base}demo/rahmen/${variant}/`));
 }
-assert.doesNotMatch(overview, /hall-of-memory-example-event\.webp|type="range"/);
+assert.doesNotMatch(overview, /memora-event-example-event\.webp|type="range"/);
 
 const tree = createHash('sha256');
 for (const file of files) {

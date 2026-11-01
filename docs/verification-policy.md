@@ -2,7 +2,7 @@
 
 ## Ziel
 
-`npm run verify` ist der einzige kanonische Volltest für Hall of Memory. T052 ändert nicht die fachlichen Leaf-Tests, sondern nur deren Orchestrierung: belastbare Vorbedingungen bleiben fail-closed, danach werden unabhängige Fehler in demselben Lauf vollständig sichtbar gemacht.
+`npm run verify` ist der einzige kanonische Volltest für MEMORA EVENT. T052 ändert nicht die fachlichen Leaf-Tests, sondern nur deren Orchestrierung: belastbare Vorbedingungen bleiben fail-closed, danach werden unabhängige Fehler in demselben Lauf vollständig sichtbar gemacht.
 
 ## Ablauf
 
