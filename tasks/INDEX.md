@@ -75,4 +75,4 @@
 | T067 | active | Dunkleres Logo und dezente animierte Produkt-/Servicezeichnungen |
 
 | T068 | active | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |
-| T069 | planned | Anfragekonfigurator mit Paketen, Zusatzleistungen und transparenter Kostenschätzung nach Melody-Referenz |
+| T069 | active | Anfragekonfigurator mit Paketen, Zusatzleistungen und transparenter Kostenschätzung nach Melody-Referenz |
