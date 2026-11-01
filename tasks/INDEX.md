@@ -76,4 +76,4 @@
 
 | T068 | active | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |
 | T070 | active | Aktives Altbranding und Legacy-Domainpfade auf MEMORA EVENT bereinigen |
-| T071 | active | Sticky Header über volle Breite: dunkle Randstreifen nach Ankernavigation beheben |
+| T071 | done | Sticky Header über volle Breite: dunkle Randstreifen nach Ankernavigation beheben |
