@@ -110,3 +110,11 @@ Keiner dieser Punkte wird durch Melodys öffentlich gezeigte Konditionen ersetzt
 - Tests für Base-Path, Paket-Deep-Links, mobile Viewports, Zurück/Ändern und fehlende Versandmöglichkeit wurden in bestehende Verify-Suite integriert.
 - Ursprünglicher kompletter Feature-Head `a4f266fe77b458bc56c1dead8a7467d608a260a5` war mit GitHub-Verify erfolgreich; die getrennten finalen PR-Heads benötigen jeweils neue CI-Prüfung und revisionsgebundenen Readback.
 - Kein produktiver Anfrageversand, kein erfundenes Impressum, keine Änderung an T008/T009/T010/T011/T049/T057.
+
+## CI- und Integrationsstand — 01.11.2026
+
+- Teil A: PR #94, exakter Head `989b1362c2de3214ba92525de4bad90dcc3d4111`, 6 Dateien / 244 geänderte Zeilen, GitHub `verify` SUCCESS: https://github.com/Hall-of-Memory/memoraevents/actions/runs/41301394525.
+- Teil B: PR #95, exakter Head `fcc70ef79b9985c303064d3c67524f48a2c3995f`, 10 Dateien / 477 geänderte Zeilen, GitHub `verify` SUCCESS: https://github.com/Hall-of-Memory/memoraevents/actions/runs/41301451504. Der zweite PR ist bis zur Integration des ersten bewusst auf dessen Branch gestapelt.
+- Der reale Cloudflare-Lesecheck zeigte die Stage-1-Domain erreichbar; `/` führt noch auf `/demo/`, der neue Konfigurator ist auf dem Production-Origin noch nicht veröffentlicht.
+- **Technischer Mergeblocker (außerhalb dieses Repos):** Das installierte Grabowski-Selbstreview-System akzeptiert bei seiner Git-Quellidentitätsprüfung aktuell nur `heimgewebe/*`; ein für `Hall-of-Memory/memoraevents` ansonsten formal passender PR-Review wird deshalb mit `signed first-party material review history unresolved or invalid` abgewiesen. `captain-run` darf ohne gültigen revisionsgebundenen Reviewbeleg nicht ausgeführt werden. Die Projekt-Branchschutzregeln bleiben unverändert; kein alternativer Merge-Bypass.
+- Nächster zulässiger Schritt: Betreiber-Reviewwerkzeug um den echten kanonischen Repo-Owner ergänzen und geprüft bereitstellen **oder** einen ebenso authentischen, ausdrücklich zugelassenen Reviewweg verwenden; danach #94 und #95 gegen aktuelle Base-SHAs integrieren und Cloudflare-Produktionsreadback durchführen.
