@@ -261,6 +261,8 @@ const assertDemo = (measurement, viewport) => {
     visualEqual(measurement.customerPreview[edge], '0px', 'VIS-INVARIANT-CUSTOMER-AFFORDANCE', `${viewport.name}: customer-area preview still looks like a button at ${edge}`);
   }
   visualEqual(measurement.viewport.width, viewport.width, 'VIS-EVIDENCE-VIEWPORT', `${viewport.name}: viewport width drifted`);
+  visualCheck(Math.abs(measurement.header.left) <= 1 && Math.abs(measurement.header.right - measurement.clientWidth) <= 1,
+    'VIS-INVARIANT-HEADER-FULL-BLEED', viewport.name + ': header edges ' + measurement.header.left + '..' + measurement.header.right + ' / ' + measurement.clientWidth);
   visualCheck(measurement.documentWidth <= measurement.clientWidth + 1, 'VIS-INVARIANT-HORIZONTAL-OVERFLOW', `${viewport.name}: page has horizontal overflow (${measurement.documentWidth} > ${measurement.clientWidth})`);
   visualCheck(measurement.logo.rendered, 'VIS-INVARIANT-LOGO-HIDDEN', `${viewport.name}: logo is not visibly painted (display=${measurement.logo.display}, visibility=${measurement.logo.visibility}, opacity=${measurement.logo.effectiveOpacity}, contentHidden=${measurement.logo.contentHidden}, geometry=${measurement.logo.rect.width}x${measurement.logo.rect.height})`);
   visualCheck(measurement.logo.naturalWidth > 0 && measurement.logo.naturalHeight > 0, 'VIS-INVARIANT-BROKEN-ASSET', `${viewport.name}: logo asset did not load`);
@@ -337,6 +339,27 @@ const main = async () => {
             return document.querySelector('#memora-navigation')?.hidden && document.activeElement === document.querySelector('.memora-menu-toggle');
           })()`);
           visualCheck(closed, 'VIS-INVARIANT-NAV-TOGGLE', 'mobile: Escape must close menu and return focus');
+        }
+        // T071: test every navigation anchor, including mobile menu close.
+        const anchorStates = await evaluate(cdp, demo.sessionId, `(() => {
+          document.documentElement.style.scrollBehavior = 'auto';
+          const header = document.querySelector('.demo-header');
+          const nav = document.querySelector('#memora-navigation');
+          const toggle = document.querySelector('.memora-menu-toggle');
+          return [...nav.querySelectorAll('a[href^="#"]')].map(link => {
+            if (nav.hidden) toggle.click();
+            link.click();
+            const r = header.getBoundingClientRect();
+            return {hash:location.hash, href:link.getAttribute('href'), top:r.top, left:r.left, right:r.right,
+              clientWidth:document.documentElement.clientWidth, menuCollapsed:nav.hidden};
+          });
+        })()`);
+        visualEqual(anchorStates.length, 5, 'VIS-INVARIANT-NAV-ANCHORS', viewport.name + ': expected five navigation anchors');
+        for (const anchor of anchorStates) {
+          visualEqual(anchor.hash, anchor.href, 'VIS-INVARIANT-NAV-ANCHORS', viewport.name + ': anchor did not navigate');
+          visualCheck(Math.abs(anchor.top) <= 1 && Math.abs(anchor.left) <= 1 && Math.abs(anchor.right - anchor.clientWidth) <= 1,
+            'VIS-INVARIANT-HEADER-FULL-BLEED', viewport.name + ': sticky header edges after ' + anchor.href + ' ' + JSON.stringify(anchor));
+          if (viewport.name === 'mobile') visualCheck(anchor.menuCollapsed, 'VIS-INVARIANT-NAV-TOGGLE', 'mobile: menu remains expanded after link click');
         }
         const screenshotBytes = await captureFullPage(cdp, demo.sessionId, join(artifacts, `${viewport.name}-demo.png`));
         summaries.push({ view: viewport.name, route: '/demo/', screenshotBytes, settled: demo.settled });
