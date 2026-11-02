@@ -48,8 +48,14 @@ assert.ok(
   'an accepted inquiry must lock both navigation and all product/event controls',
 );
 assert.ok(
-  wizardSource.includes("if (root.dataset.received === 'true') return;"),
-  'wizard navigation handlers must reject scripted navigation after acceptance',
+  wizardSource.includes("if (root.dataset.received === 'true' || root.dataset.submitting === 'true') return;"),
+  'wizard handlers must reject navigation both during a pending POST and after receipt',
+);
+assert.ok(
+  inquiryClientSource.includes("new CustomEvent('memora:inquiry-submitting'") &&
+  wizardSource.includes("inquiryForm?.addEventListener('memora:inquiry-submitting'") &&
+  wizardSource.includes("const locked = submitting || root.dataset.received === 'true';"),
+  'pending inquiry must lock the wizard, then re-enable it on a failed request but never after 201',
 );
 
 const turnstileReady = inquiryClientSource.indexOf("turnstileStatus.textContent = 'Sicherheitsprüfung bereit.';");

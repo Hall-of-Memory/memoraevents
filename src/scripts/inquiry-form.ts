@@ -145,6 +145,11 @@ function initializeInquiryForm(form: HTMLFormElement) {
   const controller = createInquiryController(endpoint, {
     setSubmitting(submitting) {
       form.setAttribute('aria-busy', String(submitting));
+      if (form.hasAttribute('data-configurator-inquiry')) {
+        form.dispatchEvent(new CustomEvent('memora:inquiry-submitting', {
+          bubbles: true, detail: { submitting },
+        }));
+      }
       button.disabled = submitting || form.dataset.received === 'true';
       buttonIdle.hidden = submitting;
       buttonBusy.hidden = !submitting;

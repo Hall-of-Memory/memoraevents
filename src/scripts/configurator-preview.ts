@@ -143,7 +143,7 @@ if (root) {
     };
 
     const nextStep = () => {
-      if (root.dataset.received === 'true') return;
+      if (root.dataset.received === 'true' || root.dataset.submitting === 'true') return;
       clearError();
       if (activeStep === 0 && !chosenOffer()) {
         showError('Bitte wähle zuerst ein Produkt aus.');
@@ -187,10 +187,19 @@ if (root) {
       if (input === eventLocation) input.addEventListener('input', updateSummary);
     });
     back.addEventListener('click', () => {
-      if (root.dataset.received === 'true') return;
+      if (root.dataset.received === 'true' || root.dataset.submitting === 'true') return;
       if (activeStep > 0) { activeStep -= 1; renderStep(); }
     });
     next.addEventListener('click', nextStep);
+    inquiryForm?.addEventListener('memora:inquiry-submitting', (event) => {
+      const submitting = (event as CustomEvent<{ submitting: boolean }>).detail.submitting === true;
+      root.dataset.submitting = String(submitting);
+      const locked = submitting || root.dataset.received === 'true';
+      back.disabled = locked || activeStep === 0;
+      next.disabled = locked;
+      [...offerInputs, ...packageInputs, ...extraInputs, eventType, eventDate, eventLocation]
+        .forEach((input) => { input.disabled = locked; });
+    });
     inquiryForm?.addEventListener('memora:inquiry-received', () => {
       // Freeze exactly the choice summarized by the accepted inquiry.
       root.dataset.received = 'true';
