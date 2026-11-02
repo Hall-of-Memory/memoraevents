@@ -301,7 +301,7 @@ try {
     for (const highlight of offer.highlights) assert.ok(productText.includes(highlight));
     assert.equal(elements(product, 'form').length, 0, 'product pages must not bypass disabled inquiry');
     assert.doesNotMatch(productHtml, /melody-fotobox|maps\.app\.goo\.gl|tel:|mailto:/i);
-    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/demo/konfigurator/?produkt=' + offer.id));
+    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/demo/#anfrage'), `${offer.slug}: product inquiry CTA must target the clearly disabled preview, while the prices page retains exact wizard deep links`);
   }
 
   const form = elements(demo, 'form').find((node) => hasAttr(node, 'data-demo-inquiry-disabled'));

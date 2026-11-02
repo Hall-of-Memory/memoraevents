@@ -69,7 +69,7 @@ assert.equal((demo.match(/aria-label="Unverbindliche Anfrage für (?:Fotobox|Fot
 for (const slug of ['fotobox', 'fotospiegel', 'magazinbox']) {
   assert.ok(demo.includes(`${base}produkte/${slug}/`), `product link escaped preview base: ${slug}`);
   const product = await readFile(path.join(root, `produkte/${slug}/index.html`), 'utf8');
-  assert.ok(product.includes(`${base}demo/konfigurator/?produkt=${slug}`), `product configurator link escaped preview base: ${slug}`);
+  assert.ok(product.includes(`${base}demo/#anfrage`), `product disabled-inquiry preview link escaped preview base: ${slug}`);
   assert.match(product, /noindex,nofollow/);
 }
 
