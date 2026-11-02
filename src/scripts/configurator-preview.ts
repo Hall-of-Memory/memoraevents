@@ -21,6 +21,7 @@ if (root) {
   const eventType = root.querySelector<HTMLSelectElement>('select[name="wizardEvent"]');
   const eventDate = root.querySelector<HTMLInputElement>('input[name="wizardDate"]');
   const eventLocation = root.querySelector<HTMLInputElement>('input[name="wizardLocation"]');
+  const inquiryForm = root.querySelector<HTMLFormElement>('form[data-configurator-inquiry]');
 
   const offers: ConfiguratorOffer[] = offerInputs.map((input) => ({
     id: input.value,
@@ -50,6 +51,27 @@ if (root) {
       if (target) target.textContent = text;
     };
     const clearError = () => { error.hidden = true; error.textContent = ''; };
+    // Feed the existing inquiry-form controller its exact V1 field names.
+    // The browser-side price, extras and any unapproved fields are NEVER sent.
+    const syncInquiryDraft = () => {
+      if (!inquiryForm || inquiryForm.dataset.received === 'true') return;
+      const offer = inquiryForm.querySelector<HTMLSelectElement>('[data-offer-select]');
+      const selectedPackage = inquiryForm.querySelector<HTMLSelectElement>('[data-package-select]');
+      if (!offer || !selectedPackage) return;
+      if (offer.value !== chosenOffer()) {
+        offer.value = chosenOffer();
+        offer.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      selectedPackage.value = chosenPackage();
+      for (const [name, value] of [
+        ['date', eventDate.value],
+        ['eventType', eventType.value],
+        ['location', eventLocation.value.trim()],
+      ] as const) {
+        const hidden = inquiryForm.querySelector<HTMLInputElement>('input[name="' + name + '"]');
+        if (hidden) hidden.value = value;
+      }
+    };
     const showError = (message: string) => {
       error.textContent = message;
       error.hidden = false;
@@ -74,6 +96,7 @@ if (root) {
     };
 
     const updateSummary = () => {
+      syncInquiryDraft();
       const offerId = chosenOffer();
       if (!offerId) {
         selectionLabel.textContent = 'Wähle ein Produkt aus.';

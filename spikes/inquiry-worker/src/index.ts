@@ -75,7 +75,17 @@ function html(body: string, status = 200): Response {
     'referrer-policy': 'no-referrer',
   } });
 }
-async function verifyTurnstile(token: string, secret: string): Promise<boolean | null> {
+async function verifyTurnstile(token: string, secret: string, mode: string): Promise<boolean | null> {
+  // The existing local-only smoke uses Cloudflare's PUBLIC test secrets.
+  // Never contact an external CAPTCHA service from a deterministic local test;
+  // production mode still requires the real Siteverify response.
+  if (mode === 'local-only') {
+    if (secret === '1x0000000000000000000000000000000AA') {
+      return token === 'XXXX.DUMMY.TOKEN.XXXX';
+    }
+    if (secret === '2x0000000000000000000000000000000AA') return false;
+    return null;
+  }
   const body = new FormData(); body.set('secret', secret); body.set('response', token);
   try {
     const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body });
@@ -134,7 +144,7 @@ async function handleInquiry(request: Request, env: Env, ctx: ExecutionContextLi
   }
   const actorGate = await env.PUBLIC_ACTOR_LIMITER.limit({ key: await actorRateLimitKey(input.offerId, input.email) });
   if (!actorGate.success) return rateLimited('actor');
-  const human = await verifyTurnstile(input.turnstileToken, env.TURNSTILE_SECRET_KEY);
+  const human = await verifyTurnstile(input.turnstileToken, env.TURNSTILE_SECRET_KEY, env.SPIKE_MODE);
   if (human === false) return json({ error: 'human-verification-failed' }, 403);
   if (human === null) return json({ error: 'human-verification-unavailable' }, 503);
 

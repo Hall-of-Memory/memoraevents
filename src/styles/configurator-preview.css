@@ -50,3 +50,19 @@
 @media(max-width:520px){.wizard-progress li{flex-direction:column;text-align:center}.wizard-shell{padding-block:28px 75px}.wizard-summary-price{font-size:1.6rem}.wizard-content,.wizard-summary{padding:22px 16px}.wizard-review div{display:block}.wizard-review dd{text-align:left;margin-top:4px}}
 @media(forced-colors:active){.wizard-choice:has(input:checked){outline:2px solid Highlight}.wizard-progress li[aria-current=step]{outline:2px solid Highlight}}
 @media(prefers-reduced-motion:reduce){.wizard-shell *{scroll-behavior:auto}}
+
+.wizard-contact-active{margin-top:26px;border-top:1px solid #e3d5bf;padding-top:22px}
+.wizard-contact-active h3{font:1.35rem Georgia,serif;color:#372a18;margin:0 0 12px}
+.wizard-contact-active>p{color:#625749;line-height:1.6}
+.wizard-contact-active .inquiry-card{display:grid;gap:17px;margin-top:20px;padding:0;background:transparent;box-shadow:none;border:0}
+.wizard-contact-active .inquiry-card>label{display:grid;gap:8px}
+.wizard-contact-active .form-grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.wizard-contact-active .form-grid-two label{display:grid;gap:8px}
+.wizard-contact-active .inquiry-card input:not([type=checkbox]),.wizard-contact-active .inquiry-card textarea{box-sizing:border-box;width:100%;min-height:46px;border:1px solid #b9a990;border-radius:10px;background:#fff;color:#30281e;padding:11px 14px;font:inherit}
+.wizard-contact-active .inquiry-card .consent-row{display:flex;gap:12px;align-items:start}
+.wizard-contact-active .consent-row input{margin-top:5px}
+.wizard-contact-active .inquiry-card .turnstile-field{min-width:0;padding:12px;border:1px solid #c9bba4;border-radius:10px}
+.wizard-contact-active .inquiry-card .demo-submit{min-height:48px;justify-self:start}
+.wizard-contact-active .inquiry-card .demo-submit:disabled{opacity:.65;cursor:not-allowed}
+.wizard-contact-active .form-note,.wizard-contact-active .turnstile-status{font-size:.85rem;color:#655747;line-height:1.5}
+@media(max-width:520px){.wizard-contact-active .form-grid-two{grid-template-columns:1fr}.wizard-contact-active .inquiry-card .demo-submit{width:100%}}

@@ -145,7 +145,7 @@ function initializeInquiryForm(form: HTMLFormElement) {
   const controller = createInquiryController(endpoint, {
     setSubmitting(submitting) {
       form.setAttribute('aria-busy', String(submitting));
-      button.disabled = submitting;
+      button.disabled = submitting || form.dataset.received === 'true';
       buttonIdle.hidden = submitting;
       buttonBusy.hidden = !submitting;
     },
@@ -155,6 +155,12 @@ function initializeInquiryForm(form: HTMLFormElement) {
       if (turnstile && widgetId) turnstile.reset(widgetId);
     },
     resetAfterSuccess() {
+      if (form.hasAttribute('data-configurator-inquiry')) {
+        // Keep the completed customer selection and success receipt visible;
+        // the user must not accidentally submit the same wizard again.
+        form.dataset.received = 'true';
+        return;
+      }
       form.reset();
       syncPackageSelect();
     },
@@ -162,6 +168,8 @@ function initializeInquiryForm(form: HTMLFormElement) {
 
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
+    // A received inquiry is final for this wizard; Enter must not re-send it.
+    if (form.dataset.received === 'true') return;
     clearFeedback();
     if (verificationUnavailable) {
       publish({
@@ -191,6 +199,7 @@ function initializeInquiryForm(form: HTMLFormElement) {
     void loadTurnstile()
       .then((api) => {
         turnstile = api;
+        turnstileStatus.textContent = 'Sicherheitsprüfung bereit.';
         widgetId = api.render(turnstileContainer, {
           sitekey: siteKey,
           theme: 'dark',
@@ -227,7 +236,6 @@ function initializeInquiryForm(form: HTMLFormElement) {
             return true;
           },
         });
-        turnstileStatus.textContent = 'Sicherheitsprüfung bereit.';
       })
       .catch(() => {
         verificationUnavailable = true;
