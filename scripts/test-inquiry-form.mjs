@@ -29,6 +29,29 @@ const duplicateFence = inquiryClientSource.indexOf("if (form.dataset.received ==
 const handlerGuard = inquiryClientSource.indexOf("const handleSubmit = (event: SubmitEvent)");
 const feedbackClear = inquiryClientSource.indexOf('clearFeedback();', handlerGuard);
 assert.ok(duplicateFence > handlerGuard && duplicateFence < feedbackClear, 'a received wizard must not clear success or submit again');
+
+const wizardSource = readFileSync(join(repo, 'src/scripts/configurator-preview.ts'), 'utf8');
+const receivedEvent = "memora:inquiry-received";
+assert.ok(
+  inquiryClientSource.includes("form.dispatchEvent(new Event('" + receivedEvent + "', { bubbles: true }));"),
+  'confirmed 201 must notify the wizard that its accepted selection is immutable',
+);
+assert.ok(
+  wizardSource.includes("inquiryForm?.addEventListener('" + receivedEvent + "'") &&
+    wizardSource.includes("root.dataset.received = 'true';"),
+  'wizard must receive the accepted inquiry event and latch the submitted state',
+);
+assert.ok(
+  wizardSource.includes('back.disabled = true;') &&
+    wizardSource.includes('next.disabled = true;') &&
+    wizardSource.includes('input.disabled = true;'),
+  'an accepted inquiry must lock both navigation and all product/event controls',
+);
+assert.ok(
+  wizardSource.includes("if (root.dataset.received === 'true') return;"),
+  'wizard navigation handlers must reject scripted navigation after acceptance',
+);
+
 const turnstileReady = inquiryClientSource.indexOf("turnstileStatus.textContent = 'Sicherheitsprüfung bereit.';");
 const turnstileRender = inquiryClientSource.indexOf('widgetId = api.render(turnstileContainer');
 assert.ok(turnstileReady >= 0 && turnstileReady < turnstileRender, 'a synchronous Turnstile callback must not be overwritten by a stale ready status');

@@ -143,6 +143,7 @@ if (root) {
     };
 
     const nextStep = () => {
+      if (root.dataset.received === 'true') return;
       clearError();
       if (activeStep === 0 && !chosenOffer()) {
         showError('Bitte wähle zuerst ein Produkt aus.');
@@ -186,8 +187,17 @@ if (root) {
       if (input === eventLocation) input.addEventListener('input', updateSummary);
     });
     back.addEventListener('click', () => {
+      if (root.dataset.received === 'true') return;
       if (activeStep > 0) { activeStep -= 1; renderStep(); }
     });
     next.addEventListener('click', nextStep);
+    inquiryForm?.addEventListener('memora:inquiry-received', () => {
+      // Freeze exactly the choice summarized by the accepted inquiry.
+      root.dataset.received = 'true';
+      back.disabled = true;
+      next.disabled = true;
+      [...offerInputs, ...packageInputs, ...extraInputs, eventType, eventDate, eventLocation]
+        .forEach((input) => { input.disabled = true; });
+    });
   }
 }

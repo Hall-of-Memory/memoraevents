@@ -159,6 +159,7 @@ function initializeInquiryForm(form: HTMLFormElement) {
         // Keep the completed customer selection and success receipt visible;
         // the user must not accidentally submit the same wizard again.
         form.dataset.received = 'true';
+        form.dispatchEvent(new Event('memora:inquiry-received', { bubbles: true }));
         return;
       }
       form.reset();
