@@ -301,7 +301,18 @@ try {
     for (const highlight of offer.highlights) assert.ok(productText.includes(highlight));
     assert.equal(elements(product, 'form').length, 0, 'product pages must not bypass disabled inquiry');
     assert.doesNotMatch(productHtml, /melody-fotobox|maps\.app\.goo\.gl|tel:|mailto:/i);
-    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/demo/#anfrage'), `${offer.slug}: product inquiry CTA must target the clearly disabled preview, while the prices page retains exact wizard deep links`);
+    const heroWizardUrl = '/demo/konfigurator/?produkt=' + offer.id;
+    assert.equal(
+      elements(product, 'a').filter((node) => attr(node, 'href') === heroWizardUrl).length,
+      2,
+      `${offer.slug}: hero and footer CTA must preselect this product in the sendefrei wizard`,
+    );
+    for (const item of approvedPackages.filter((item) => item.offerId === offer.id)) {
+      assert.ok(
+        elements(product, 'a').some((node) => attr(node, 'href') === heroWizardUrl + '&paket=' + item.id),
+        `${offer.slug}: package card must preselect its exact package ${item.id}`,
+      );
+    }
   }
 
   const form = elements(demo, 'form').find((node) => hasAttr(node, 'data-demo-inquiry-disabled'));
