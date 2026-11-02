@@ -21,6 +21,7 @@ if (root) {
   const eventType = root.querySelector<HTMLSelectElement>('select[name="wizardEvent"]');
   const eventDate = root.querySelector<HTMLInputElement>('input[name="wizardDate"]');
   const eventLocation = root.querySelector<HTMLInputElement>('input[name="wizardLocation"]');
+  const inquiryForm = root.querySelector<HTMLFormElement>('form[data-configurator-inquiry]');
 
   const offers: ConfiguratorOffer[] = offerInputs.map((input) => ({
     id: input.value,
@@ -50,6 +51,27 @@ if (root) {
       if (target) target.textContent = text;
     };
     const clearError = () => { error.hidden = true; error.textContent = ''; };
+    // Feed the existing inquiry-form controller its exact V1 field names.
+    // The browser-side price, extras and any unapproved fields are NEVER sent.
+    const syncInquiryDraft = () => {
+      if (!inquiryForm || inquiryForm.dataset.received === 'true') return;
+      const offer = inquiryForm.querySelector<HTMLSelectElement>('[data-offer-select]');
+      const selectedPackage = inquiryForm.querySelector<HTMLSelectElement>('[data-package-select]');
+      if (!offer || !selectedPackage) return;
+      if (offer.value !== chosenOffer()) {
+        offer.value = chosenOffer();
+        offer.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      selectedPackage.value = chosenPackage();
+      for (const [name, value] of [
+        ['date', eventDate.value],
+        ['eventType', eventType.value],
+        ['location', eventLocation.value.trim()],
+      ] as const) {
+        const hidden = inquiryForm.querySelector<HTMLInputElement>('input[name="' + name + '"]');
+        if (hidden) hidden.value = value;
+      }
+    };
     const showError = (message: string) => {
       error.textContent = message;
       error.hidden = false;
@@ -74,6 +96,7 @@ if (root) {
     };
 
     const updateSummary = () => {
+      syncInquiryDraft();
       const offerId = chosenOffer();
       if (!offerId) {
         selectionLabel.textContent = 'Wähle ein Produkt aus.';
@@ -120,6 +143,7 @@ if (root) {
     };
 
     const nextStep = () => {
+      if (root.dataset.received === 'true' || root.dataset.submitting === 'true') return;
       clearError();
       if (activeStep === 0 && !chosenOffer()) {
         showError('Bitte wähle zuerst ein Produkt aus.');
@@ -163,8 +187,26 @@ if (root) {
       if (input === eventLocation) input.addEventListener('input', updateSummary);
     });
     back.addEventListener('click', () => {
+      if (root.dataset.received === 'true' || root.dataset.submitting === 'true') return;
       if (activeStep > 0) { activeStep -= 1; renderStep(); }
     });
     next.addEventListener('click', nextStep);
+    inquiryForm?.addEventListener('memora:inquiry-submitting', (event) => {
+      const submitting = (event as CustomEvent<{ submitting: boolean }>).detail.submitting === true;
+      root.dataset.submitting = String(submitting);
+      const locked = submitting || root.dataset.received === 'true';
+      back.disabled = locked || activeStep === 0;
+      next.disabled = locked;
+      [...offerInputs, ...packageInputs, ...extraInputs, eventType, eventDate, eventLocation]
+        .forEach((input) => { input.disabled = locked; });
+    });
+    inquiryForm?.addEventListener('memora:inquiry-received', () => {
+      // Freeze exactly the choice summarized by the accepted inquiry.
+      root.dataset.received = 'true';
+      back.disabled = true;
+      next.disabled = true;
+      [...offerInputs, ...packageInputs, ...extraInputs, eventType, eventDate, eventLocation]
+        .forEach((input) => { input.disabled = true; });
+    });
   }
 }
