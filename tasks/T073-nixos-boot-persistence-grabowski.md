@@ -43,29 +43,34 @@ Die gepinnte NixOS-26.05-`systemd-boot-builder.py` generiert
 Heim-PC `boot.loader.efi.canTouchEfiVariables = false`, wodurch die
 EFI-`LoaderEntryDefault`-Variable nicht synchron mit der Datei
 aktualisiert wird. EFI hat Vorrang vor `loader.conf`. Zusätzlich
-kann `configurationLimit = 10` eine nur anhand der alten
+kann das Seagate-`configurationLimit = 8` (Zukunfts-Storage: 10) eine nur anhand der alten
 Generationsnummer gepinnte Closure später aus dem Bootmenü entfernen.
 
 ## Quellkorrektur und Prüfungen
 
 - `heimgewebe/heim-pc` PR
   [#316](https://github.com/heimgewebe/heim-pc/pull/316),
-  Head `34c3b05e1990537b986b697213797d51d7733d11`
-  (noch **nicht** als integriert/aktiviert belegt).
-- Ausschließlich der bestehende physische `storage-layout.nix`-
-  Bootloader-Hook wurde erweitert. Die **nativen** Nix-Profile
+  Aktueller Head `a32577f5bd0ea1fd2d00bc688a8442a442d170f1`
+  (noch **nicht** als integriert oder am produktiven Bootloader aktiviert belegt).
+- Der anfängliche Hook griff nur im zukünftigen Storage-Profil; Großer Adler
+  beanstandete dies revisionsgebunden und die voreilige Gen42-Promotion.
+  Der nachgebesserte gemeinsame Hook in `boot-approved-profiles.nix` wird
+  vom realen `seagate-primary-candidate.nix` importiert und nach privatem
+  LUKS-Entry-Patching auch im Zukunfts-Storage eingebunden. Die **nativen** Nix-Profile
   `heim-pc-approved` und `heim-pc-recovery` halten geprüfte
   Closures, Kernel und Initrd über die normale
   Generationenrotation hinweg. Der Hook validiert genau die
   init-Closures und Einträge, setzt EFI-Default/SysFail sowie
   `loader.conf` und prüft den Readback.
-- Fünf lokale `unittest`-Regressionen bestanden, einschließlich
+- Sieben lokale `unittest`-Regressionen bestanden, einschließlich
   Bash-`-n`-Syntax, Profilbindung, LUKS-Patch-Reihenfolge und
   EFI-/SysFail-Auswahl.
-- Nixer hat die `heim-pc-storage-target`-Option
-  `boot.loader.systemd-boot.extraInstallCommands` am geänderten
-  Source-Worktree erfolgreich ausgewertet. Kein vollständiger
-  Bootloader-/Runtime-Effekt oder Reboot damit bewiesen.
+- Nixer hat am exakten neuen Worktree sowohl
+  `heim-pc-seagate-grabowski-headless-candidate` (realer physischer
+  Seagate-Host) als auch `heim-pc-storage-target` ausgewertet: der gemeinsame
+  Hook ist bei beiden vorhanden; der Zukunfts-Storage-Patch steht davor.
+  Der NixOS-Snapshot-Hash-Test für 50 Quelldateien bestand lokal.
+  Kein vollständiger Bootloader-/Runtime-Effekt oder Reboot damit bewiesen.
 
 ## Nachtrag: CI und Netzblocker (03.11.2026)
 
@@ -78,31 +83,58 @@ Generationsnummer gepinnte Closure später aus dem Bootmenü entfernen.
 - Der Hash wurde im **isolierten** Heim-PC-Bootfix-Worktree
   exakt nachgeführt und als lokaler Folge-Commit
   `7a97faab79ff83826b8346656e90f6f5e4e7ac74` festgehalten.
-  Der originale Hash-Test sowie die fünf neuen Bootprofil-Checks
-  bestanden anschließend frisch lokal. **Dieser Folge-Commit ist noch
-  NICHT auf GitHub publiziert** und CI dafür noch nicht gelaufen.
+  Der originale Hash-Test und die damals fünf neuen Bootprofil-Checks
+  bestanden lokal. Dieser Folge-Commit wurde danach auf GitHub publiziert.
+  Die erneuten Validate-/Guard-/Smoke-/CodeQL-Checks waren für `7a97faab`
+  erfolgreich; ein neuerer Realhost-Fix supersediert diesen Stand.
 - GitHub-SSH-Publikation und GitHub-CLI-API-Aufrufe scheiterten danach an
   `github.com: Name or service not known`; auch die Namensauflösung
   von `example.com` schlug fehl. WAN-IP-Pings funktionierten; Tailscale
   verwaltet DNS über `100.100.100.100` mit lokalem Standardresolver
   `192.168.178.62`. Die genaue Ursache des DNS-Ausfalls ist nicht
   bewiesen; keine unkoordinierte DNS-/Tailscale-Änderung vorgenommen.
-- Das T073-Projektjournal liegt in einem **eigenen lokalen**
-  MEMORA-Worktree und ist bereits commitfähig mit reparierter
-  repo-lokaler Git-Identität. Der Stand kann erst nach erfolgreicher
-  GitHub-Publikation als projektweit integriert gelten.
+  Spätere frische GitHub-DNS- und SSH-Readbacks waren wieder erfolgreich.
+- Das T073-Projektjournal ist im eigenen MEMORA-Worktree revisionsgebunden
+  unter PR [#117](https://github.com/Hall-of-Memory/memoraevents/pull/117)
+  veröffentlicht; `main`-Integration ist separat zu prüfen.
 - Frischer Rootbroker-Readback bestätigt unverändert
   `Current=42`, `Default=38`, `SysFail=38`,
   `loader.conf default=43`. Der produktive Bootstandard ist
   somit **noch nicht repariert**.
 
+## Revisionsnachtrag: physischer Seagate-Hook (03.11.2026)
+
+- Nach unabhängiger Großer-Adler-Gegenprüfung (zwei High-Findings
+  am vorherigen Head `7a97faab`) wurde die wirkungslose reine
+  `storage-layout.nix`-Einbindung im Bootfix korrigiert.
+- Neue physische Quellimplementierung:
+  `heimgewebe/heim-pc` PR #316, Commit
+  `a32577f5bd0ea1fd2d00bc688a8442a442d170f1`.
+  `boot-approved-profiles.nix` wird vom tatsächlichen
+  Seagate-Grabowski-Host importiert, ohne WD-ESP oder Storage-LUKS-Ziele
+  umzubauen. Der separate Future-Storage-Host nutzt denselben Hook
+  nach seinem privaten Entry-Patch.
+- Explizite Entscheidung: **Gen38 bleibt vorerst EFI-Standard und
+  Recovery**, weil Gen42 zwar gebootet, aber iPad-KRDP-Bild-/Eingabeweg
+  noch nicht vollständig produktiv abgenommen ist. Eine spätere
+  Freigabe ist ein eigener genau gebundener Operator-Schritt.
+- Sieben neue Boot-Hook-Regressionen, Bash-Syntax und der angepasste
+  50-Dateien-NixOS-Snapshottest: PASS. Nixer wertete den
+  Realhost-`extraInstallCommands` und die Future-Storage-Reihenfolge
+  erfolgreich aus. Der exakte PR-Head ist veröffentlicht; CI/Integration
+  und insbesondere der echte Bootloader-Lauf sind gesonderte Gates.
+- Das Rootbroker-/MCP-Readback der aktuell gebooteten Gen42 ist
+  kein Post-Boot-Beweis der Quellkorrektur. Es wurde kein neuer
+  Neustart und kein neuer EFI-Default-Schreibvorgang ausgeführt.
+
 ## Offene Akzeptanzkriterien
 
 1. PR #316 kritisch prüfen, CI/Integration des exakten Heads abschließen.
-2. Vor der ersten Bootloader-Aktivierung mit neuem Hook die **tatsächlich**
-   gebootete freigegebene Gen42 und die belegte Gen38-Recovery als
-   zwei native, GC-geschützte Nix-Systemprofile über den einzigen
-   autorisierten Root-Operator initialisieren; alle Store-Pfade frisch prüfen.
+2. Vor der ersten Bootloader-Aktivierung mit neuem Hook die bewährte
+   **Gen38 als beide Profile** (`heim-pc-approved` und `heim-pc-recovery`)
+   über den alleinigen autorisierten Root-Operator initialisieren;
+   alle Store- und Bootpfade frisch prüfen. Gen42 bleibt bis zur realen
+   iPad-KRDP-Bild-/Eingabe-Ende-zu-Ende-Abnahme **nicht freigegeben**.
 3. Unter exklusiver Boot-/EFI-Autorität eine reguläre
    NixOS-Bootloader-Aktualisierung ausführen; vorher/nachher
    `bootctl status`, `bootctl list`, `loader.conf` und beide
