@@ -206,3 +206,54 @@ Grabowski-Rootbroker/SSH/Tailscale/MCP-Ende-zu-Ende-Beweis.
 Gen42 bleibt wegen offener iPad-Steuerungs-Abnahme nicht als
 Bootstandard freigegeben; Gen38 ist bewusst `approved` und `recovery`.
 MEMORA-Stage-1 bleibt sendefrei, T069 active, T009 blocked_external.
+
+
+## Nachtrag: Codex-Findings und abgesicherter physischer Source-Fix
+
+**Beobachtung vom 03.11.2026, nach Quelle `a88dfd6`.**
+
+- Ein vollständiger Captain-Preflight mit der auf `a88dfd6` grünen
+  NixOS-/VM-CI passierte alle allgemeinen Evidenzgates. Der echte
+  Captain-Merge wurde jedoch korrekt **vor** GitHub-Mutation durch zwei
+  unbearbeitete inline Codex-P2-Reviewthreads blockiert
+  (`merge_guard_review_findings_unresolved_threads_present`).
+- Thread `PRRT_kwDOQrJ5Vs6zRQup`: Verlust der bestehenden
+  Credential-Bootstrap-Regressionen; im genauen Hauptbranch-Testblob
+  restauriert (2.617 Zeilen statt 1.600, unveränderte Tests erhalten).
+- Thread `PRRT_kwDOQrJ5Vs6zS6lk`: unbedingter Bootprofil-Hook im
+  **frischen, separat installierbaren** Future-Storage-Ziel hätte die
+  vorhandene `nixos-install`-Bootstrap-Sequenz ohne Profile blockiert.
+  Kleinstmögliche Sourcekorrektur: Import aus
+  `storage-layout.nix` wieder entfernt. Der verifizierte
+  **reale Seagate-/Grabowski-Host** importiert den
+  `boot-approved-profiles.nix`-Hook weiterhin. Private LUKS-Entry-
+  Generierung im separaten Future-Storage-Ziel ist unverändert.
+- Die Korrektur wurde als `heimgewebe/heim-pc` PR #316
+  Commit `4e55e16eaf62f4de4e422d741c40a6cfaebc513b`
+  veröffentlicht. Nixer lieferte für den realen Seagate-Host
+  den Bootprofil-Install-Hook und für das Future-Storage-Ziel
+  ausschließlich dessen bisherigen privaten Entry-Patch.
+  Acht lokale Bootprofiltests inklusive negativem Fresh-Install-
+  Test und der vollständige 50-Dateien-Snapshot-Test bestanden.
+- Die zwei **materiell behobenen** Codex-P2-Threads wurden über den
+  kanonischen Grabowski-GitHub-Zugriff auf `resolved=true` gestellt.
+  GitHub-Readback bestätigte beide Zustände und `outdated=true`.
+- Der aktuelle PR-Head ist noch nicht als **gemergt oder produktiv
+  installiert** belegt; nach der Sourceänderung wurde neue
+  GitHub-CI gestartet. `live-system` (Realhost-Build und VM-Proofs)
+  war beim letzten Abruf noch in Arbeit; alle anderen erforderlichen
+  Checks waren PASS. Weder ein neues EFI-Default noch ein Neustart
+  oder ein Post-Boot-MCP-Erfolg wurde daraus behauptet.
+- Die bereits geschützten nativen `heim-pc-approved` und
+  `heim-pc-recovery`-Systemprofile bleiben unverändert auf der
+  geprüften Generation 38; ein physischer Boot zur Gen42 belegt
+  weiterhin keine vollständige iPad-Steuerungsfreigabe.
+
+**Offen:** PR316 auf dem letzten exakten Head CI-grün integrieren,
+den neuen Installer unter einziger Boot-/EFI-Autorität kontrolliert
+aktivieren und nach **regulärer** Aktualisierung EFI Default,
+`loader.conf`, SysFail sowie die generierten benannten Einträge
+vergleichen. Neustart nur ohne fremde produktive Unterbrechung;
+danach tatsächlichen Grabowski-/Rootbroker-/SSH-/Tailscale-/MCP-
+Wiederanlauf belegen. T069 bleibt active, T009 blocked_external,
+Stage-1 bleibt sendefrei.
