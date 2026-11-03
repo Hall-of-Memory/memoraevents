@@ -10,6 +10,7 @@ const artifacts = resolve(process.argv[3] ?? 'visual-test-artifacts');
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 834, height: 1112 },
+  { name: 'tablet-landscape', width: 1024, height: 768 },
   { name: 'mobile', width: 390, height: 844 },
 ];
 
@@ -180,6 +181,12 @@ const measureDemo = (cdp, sessionId) => evaluate(cdp, sessionId, `(()=>{
     const rendered=element.getClientRects().length>0&&box.width>0&&box.height>0&&own.display!=='none'&&own.visibility!=='hidden'&&own.visibility!=='collapse'&&effectiveOpacity>0&&!contentHidden;
     return {rect:box,display:own.display,visibility:own.visibility,effectiveOpacity,contentHidden,rendered};
   };
+  const inquiryRows=[...document.querySelectorAll('.demo-inquiry .form-grid-two')].map(group=>({
+    bounds:rect(group),
+    labels:[...group.querySelectorAll(':scope > label')].map(label=>({
+      bounds:rect(label),field:rect(label.querySelector('input,select')),
+    })),
+  }));
   const logo=document.querySelector('.demo-header .demo-brand > img');
   const header=document.querySelector('.demo-header');
   const nav=document.querySelector('.demo-header .demo-nav');
@@ -198,7 +205,7 @@ const measureDemo = (cdp, sessionId) => evaluate(cdp, sessionId, `(()=>{
     eventPhoto:eventPhoto?{rect:rect(eventPhoto),naturalWidth:eventPhoto.naturalWidth,naturalHeight:eventPhoto.naturalHeight}:null,
     process:process?{...paint(process),columns:getComputedStyle(process).gridTemplateColumns,items:processItems}:null,
     customerPreview:customerPreview?{tag:customerPreview.tagName,text:customerPreview.textContent.trim(),borderTop:getComputedStyle(customerPreview).borderTopWidth,borderRight:getComputedStyle(customerPreview).borderRightWidth,borderBottom:getComputedStyle(customerPreview).borderBottomWidth,borderLeft:getComputedStyle(customerPreview).borderLeftWidth}:null,
-    links,title:document.title,
+    inquiryRows,links,title:document.title,
   };
 })()`);
 
@@ -242,6 +249,20 @@ const visualCode = (error) => String(error?.message ?? error).split(':', 1)[0];
 const within = (value, minimum, maximum) => value >= minimum && value <= maximum;
 
 const assertDemo = (measurement, viewport) => {
+  visualCheck(measurement.inquiryRows.length >= 3, 'VIS-INVARIANT-INQUIRY-ROWS-MISSING', viewport.name + ': inquiry grid rows are missing');
+  for (const [rowIndex,row] of measurement.inquiryRows.entries()) {
+    visualEqual(row.labels.length, 2, 'VIS-INVARIANT-INQUIRY-CELLS-MISSING', viewport.name + ': inquiry grid row ' + rowIndex + ' needs two cells');
+    for (const [cellIndex,cell] of row.labels.entries()) {
+      visualCheck(cell.field && cell.bounds, 'VIS-INVARIANT-INQUIRY-FIELD-MISSING', viewport.name + ': missing field at row ' + rowIndex + ' cell ' + cellIndex);
+      visualCheck(cell.bounds.left >= row.bounds.left - 1 && cell.bounds.right <= row.bounds.right + 1 &&
+        cell.field.left >= cell.bounds.left - 1 && cell.field.right <= cell.bounds.right + 1,
+        'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP', viewport.name + ': field escapes assigned grid cell at row ' + rowIndex + ' cell ' + cellIndex);
+    }
+    const [first,second] = row.labels.map(cell => cell.field);
+    const sameLine = first.top < second.bottom - 1 && second.top < first.bottom - 1;
+    visualCheck(!sameLine || first.right <= second.left - 1,
+      'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP', viewport.name + ': adjacent fields overlap at row ' + rowIndex);
+  }
   visualCheck(measurement.logo, 'VIS-INVARIANT-LOGO-MISSING', `${viewport.name}: header logo is missing`);
   visualCheck(measurement.header, 'VIS-INVARIANT-HEADER-MISSING', `${viewport.name}: header is missing`);
   visualCheck(measurement.nav, 'VIS-INVARIANT-NAV-MISSING', `${viewport.name}: navigation is missing`);
@@ -251,7 +272,7 @@ const assertDemo = (measurement, viewport) => {
   visualCheck(measurement.process.rendered && measurement.process.items.every((item) => item.rendered), 'VIS-INVARIANT-PROCESS-HIDDEN', `${viewport.name}: process section or one of its steps is not visibly painted`);
   visualEqual(measurement.process.display, 'grid', 'VIS-DESIGN-PROCESS-LAYOUT', `${viewport.name}: process section lost grid layout`);
   visualEqual(measurement.process.items.length, 4, 'VIS-INVARIANT-PROCESS-STEPS', `${viewport.name}: process must render all four customer steps`);
-  const expectedProcessColumns = viewport.name === 'desktop' ? 4 : viewport.name === 'tablet' ? 2 : 1;
+  const expectedProcessColumns = viewport.width > 860 ? 4 : viewport.width > 600 ? 2 : 1;
   const processColumnCount = measurement.process.columns.trim().split(/\s+/).filter(Boolean).length;
   visualEqual(processColumnCount, expectedProcessColumns, 'VIS-DESIGN-PROCESS-LAYOUT', `${viewport.name}: process grid must use ${expectedProcessColumns} balanced column(s); got ${measurement.process.columns}`);
   visualCheck(measurement.customerPreview, 'VIS-INVARIANT-CUSTOMER-PREVIEW-MISSING', `${viewport.name}: customer-area preview label is missing`);
@@ -365,6 +386,7 @@ const main = async () => {
         summaries.push({ view: viewport.name, route: '/demo/', screenshotBytes, settled: demo.settled });
         if (viewport.name === 'desktop') {
           const controlledCases = [
+            { id: 't072-date-overflow', css: '.demo-inquiry input[type=date]{min-width:450px!important}', expected: 'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP' },
             { id: 't053-logo-self-hidden', css: '.demo-header .demo-brand > img{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-logo-ancestor-hidden', css: '.demo-header .demo-brand{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-process-hidden', css: '.hom-process-grid{display:none!important}', expected: 'VIS-INVARIANT-PROCESS-HIDDEN' },
