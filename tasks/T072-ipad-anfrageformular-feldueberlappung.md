@@ -1,6 +1,6 @@
 ---
 id: T072
-status: done
+status: active
 priority: P1
 dependencies: [T071]
 ---
@@ -26,10 +26,3 @@ Das gemeinsame Formularraster verwendet zwei automatisch mindestbreitebestimmte 
 - npm run test:demo: PASS (Astro-Build und Demo-Regression).
 - Browser-Regression im Nix-Store-Chromium 156: PASS, vier Viewports 390, 834, 1024, 1440 px, zwölf Screenshots. Formularkanten auf jeder Breite innerhalb ihrer Rasterzellen; die absichtlich injizierte Datumsfeld-Überbreite wird exakt als VIS-INVARIANT-INQUIRY-FIELD-OVERLAP erkannt.
 - Physisches iPad-Safari und produktive Cloudflare-Version vor Merge/Deployment nicht als geprüft behaupten.
-
-## Produktionsabnahme und Abschluss 03.11.2026
-
-- **Integration:** PR `Hall-of-Memory/memoraevents#114` regulär gemergt; Merge-Commit `12f9b573e3e99c5c77058749ce9b365a305a56fa`. Auf diesem Commit der GitHub-Workflow `41655693384` abgeschlossen mit **verify SUCCESS** und **pages-runtime SUCCESS**.
-- **Echter Live-Browsernachweis nach dem Merge:** Firefox 158 WebDriver BiDi lud direkt `https://memoraevents.de/demo/` bei echten CSS-Viewports **390, 834, 1024, 1440 px**. Für alle vier Größen wurden drei `.demo-inquiry .form-grid-two`-Reihen und sämtliche sechs Feld-/Label-Grenzen geometrisch geprüft: kein Feld verlässt seine Rasterzelle, keine nebeneinanderliegenden nativen Felder überschneiden sich, kein horizontaler Seitenüberlauf. Ergebnis **4/4 PASS**, Grabowski-Task `577234272dcc49b28951fb3e`, terminaler Receipt `d1ca69f87158195ae7ef499473886d294bb883fbd270a2e372d34a45b5b710ed`. Bei 834px zeigen die zweispaltigen Rasterzellen jeweils 320px Breite mit 14px Abstand; bei 1024px jeweils rund 199,5px. Das bestätigt gerade den früheren Grid-Überlappungsfall; bloße HTTP-200- oder Scrolltests wären dafür nicht ausreichend.
-- **Gegenprobe und Scope:** Bereits auf PR-#114-Fix-Head die gezielt injizierte Überbreite des Datumsfelds mit `VIS-INVARIANT-INQUIRY-FIELD-OVERLAP` erkannt; tatsächlicher Produktiv-Browserlauf nach Merge ohne die Testinjektion bestanden. Kein Anfrage-POST und keine Änderung der Stage-1-Sendesperre. **Ein physisches iPad mit Safari wurde nicht selbst bedient**; die neue Live-Regression beruht auf Firefox/BiDi und den zuvor bestätigten Chromium-Regressionen, sodass Safari-spezifisches Verhalten als kleine verbleibende Browserabweichung gesondert erkennbar bleibt.
-- **Status:** T072 `done` für den produktiv reproduzierbar behobenen CSS-Rasterfehler. Keine neue Architektur oder Sonderregel erforderlich.

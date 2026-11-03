@@ -78,4 +78,4 @@
 | T069 | active | Anfragekonfigurator mit Paketen, Zusatzleistungen und transparenter Kostenschätzung nach Melody-Referenz |
 | T070 | active | Aktives Altbranding und Legacy-Domainpfade auf MEMORA EVENT bereinigen |
 | T071 | done | Sticky Header über volle Breite: dunkle Randstreifen nach Ankernavigation beheben |
-| T072 | done | iPad-Anfrageformular: Datum und Veranstaltungsart ohne Überlappung |
+| T072 | active | iPad-Anfrageformular: Datum und Veranstaltungsart ohne Überlappung |
