@@ -47,3 +47,7 @@ Impressum, Datenschutz und das Cookie-Thema sollen ausdrücklich berücksichtigt
 - für den späteren privaten Event-Fotobereich zusätzlich dessen tatsächliche Speicher-/Auslieferungs-, Zugangs- und Löschdaten aus T025
 
 Wenn diese Angaben vorliegen, müssen finale Inhalte, Löschumsetzung und Browser-/Produktionsreadback ergänzt werden. Bis dahin bleibt T008 korrekt `blocked_external`; die bereits technisch umsetzbare Struktur aus T027 ist abgeschlossen.
+
+## Legal-/Privacy-Freigabe-Readback 03.11.2026
+
+Der technische öffentliche Stage-1-Kundenweg und die aktuelle MEMORA-Darstellung sind ausgeliefert; das ist **keine rechtliche Launchfreigabe**. Die aktuellen `production-approvals.json`-Werte für `legal`, `publicMedia` und `productContent` bleiben alle `approved:false`, `launchStatus=draft` und die Indexierung gesperrt. Die verbindliche einheitliche Betreiberentscheidung F1–F12 liegt in `docs/business-legal-ground-truth.md` (T057). Erst nach belegten Impressums-/Datenschutz-/Dienstleister-/Consent- und Freigabeentscheidungen können die rechtlichen Produktionsgates hier und in T009/T049 aktualisiert und real getestet werden. T008 bleibt `blocked_external`; keine allgemeinen Cookies, Drittanbieter oder Rechtstexte hineinphantasieren.
