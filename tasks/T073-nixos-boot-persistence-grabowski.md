@@ -156,3 +156,53 @@ Produktabnahme. Die 54/54 Konfigurator-Browsertests und der
 produktive iPad-Fix werden nicht wiederholt. Stage-1 bleibt
 sendefrei; keine Kunden-/Rechts-/Datenschutz-/Versandfreigaben
 werden gesetzt oder behauptet.
+
+## Nachtrag: produktive Gen38-GC-Profile und vollständiger PR316-Teststand
+
+**Beobachtungszeitraum 03.11.2026, ca. 20:12–20:25 MEZ.**
+
+- Per ChatGPT → Grabowski-MCP → kanonischem Rootbroker wurde ausschließlich
+  die **reversible Nix-Systemprofilinitialisierung** ausgeführt. Weil
+  `grabowski-privileged-broker@.service` bewusst `ProtectSystem=strict`
+  verwendet, lief der schreibende Vorgang in kurzlebigen, vom Rootbroker
+  über `systemd-run --system --wait --pipe --collect` gestarteten
+  Root-Units. Keine neue dauerhafte Service-Architektur.
+- `/nix/var/nix/profiles/system-profiles/heim-pc-approved` → `heim-pc-approved-1-link`
+  und `.../heim-pc-recovery` → `heim-pc-recovery-1-link` existieren
+  jetzt **beide** und verweisen nach frischem `readlink -f` auf die exakt
+  gleiche bereits funktionsfähige Gen38-Closure
+  `/nix/store/2xy6inggq55kq8zzkhvppivm8yz0xlqn-nixos-system-heim-pc-26.05.20261025.1f607aa`.
+  Die NixOS-Kernel-/Initrd-Rückfallgeneration wurde nicht entfernt.
+- Unmittelbarer `bootctl status`-Readback nach den Profileffekten
+  zeigte unverändert: **Current=Gen42, EFI-Default=Gen38, SysFail=Gen38**.
+  Weder EFI-Standard noch `loader.conf` wurden bei der Profilerstellung
+  verändert. Es gab **keinen** Neustart und **keinen** Bootloader-Install.
+- Eine vollständige GitHub-PR-Diffprüfung deckte auf, dass in der vorigen
+  PR316-Fassung unbeabsichtigt 1.019 Zeilen aus dem bestehenden
+  `tests/test_nixos_system_source.py` entfernt waren. Der Writer
+  restaurierte die gesamte Datei aus dem **exakten unveränderten
+  GitHub-main-Blob `52bb41c571e9113d4d875ea65a89108441912d45`**
+  (2.617 Zeilen) und übernahm nur den geänderten Snapshot-SHA und
+  die neue Zahl 50 für die NixOS-Quelldateien.
+- Aktueller publizierter PR316-Head:
+  `a88dfd63cda5ffa91874ea6ec6b61097bfdf9837`.
+  GitHub-Diff: **257 hinzugefügte / 2 entfernte Zeilen über 6 Dateien**,
+  keine Kürzung der Test-Suite mehr.
+  Acht lokale Bootprofil-Tests sowie der NixOS-Snapshot-Test bestanden
+  erneut; Validate/Guard/Smoke/CodeQL am aktuellen Head wurden erfolgreich
+  gemeldet, der vollständige `live-system`-CI-Job war beim letzten
+  Abruf noch **in progress**.
+- Der read-only Captain-Preflight bestand am neuen Head alle vorgelegten
+  Source-, Scope-, Status-, Review- und Reversibilitätsgates; nur die
+  noch nicht abgeschlossene `live-system`-CI verhinderte das
+  grüne Merge-Gate. **Kein Merge und kein produktiver Installer-Lauf
+  aus dieser Beobachtung ableiten.**
+
+**Weiterhin offen:** Vollständige CI auf exakt `a88dfd6`, danach
+autorisierte PR316-Integration, reguläre physische Bootloaderaktivierung
+mit Readback von EFI/loader.conf und beiden Profileinträgen, Stabilität
+nach späterer Aktivierung und ein koordinierter echter Neustart mit
+Grabowski-Rootbroker/SSH/Tailscale/MCP-Ende-zu-Ende-Beweis.
+Gen42 bleibt wegen offener iPad-Steuerungs-Abnahme nicht als
+Bootstandard freigegeben; Gen38 ist bewusst `approved` und `recovery`.
+MEMORA-Stage-1 bleibt sendefrei, T069 active, T009 blocked_external.
