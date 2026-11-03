@@ -67,6 +67,35 @@ Generationsnummer gepinnte Closure später aus dem Bootmenü entfernen.
   Source-Worktree erfolgreich ausgewertet. Kein vollständiger
   Bootloader-/Runtime-Effekt oder Reboot damit bewiesen.
 
+## Nachtrag: CI und Netzblocker (03.11.2026)
+
+- Für den zunächst publizierten PR-Head `34c3b05e1990537b986b697213797d51d7733d11`
+  bestand der volle GitHub-CI-Schritt `live-system` (einschließlich Build und
+  systemd-VM-Proofs). Der Schritt `validate` schlug ausschließlich wegen des
+  statischen `SOURCE_SNAPSHOT_SHA256` fehl:
+  tatsächlich `93f6caf5b13a3c0373f28ff2e5e40654befdcba9e796910558814c2a13013930`
+  statt `d191d40d0f814fa10541ae0fefca3207c104969c7e25c717970eb1665fc90ce4`.
+- Der Hash wurde im **isolierten** Heim-PC-Bootfix-Worktree
+  exakt nachgeführt und als lokaler Folge-Commit
+  `7a97faab79ff83826b8346656e90f6f5e4e7ac74` festgehalten.
+  Der originale Hash-Test sowie die fünf neuen Bootprofil-Checks
+  bestanden anschließend frisch lokal. **Dieser Folge-Commit ist noch
+  NICHT auf GitHub publiziert** und CI dafür noch nicht gelaufen.
+- GitHub-SSH-Publikation und GitHub-CLI-API-Aufrufe scheiterten danach an
+  `github.com: Name or service not known`; auch die Namensauflösung
+  von `example.com` schlug fehl. WAN-IP-Pings funktionierten; Tailscale
+  verwaltet DNS über `100.100.100.100` mit lokalem Standardresolver
+  `192.168.178.62`. Die genaue Ursache des DNS-Ausfalls ist nicht
+  bewiesen; keine unkoordinierte DNS-/Tailscale-Änderung vorgenommen.
+- Das T073-Projektjournal liegt in einem **eigenen lokalen**
+  MEMORA-Worktree und ist bereits commitfähig mit reparierter
+  repo-lokaler Git-Identität. Der Stand kann erst nach erfolgreicher
+  GitHub-Publikation als projektweit integriert gelten.
+- Frischer Rootbroker-Readback bestätigt unverändert
+  `Current=42`, `Default=38`, `SysFail=38`,
+  `loader.conf default=43`. Der produktive Bootstandard ist
+  somit **noch nicht repariert**.
+
 ## Offene Akzeptanzkriterien
 
 1. PR #316 kritisch prüfen, CI/Integration des exakten Heads abschließen.
