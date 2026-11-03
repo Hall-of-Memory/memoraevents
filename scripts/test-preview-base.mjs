@@ -53,7 +53,8 @@ assert.match(wizard, /form-action 'none'/);
 assert.match(wizard, /data-wizard-step="0"/);
 assert.match(wizard, /data-wizard-step="3"/);
 assert.doesNotMatch(wizard, /name="email"|name="phone"|type="submit"/);
-for (const entry of JSON.parse(await readFile('src/content/packages.json','utf8'))) {
+const approvedWizardPackages = JSON.parse(await readFile('src/content/packages.json','utf8'));
+for (const entry of approvedWizardPackages) {
   assert.ok(prices.includes(base + 'demo/konfigurator/?produkt=' + entry.offerId + '&amp;paket=' + entry.id),
     'preview-base price deep link must preserve offer+package: ' + entry.id);
 }
@@ -69,7 +70,12 @@ assert.equal((demo.match(/aria-label="Unverbindliche Anfrage für (?:Fotobox|Fot
 for (const slug of ['fotobox', 'fotospiegel', 'magazinbox']) {
   assert.ok(demo.includes(`${base}produkte/${slug}/`), `product link escaped preview base: ${slug}`);
   const product = await readFile(path.join(root, `produkte/${slug}/index.html`), 'utf8');
-  assert.ok(product.includes(`${base}demo/#anfrage`), `product disabled-inquiry preview link escaped preview base: ${slug}`);
+  const expectedWizard = `${base}demo/konfigurator/?produkt=${slug}`;
+  assert.ok(product.includes(expectedWizard), `product CTA must preselect the product with preview base: ${slug}`);
+  for (const item of approvedWizardPackages.filter((item) => item.offerId === slug)) {
+    assert.ok(product.includes(expectedWizard + '&amp;paket=' + item.id),
+      `product package CTA must preselect exact offer+package: ${item.id}`);
+  }
   assert.match(product, /noindex,nofollow/);
 }
 
