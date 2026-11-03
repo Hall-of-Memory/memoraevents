@@ -82,3 +82,15 @@ Bis diese Wahrheit vorliegt, bleibt T049 `blocked_external` und das Production-R
 - kein neues CMS;
 - keine Speicherung privater Eventfotos im Inquiry-Datenspeicher;
 - keine Aktivierung produktiver D1-/Mail-/Turnstile-Ressourcen allein durch diesen Task.
+
+## Enforcement-Schnittstelle und aktuelle Grenze — 03.11.2026
+
+- Aktueller SQL-Stand auf `main` `611e7aaf`: `inquiries` und `inquiry_notifications` liegen getrennt; Notification-Datensätze referenzieren Inquiry per `FOREIGN KEY ... ON DELETE RESTRICT`. Löschung zuerst aus `inquiry_notifications`, dann aus `inquiries` ist als technische Abhängigkeit zu berücksichtigen. Ein bestehender Migrationstest `scripts/test-inquiry-migrations.mjs` prüft das explizite FK-Blockieren.
+- Aktueller produktionsnaher Code hat Datenminimierung und Access-geschützte Summary-/Detailtrennung; der Adminpfad kann Benachrichtigungsstatus lesen und `POST /api/admin/inquiries/:id/notify` autorisiert erneut anstoßen. Ein **automatischer Retention-Purge** oder exakte Postfach-/Export-/Backup-Löschung sind **nicht nachgewiesen**.
+- Erst die Betreiberantwort F4–F6 der zentralen Vorlage `docs/business-legal-ground-truth.md` macht die konkrete Frist, Status- und Löschregeln bestimmbar. Danach den kleinsten belegbaren technischen Enforcementpfad samt negativen Fällen und tatsächlicher Betriebsprüfung umsetzen; `src/release/inquiry-data-policy.json` behält vorerst `blocked_external` und `retentionDays:null`.
+
+### Frische lokale technische Prüfungen 03.11.2026
+
+- `scripts/test-admin-data-minimization.mjs` PASS (`summary_pii=false`, `detail_auth=true`, `unauthorized_db_queries=0`).
+- `scripts/test-admin-page-security.mjs` PASS (`unsafe_inline=false`, `nonce_bound=true`, `detail_on_demand=true`).
+- `scripts/test-inquiry-migrations.mjs` PASS gegen **lokales** Wrangler-D1, migrationsgebundene FK-`RESTRICT/NO_ACTION`-Invarianten; Job `grabowski-job-b07fc1ddda9a`, Abschlussreceipt `50c91debce0acaf61703be7e7cd0bec1d2f8b89d4da0efc94e6373623d7643ca`. Diese Prüfungen belegen **keine** Löschpolicy oder Remote-D1-Verifikation; T049 bleibt `blocked_external`.

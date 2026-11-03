@@ -1,6 +1,6 @@
 ---
 id: T068
-status: active
+status: done
 priority: P1
 dependencies: [T010, T056]
 ---
@@ -21,3 +21,9 @@ npm ci unter Node 22.23.3 bestanden. Demo und Quality bestanden; Produktion 32.5
 Kanonischer Verify lokal gestartet, nach 90 Sekunden beim Wrangler/D1-Migrationsstart abgebrochen. CI bleibt vor Merge erforderlich.
 
 10.10.2026: Kunde autorisiert Aktivierung und Merge der zugehörigen Änderungen. Erster CI-Run: 22 PASS, ein veralteter Preview-Base-Platzhaltertest FAIL. Assertion auf den tatsächlichen Preisübersichtslink und dessen Produktlinks unter Preview-Base aktualisiert. Produktive Formularaktivierung weiterhin technisch blockiert: keine produktiven D1-/Turnstile-/Email-Bindings in der statischen Worker-Konfiguration; Datenpolicy blocked_external. Keine Dummy-Konfiguration oder unbelegte Empfangsbestätigung eingebaut.
+
+## Abschlussbeleg 03.11.2026 — zwölf bestätigte Pakete
+
+- Kundenseitig ausdrücklich bestätigte sechs Stufen für Fotobox (249/299/349/399/449/549 €) und Fotospiegel (299/349/399/449/499/599 €) sind seit PR #82 in `main`: Merge `8441a32bfb73380ba87898309e5d201fdf82ca36`.
+- PR #109 hat alle zwölf Paketstufen in die Navigation zum Konfigurator integriert. PR #113 dokumentiert auf der Produktionsdomain 24 tatsächlich angeklickte Paketlinks mit zutreffender Vorbelegung, Preiswechsel und 54/54 Firefox-Checks insgesamt.
+- **T068 done für die zwölf beauftragten Paket-/Preisregeln.** Weder Magazinbox-Festpreis noch Add-ons, Liefer-/Betreuungspreise oder weitergehende finale Produkttext-Freigaben werden daraus abgeleitet; diese sind bei T010/T011/T069 fachlich zu entscheiden. Die Anfrage bleibt bis T057/T049/T009 sendefrei.
