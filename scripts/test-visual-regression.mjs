@@ -10,6 +10,7 @@ const artifacts = resolve(process.argv[3] ?? 'visual-test-artifacts');
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 834, height: 1112 },
+  { name: 'tablet-landscape', width: 1024, height: 768 },
   { name: 'mobile', width: 390, height: 844 },
 ];
 
@@ -180,6 +181,12 @@ const measureDemo = (cdp, sessionId) => evaluate(cdp, sessionId, `(()=>{
     const rendered=element.getClientRects().length>0&&box.width>0&&box.height>0&&own.display!=='none'&&own.visibility!=='hidden'&&own.visibility!=='collapse'&&effectiveOpacity>0&&!contentHidden;
     return {rect:box,display:own.display,visibility:own.visibility,effectiveOpacity,contentHidden,rendered};
   };
+  const inquiryRows=[...document.querySelectorAll('.demo-inquiry .form-grid-two')].map(group=>({
+    bounds:rect(group),
+    labels:[...group.querySelectorAll(':scope > label')].map(label=>({
+      bounds:rect(label),field:rect(label.querySelector('input,select')),
+    })),
+  }));
   const logo=document.querySelector('.demo-header .demo-brand > img');
   const header=document.querySelector('.demo-header');
   const nav=document.querySelector('.demo-header .demo-nav');
@@ -198,7 +205,7 @@ const measureDemo = (cdp, sessionId) => evaluate(cdp, sessionId, `(()=>{
     eventPhoto:eventPhoto?{rect:rect(eventPhoto),naturalWidth:eventPhoto.naturalWidth,naturalHeight:eventPhoto.naturalHeight}:null,
     process:process?{...paint(process),columns:getComputedStyle(process).gridTemplateColumns,items:processItems}:null,
     customerPreview:customerPreview?{tag:customerPreview.tagName,text:customerPreview.textContent.trim(),borderTop:getComputedStyle(customerPreview).borderTopWidth,borderRight:getComputedStyle(customerPreview).borderRightWidth,borderBottom:getComputedStyle(customerPreview).borderBottomWidth,borderLeft:getComputedStyle(customerPreview).borderLeftWidth}:null,
-    links,title:document.title,
+    inquiryRows,links,title:document.title,
   };
 })()`);
 
@@ -242,6 +249,20 @@ const visualCode = (error) => String(error?.message ?? error).split(':', 1)[0];
 const within = (value, minimum, maximum) => value >= minimum && value <= maximum;
 
 const assertDemo = (measurement, viewport) => {
+  visualCheck(measurement.inquiryRows.length >= 3, 'VIS-INVARIANT-INQUIRY-ROWS-MISSING', viewport.name + ': inquiry grid rows are missing');
+  for (const [rowIndex,row] of measurement.inquiryRows.entries()) {
+    visualEqual(row.labels.length, 2, 'VIS-INVARIANT-INQUIRY-CELLS-MISSING', viewport.name + ': inquiry grid row ' + rowIndex + ' needs two cells');
+    for (const [cellIndex,cell] of row.labels.entries()) {
+      visualCheck(cell.field && cell.bounds, 'VIS-INVARIANT-INQUIRY-FIELD-MISSING', viewport.name + ': missing field at row ' + rowIndex + ' cell ' + cellIndex);
+      visualCheck(cell.bounds.left >= row.bounds.left - 1 && cell.bounds.right <= row.bounds.right + 1 &&
+        cell.field.left >= cell.bounds.left - 1 && cell.field.right <= cell.bounds.right + 1,
+        'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP', viewport.name + ': field escapes assigned grid cell at row ' + rowIndex + ' cell ' + cellIndex);
+    }
+    const [first,second] = row.labels.map(cell => cell.field);
+    const sameLine = first.top < second.bottom - 1 && second.top < first.bottom - 1;
+    visualCheck(!sameLine || first.right <= second.left - 1,
+      'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP', viewport.name + ': adjacent fields overlap at row ' + rowIndex);
+  }
   visualCheck(measurement.logo, 'VIS-INVARIANT-LOGO-MISSING', `${viewport.name}: header logo is missing`);
   visualCheck(measurement.header, 'VIS-INVARIANT-HEADER-MISSING', `${viewport.name}: header is missing`);
   visualCheck(measurement.nav, 'VIS-INVARIANT-NAV-MISSING', `${viewport.name}: navigation is missing`);
@@ -251,7 +272,7 @@ const assertDemo = (measurement, viewport) => {
   visualCheck(measurement.process.rendered && measurement.process.items.every((item) => item.rendered), 'VIS-INVARIANT-PROCESS-HIDDEN', `${viewport.name}: process section or one of its steps is not visibly painted`);
   visualEqual(measurement.process.display, 'grid', 'VIS-DESIGN-PROCESS-LAYOUT', `${viewport.name}: process section lost grid layout`);
   visualEqual(measurement.process.items.length, 4, 'VIS-INVARIANT-PROCESS-STEPS', `${viewport.name}: process must render all four customer steps`);
-  const expectedProcessColumns = viewport.name === 'desktop' ? 4 : viewport.name === 'tablet' ? 2 : 1;
+  const expectedProcessColumns = viewport.width > 860 ? 4 : viewport.width > 600 ? 2 : 1;
   const processColumnCount = measurement.process.columns.trim().split(/\s+/).filter(Boolean).length;
   visualEqual(processColumnCount, expectedProcessColumns, 'VIS-DESIGN-PROCESS-LAYOUT', `${viewport.name}: process grid must use ${expectedProcessColumns} balanced column(s); got ${measurement.process.columns}`);
   visualCheck(measurement.customerPreview, 'VIS-INVARIANT-CUSTOMER-PREVIEW-MISSING', `${viewport.name}: customer-area preview label is missing`);
@@ -365,6 +386,7 @@ const main = async () => {
         summaries.push({ view: viewport.name, route: '/demo/', screenshotBytes, settled: demo.settled });
         if (viewport.name === 'desktop') {
           const controlledCases = [
+            { id: 't072-date-overflow', css: '.demo-inquiry input[type=date]{min-width:450px!important}', expected: 'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP' },
             { id: 't053-logo-self-hidden', css: '.demo-header .demo-brand > img{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-logo-ancestor-hidden', css: '.demo-header .demo-brand{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-process-hidden', css: '.hom-process-grid{display:none!important}', expected: 'VIS-INVARIANT-PROCESS-HIDDEN' },
@@ -426,6 +448,31 @@ const main = async () => {
         summaries.push({ view: viewport.name, route: '/demo/rahmen/10/', screenshotBytes, settled: framePage.settled });
       } finally {
         await cdp.send('Target.closeTarget', { targetId: framePage.targetId });
+      }
+
+      // T069: independent preview route must actually handle package deep links
+      // and a back/forward customer journey without a real submission.
+      const wizardPage = await openPage(cdp, origin + '/demo/konfigurator/?produkt=fotobox&paket=fotobox-classic', viewport);
+      try {
+        const initial = await evaluate(cdp, wizardPage.sessionId, '(() => ({offer:document.querySelector("input[name=wizardOffer]:checked")?.value,packageId:document.querySelector("input[name=wizardPackage]:checked")?.value,price:document.querySelector("[data-wizard-price]")?.textContent,step:document.querySelector("[data-configurator-preview]")?.dataset.activeStep,width:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,forms:document.querySelectorAll("form").length}))()');
+        visualEqual(initial.offer, 'fotobox', 'VIS-INVARIANT-WIZARD-DEEP-LINK', viewport.name + ': product preselection lost');
+        visualEqual(initial.packageId, 'fotobox-classic', 'VIS-INVARIANT-WIZARD-DEEP-LINK', viewport.name + ': package preselection lost');
+        visualCheck(initial.price.includes('349'), 'VIS-INVARIANT-WIZARD-PRICE', viewport.name + ': confirmed package price not visible');
+        visualEqual(initial.forms, 0, 'VIS-INVARIANT-WIZARD-NO-SUBMIT', viewport.name + ': preview must not contain a real form');
+        visualCheck(initial.width <= initial.client + 1, 'VIS-INVARIANT-WIZARD-OVERFLOW', viewport.name + ': preview overflows horizontally');
+        if (viewport.name === 'desktop') {
+          const flow = await evaluate(cdp, wizardPage.sessionId, '(() => { const root=document.querySelector("[data-configurator-preview]");const next=document.querySelector("[data-wizard-next]");const back=document.querySelector("[data-wizard-back]");next.click();const event=document.querySelector("[name=wizardEvent]");event.value="Hochzeit";const date=document.querySelector("[name=wizardDate]");const d=new Date();d.setFullYear(d.getFullYear()+1);date.value=[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");const city=document.querySelector("[name=wizardLocation]");city.value="Lübeck";next.click();const eventStep=root.dataset.activeStep;next.click();const reviewStep=root.dataset.activeStep;const summary=document.querySelector("[data-review-price]")?.textContent;back.click();const editStep=root.dataset.activeStep;const upgrade=document.querySelector("input[value=fotobox-party]");upgrade.checked=true;upgrade.dispatchEvent(new Event("change",{bubbles:true}));next.click();return {eventStep,reviewStep,editStep,finalStep:root.dataset.activeStep,summary,upgraded:document.querySelector("[data-review-price]")?.textContent,errors:document.querySelector("[data-wizard-error]")?.hidden};})()');
+          visualEqual(flow.eventStep, '2', 'VIS-INVARIANT-WIZARD-STEPS', 'desktop: event step did not advance');
+          visualEqual(flow.reviewStep, '3', 'VIS-INVARIANT-WIZARD-STEPS', 'desktop: review did not advance');
+          visualEqual(flow.editStep, '2', 'VIS-INVARIANT-WIZARD-BACK', 'desktop: back navigation lost');
+          visualEqual(flow.finalStep, '3', 'VIS-INVARIANT-WIZARD-STEPS', 'desktop: edited package did not return to review');
+          visualCheck(flow.summary.includes('349') && flow.upgraded.includes('449'), 'VIS-INVARIANT-WIZARD-PRICE', 'desktop: price did not update after back/edit');
+          visualCheck(flow.errors, 'VIS-INVARIANT-WIZARD-FORM', 'desktop: valid event details were rejected');
+        }
+        const screenshotBytes = await captureFullPage(cdp, wizardPage.sessionId, join(artifacts, viewport.name + '-wizard.png'));
+        summaries.push({ view: viewport.name, route: '/demo/konfigurator/', screenshotBytes, settled: wizardPage.settled });
+      } finally {
+        await cdp.send('Target.closeTarget', { targetId: wizardPage.targetId });
       }
     }
     await writeFile(join(artifacts, 'summary.json'), `${JSON.stringify({
