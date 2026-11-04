@@ -135,6 +135,10 @@ try {
   assert.equal(attr(elements(demo, 'html')[0], 'lang'), 'de');
   assert.equal(attr(elements(demo, 'body')[0], 'class'), 'demo-page');
   assert.equal(elements(demo, 'h1').length, 1);
+  const heroSummary = descendants(demo, (node) => hasClass(node, 'demo-hero-points'))[0];
+  assert.ok(heroSummary, 'demo hero summary must remain available');
+  assert.equal(attr(heroSummary, 'role'), 'group', 'a named non-landmark group must expose an allowed ARIA role');
+  assert.equal(attr(heroSummary, 'aria-label'), 'MEMORA EVENT auf einen Blick');
   assert.equal(elements(demo, 'nav').length, 1);
   assert.ok(attr(elements(demo, 'nav')[0], 'aria-label'));
   assert.equal(elements(demo, 'main').length, 1);
