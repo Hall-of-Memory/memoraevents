@@ -80,6 +80,11 @@ assert.match(
   'npm run deploy must require strict readiness and a fresh gated build before Wrangler deploy',
 );
 
+const siteWorker = JSON.parse(readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
+assert.equal(siteWorker.name, 'hall-of-memory', 'Worker Builds must target the configured static-site Worker');
+assert.equal(siteWorker.assets?.directory, './dist', 'Worker Preview must serve the same verified static asset directory');
+assert.deepEqual(siteWorker.previews, {}, 'Workers Builds preview command requires an explicit previews block');
+
 const injectedWorkerConfig = `{"main":"${PRODUCTION_INQUIRY_ENTRY}","vars":{"SPIKE_MODE":"production"}}`;
 const injectedWorkerState = loadRepositoryReadinessInput({ env: { PRODUCTION_WORKER_CONFIG_JSON: injectedWorkerConfig } });
 assert.equal(injectedWorkerState.productionWorkerConfigExists, true, 'trusted CI must be able to inject the production Worker binding contract');
