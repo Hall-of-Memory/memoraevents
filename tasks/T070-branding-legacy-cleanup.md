@@ -88,3 +88,10 @@ Die erste T070-Fassung bündelte 19 Dateien einschließlich AGENTS.md und Deploy
 - `https://www.hallofmemory.de/`: HTTP **525** (Cloudflare Origin-TLS-Fehler), kein funktionierender öffentlicher Legacy-Redirect.
 - Die im Repository implementierten Markenbereinigungen aus PR #96/#97/#98 sind integriert; der letzte reine Dokumentationsnachtrag PR #100 bleibt zum Prüfzeitpunkt **offen**. Die Host-/TLS-/Provider-Arbeiten sind davon unabhängig nicht erledigt. Keine DNS-/TLS-/Worker-Mutation ohne belegte Betreiber- und Providerautorität.
 - **T070 bleibt active** bis der Legacy-Host tatsächlich dauerhaft auf den kanonischen Host weiterleitet und der HTTPS/TLS-Readback beider Hostnamen erfolgreich ist. Keine neue Aufgabe nötig.
+
+## Aktueller Legacy-Readback — 04.11.2026
+
+- Nach Integration des reinen Dokumentations-PR #100 ist der öffentliche Markenstand weiterhin MEMORA EVENT. `https://www.memoraevents.de/` endet korrekt bei `https://memoraevents.de/demo/` auf dem Apex-Host (`noindex` bleibt erhalten).
+- `https://hallofmemory.de/` endet dagegen weiterhin bei `https://hallofmemory.de/demo/` mit HTTP 200 **unter dem Legacy-Host**, nicht bei `memoraevents.de`. `https://www.hallofmemory.de/` liefert weiterhin HTTP 525. Dieser Provider-Redirect-/TLS-Fehler ist damit erneut nachgewiesen; PR #100 hat ihn nicht repariert.
+- `wrangler whoami` am Betreiberhost meldet weiterhin `not authenticated`. Ohne authentifizierten Zugriff auf die Legacy-Cloudflare-Zone werden keine DNS-/TLS-/Redirectregeln fingiert oder gesetzt. Kleinste noch nötige Aktion bleibt die bereits oben spezifizierte reversible Legacy-Zonen-Redirectregel mit anschließendem Host-/TLS-Readback beider Schemes.
+- **T070 bleibt `active`**, blockiert jedoch nicht den sendefreien Konfigurator und ersetzt keine F1–F12-Betreiberfreigabe.

@@ -70,9 +70,16 @@ try {
   assertConstraintFailure("DELETE FROM inquiries WHERE id='valid'", /FOREIGN KEY constraint failed/i);
   assertConstraintFailure("UPDATE inquiries SET id='renamed' WHERE id='valid'", /FOREIGN KEY constraint failed/i);
 
+  // Policy eligibility stays external; verify only the existing FK-safe deletion order.
+  execute("DELETE FROM inquiry_notifications WHERE inquiry_id='valid'");
+  assert.equal(execute("SELECT COUNT(*) AS count FROM inquiry_notifications WHERE inquiry_id='valid'")[0].count, 0);
+  execute("DELETE FROM inquiries WHERE id='valid'");
+  assert.equal(execute("SELECT COUNT(*) AS count FROM inquiries WHERE id='valid'")[0].count, 0);
+  assert.deepEqual(execute('PRAGMA foreign_key_check'), []);
+
   const migrations = execute('SELECT name FROM d1_migrations ORDER BY id').map(({ name }) => name);
   assert.deepEqual(migrations, ['0001_inquiries.sql', '0002_notifications.sql', '0003_inquiry_constraints.sql']);
-  console.log('inquiry-migrations-ok status_check=true created_at_desc=true notification_fk=RESTRICT/NO_ACTION');
+  console.log('inquiry-migrations-ok status_check=true created_at_desc=true notification_fk=RESTRICT/NO_ACTION child_first_delete=true');
 } finally {
   rmSync(persistence, { recursive: true, force: true });
 }
