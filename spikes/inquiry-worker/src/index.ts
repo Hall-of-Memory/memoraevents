@@ -3,6 +3,7 @@ import {
   isKnownProductionPackage,
   inquiryStatusUpdateSchema,
   parseInquirySubmission,
+  type ValidatedInquirySubmission,
 } from '../../../shared/inquiry-contract.ts';
 import { verifyAccessRequest, type AccessEnv, type AdminIdentity } from './access.ts';
 import { actorRateLimitKey, ownerNotificationText } from './privacy.ts';
@@ -125,6 +126,25 @@ async function deliverOwnerNotification(inquiryId: string, env: Env): Promise<'s
     return 'failed';
   }
 }
+// Reuse the existing inquiry primary key for optional client UUIDv4 retries.
+// Match the complete stored draft before returning the original receipt;
+// a changed draft with the same key must never silently accept different data.
+async function replayInquiry(id: string, input: ValidatedInquirySubmission, env: Env): Promise<Response | null> {
+  const row = await env.DB.prepare(`
+    SELECT id,offer_id,package_id,event_date,event_type,location,name,email,phone,message
+    FROM inquiries WHERE id=?
+  `).bind(id).first<InquiryRow>();
+  if (!row) return null;
+  const matches = row.offer_id === input.offerId && row.package_id === (input.packageId ?? null)
+    && row.event_date === input.date && row.event_type === input.eventType
+    && row.location === input.location && row.name === input.name
+    && row.email === input.email && row.phone === (input.phone ?? null)
+    && row.message === (input.message ?? null);
+  if (!matches) return json({ error: 'submission-id-conflict' }, 409);
+  // This is a storage acknowledgment, not proof of a delivered owner email.
+  return json({ inquiryId: id, status: 'received', bookingCreated: false, ownerNotification: 'unchanged', replayed: true }, 201);
+}
+
 async function handleInquiry(request: Request, env: Env, ctx: ExecutionContextLike): Promise<Response> {
   const routeGate = await env.PUBLIC_ROUTE_LIMITER.limit({ key: 'public:inquiries' });
   if (!routeGate.success) return rateLimited('route');
@@ -144,11 +164,17 @@ async function handleInquiry(request: Request, env: Env, ctx: ExecutionContextLi
   }
   const actorGate = await env.PUBLIC_ACTOR_LIMITER.limit({ key: await actorRateLimitKey(input.offerId, input.email) });
   if (!actorGate.success) return rateLimited('actor');
+  // Only a complete matching prior inquiry can bypass a fresh Turnstile token;
+  // this read is rate-limited and has no mail/outbox side effects.
+  if (input.submissionId) {
+    try { const replay = await replayInquiry(input.submissionId, input, env); if (replay) return replay; }
+    catch { return json({ error: 'storage-failed' }, 500); }
+  }
   const human = await verifyTurnstile(input.turnstileToken, env.TURNSTILE_SECRET_KEY, env.SPIKE_MODE);
   if (human === false) return json({ error: 'human-verification-failed' }, 403);
   if (human === null) return json({ error: 'human-verification-unavailable' }, 503);
 
-  const id = crypto.randomUUID(); const notificationId = crypto.randomUUID(); const now = Date.now();
+  const id = input.submissionId ?? crypto.randomUUID(); const notificationId = crypto.randomUUID(); const now = Date.now();
   let results: D1Result[];
   try {
     results = await env.DB.batch([
@@ -158,9 +184,21 @@ async function handleInquiry(request: Request, env: Env, ctx: ExecutionContextLi
         .bind(notificationId, id, OWNER_NOTIFICATION_KIND, now, now),
     ]);
   } catch {
+    // A simultaneous identical request can win the D1 primary-key race.
+    // Reconcile its already persisted receipt instead of creating another inquiry.
+    if (input.submissionId) {
+      try { const replay = await replayInquiry(input.submissionId, input, env); if (replay) return replay; }
+      catch { /* Genuine storage failures retain their explicit error. */ }
+    }
     return json({ error: 'storage-failed' }, 500);
   }
-  if (results.some((result) => !result.success)) return json({ error: 'storage-failed' }, 500);
+  if (results.some((result) => !result.success)) {
+    if (input.submissionId) {
+      try { const replay = await replayInquiry(input.submissionId, input, env); if (replay) return replay; }
+      catch { /* No false receipt if storage is unavailable. */ }
+    }
+    return json({ error: 'storage-failed' }, 500);
+  }
   ctx.waitUntil(deliverOwnerNotification(id, env));
   return json({ inquiryId: id, status: 'received', bookingCreated: false, ownerNotification: 'queued' }, 201);
 }
