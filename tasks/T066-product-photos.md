@@ -1,6 +1,6 @@
 ---
 id: T066
-status: active
+status: done
 priority: P1
 dependencies: [T065]
 ---
@@ -15,3 +15,9 @@ Plan: Fotos integrieren, npm ci / npm run verify, responsive Browserprüfung, PR
 npm ci und Build bestanden. Kanonischer lokaler Verify: 21 PASS / 2 FAIL / 0 BLOCKED; Inquiry-Spike scheitert weiterhin an der lokalen Netzwerkumgebung, beim ersten visuellen Lauf war Chromium noch nicht eingerichtet. Custom-Browser-Readback bei 390, 834 und 1440 px: alle Fotos geladen, Start-/Produktseiten ohne Overflow. Separater visueller Volltest folgt; CI ist verbindliches Merge-Gate. Screenshots review/product-photos-desktop.jpg und review/product-photos-mobile.jpg. Gerätefotos byteidentisch zu den Uploads; kein privates Familienbild in der Historie.
 
 Separater visueller Volltest bestanden: drei Viewports, sechs Screenshots, sechs kontrollierte Fehlerfälle und Rahmenvariante 10. Finaler kanonischer Lauf mit Chromium eingerichtet gestartet.
+
+## Historischer Abschluss und bewusste Ablösung — 03.11.2026
+
+- Die Kunden-Gerätefotos wurden ursprünglich mit PR #79 integriert (Merge `d20b2263ec3eb213d766276e90592df64f609494`). Die damalige Foto-Darstellung wurde anschließend auf ausdrücklichen Kundenwunsch durch animierte Originalzeichnungen ersetzt: T067 / PR #80.
+- Diese spätere Entscheidung macht die damalige Fotointegration nicht zu einer noch offenen technischen Restarbeit. T066 ist für den seinerzeit beauftragten, gelieferten Slice **done / später durch T067 superseded**.
+- Die private Aufnahme einer Familie in der Magazinbox und sonstige echte Event-/Werbefotos bleiben ohne Nutzungsfreigabe unveröffentlicht; aktuelle Medien- und Bildrechtsfreigaben liegen ausschließlich in T010 bzw. `production-approvals.json`. Alte Produktfoto-Platzhalter nicht eigenmächtig reaktivieren.

@@ -214,6 +214,31 @@ try {
   assert.equal(notification.attempts, 1);
   assert.ok(notification.message_id);
 
+  // A receipt may be lost after the first D1 commit. The same UUID and
+  // unmodified draft must return the original inquiry without a second email.
+  assert.match(accepted.inquiryId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  const replayResponse = await post({
+    ...valid, submissionId: accepted.inquiryId, turnstileToken: 'expired-or-reused-token',
+  });
+  assert.equal(replayResponse.status, 201);
+  assert.deepEqual(await replayResponse.json(), {
+    inquiryId: accepted.inquiryId, status: 'received', bookingCreated: false,
+    ownerNotification: 'unchanged', replayed: true,
+  });
+  // A client cannot change the event while silently reusing the prior key.
+  const changedWithSameKey = await post({
+    ...valid, submissionId: accepted.inquiryId, location: 'Hamburg',
+  });
+  assert.equal(changedWithSameKey.status, 409);
+  assert.deepEqual(await changedWithSameKey.json(), { error: 'submission-id-conflict' });
+  assert.equal((await post({ ...valid, submissionId: 'invalid-key' })).status, 422);
+  const replayCount = await fetch(`${baseUrl}/__spike/count`);
+  assert.deepEqual(await replayCount.json(), { count: 1 });
+  const replayNotices = await fetch(`${baseUrl}/__spike/notifications`);
+  const notices = (await replayNotices.json()).notifications;
+  assert.equal(notices.length, 1);
+  assert.equal(notices[0].attempts, 1);
+
   const validationView = recordedView();
   const validationController = createInquiryController(
     `${baseUrl}/api/inquiries`,
@@ -337,6 +362,21 @@ try {
   assert.equal(updated.status, 200, await updated.text());
   const count = await fetch(`${baseUrl}/__spike/count`);
   assert.deepEqual(await count.json(), { count: 1 });
+
+  // Two first attempts for the same UUID must create one inquiry and outbox.
+  const racedId = 'c4c44741-a48e-4cdd-b036-d8f9e7b33532';
+  const racedDraft = { ...valid, email: 'race@example.invalid', submissionId: racedId };
+  const racedResponses = await Promise.all([post(racedDraft), post(racedDraft)]);
+  assert.deepEqual(racedResponses.map(({ status }) => status), [201, 201]);
+  const racedReceipts = await Promise.all(racedResponses.map((response) => response.json()));
+  assert.ok(racedReceipts.every((receipt) => receipt.inquiryId === racedId && receipt.bookingCreated === false));
+  assert.equal(racedReceipts.filter((receipt) => receipt.replayed === true).length, 1);
+  const raceCount = await fetch(`${baseUrl}/__spike/count`);
+  assert.deepEqual(await raceCount.json(), { count: 2 });
+  const raceOutbox = await fetch(`${baseUrl}/__spike/notifications`);
+  const raceNotices = (await raceOutbox.json()).notifications;
+  assert.equal(raceNotices.length, 2);
+  assert.equal(raceNotices.filter((notice) => notice.inquiry_id === racedId).length, 1);
 
   execFileSync(
     wrangler,
