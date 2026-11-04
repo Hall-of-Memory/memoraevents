@@ -127,3 +127,9 @@ Verifikationsgrenze:
 ## Abschlussregel
 
 T057 bleibt `blocked_external`, bis keine für diese Lane relevante Betreiber-/Daten-/Legal-Entscheidung mehr implizit oder widersprüchlich über mehrere Tasks verteilt ist. Spätere Buchungs-/Galeriefragen und separate Content-/Media-Launchblocker dürfen danach weiterhin ausdrücklich in T013/T025/T010 verbleiben.
+
+## Consolidation-/Freigabe-Readback — 03.11.2026
+
+Die einheitliche Betreiber-Entscheidungsvorlage steht nun in **`docs/business-legal-ground-truth.md`, Abschnitt 6, F1–F12** und verknüpft die unveränderten D1–D7-Entscheidungen mit T010-Inhalten/Medien, T049-Retention, T009-Betrieb und T069-Inquiry. Das ist keine neue parallele Wahrheitsquelle und kein Bureau-Ticket. Die zwölf Paketstufen und der technische Stage-1-Kundenweg sind bereits real implementiert; fehlende Betreiberidentität, Empfänger-/Adminziele, Lösch-/Postfach-/Backupregeln, Dienstleister-Readback, Rechtstexte und öffentliche Medienfreigaben bleiben `blocked_external`.
+
+Ausführungsregel: fehlende externen Daten **nur an F1–F12** nachpflegen, vorhandene technische Tatsachen nicht erneut erfragen, keine privaten Admin-/Postfach- oder Secretwerte im öffentlichen Repo. T057 wird erst nach dokumentierten Entscheidungen und fachlicher Übernahme in T008/T049/T011 geschlossen. Bis dahin keine Änderung der produktiven Sendesperre.

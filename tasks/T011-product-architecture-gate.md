@@ -57,15 +57,21 @@ Damit wird nicht aus Implementierungsbequemlichkeit ein CMS gewählt. Stattdesse
 
 ## Fehlende Geschäfts-/Kundenentscheidungen
 
-1. Soll V1 ausschließlich Anfragen, manuell bestätigte Reservierungen oder bereits Reservierungsfunktionen unterstützen? Eine verbindliche Sofortbuchung bleibt bis zur ausdrücklichen Fachentscheidung T013.
+1. **Für V1 geklärt:** ausschließlich unverbindliche Anfrage → individuelles Angebot → gegebenenfalls manuelle Kundenbestätigung; keine Reservierung, Echtzeitgarantie, Zahlung oder verbindliche Onlinebuchung. Verbindliche Sofortbuchung bleibt bewusst späterer T013-Entscheidungsgegenstand.
 2. Welche realen Einheiten, gemeinsamen Ressourcen, Mietdauern, Aufbau-/Abbau-/Fahrtpuffer und Lieferregeln gelten?
 3. Welche Paket-, Produktkombinations- und Preisregeln sind fachlich korrekt?
 4. Für die bestätigte Selbstpflege fehlen noch reale Änderungshäufigkeit, Umfang von Browser-/Massen-Uploads und die praktische Abnahme, ob Git/Codex für den Kunden angenehm genug ist. Git/Codex ist der bevorzugte Ausgangspfad; ein eigener Medien-/CMS-Admin wird nur bei belegtem Bedarf ergänzt.
 5. Die Kundenhoheit ist als Ziel geklärt; offen sind konkrete Konten, Domain, Rollen, Betreiberadressen und akzeptierte laufende Kosten. Das öffentliche kanonische GitHub-Ziel wird in T043 geführt.
 6. Welche Datenschutz-, Aufbewahrungs- und Löschregeln gelten für Anfrage, Benachrichtigung und den späteren Event-Fotobereich?
 
-Punkt 4 wird nun über einen echten Codex-/PR-Golden-Path statt nur abstrakt entschieden. Bis zu diesem Readback bleiben Content-Schreibzugriffe im bestehenden Admin ausdrücklich `cms-path-pending-t011`; Punkte 1–3 und 6 bleiben zugleich die fachliche Grenze vor T013. T025 hat zusätzlich seine eigenen Auth-/Medien-/Löschentscheidungen.
+Punkt 4 wird nun über einen echten Codex-/PR-Golden-Path statt nur abstrakt entschieden. Bis zu diesem Readback bleiben Content-Schreibzugriffe im bestehenden Admin ausdrücklich `cms-path-pending-t011`; Die noch offenen Ressourcen-/Mietdauer-/Kombinationsregeln aus Punkten 2–3 sind nur für ihre tatsächlich gebuchten späteren Features erforderlich; V1 braucht ausschließlich bereits bestätigte Produkt-/Paket-IDs. Punkt 6 bleibt für das produktive Inquiry-Gate T057/T049 relevant; T013 ist keine V1-Voraussetzung. T025 hat zusätzlich seine eigenen Auth-/Medien-/Löschentscheidungen.
 
 ## Status und Entblockung
 
 T011 bleibt `blocked_external`, weil weiterhin fachliche Kunden-/Betriebsentscheidungen und die reale Selbstpflege-Abnahme fehlen. Nach deren dokumentierter Freigabe werden der endgültige CMS-/Medienpfad, Produktionskonten-/Eigentumsgrenze und Kostenentscheidung festgehalten und ADR 0001 als `ACCEPTED`, `SUPERSEDED` oder durch eine neue ADR ersetzt. Bis dahin bleibt die Full-Stack-/Buchungsarchitektur bewusst provisorisch, während Git/Codex für klassische öffentliche Inhalte als kleinster bevorzugter Selbstpflegepfad vorbereitet wird.
+
+## Abgleich Stage-2-Inquiry 03.11.2026
+
+- Die Geschäftsgrenze V1 ist bestätigt: *unverbindliche Anfrage → Betreiber erstellt Angebot → Kunde bestätigt gegebenenfalls manuell.* Das ist **keine offene Produktentscheidung** mehr. Die vorhandenen zwölf Fotobox-/Fotospiegelpakete sind via T068/PR #82 umgesetzt, nicht erneut fachlich zu konstruieren.
+- Für diese V1-Anfrage reichen genau ein freigegebenes Angebot und ggf. ein passendes Paket; Preis-/Extras-/Mehrproduktkomplexität nicht erzwingen. Extras sind absichtlich leer. Automatische Reservierung und Kosten-/Mietdauer-/Ressourcenlogik bleiben bei T013 und verhindern Stage 2 nicht.
+- CMS-/Selbstpflege: strukturierter Git-/Codex-PR-Pfad ist der bevorzugte Basispfad; kein separater Editor ohne echten Bedienungsbefund. Betreiber- und Legal-/Inquiry-Entscheidungen werden zentral in `docs/business-legal-ground-truth.md` F1–F12 geführt. T011 bleibt als übergeordneter Produkt-/Full-Stack-Task `blocked_external`, nicht als künstlicher Stage-2-Blocker.

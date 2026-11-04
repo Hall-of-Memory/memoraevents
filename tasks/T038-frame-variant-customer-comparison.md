@@ -1,6 +1,6 @@
 # T038 — Frame-Variant Customer Comparison
 
-Status: active
+Status: blocked_external
 Abhängigkeit: keine aktive; T037 war der historische Pilot und ist inzwischen superseded/cancelled
 
 ## Ziel
@@ -270,3 +270,9 @@ Nutzen: Der Browser besitzt jetzt einen expliziten Bild-Lifecycle (`src`, `compl
 - [x] Dauerhafter Grabowski-Verifikationsjob `grabowski-job-075e98a93fcb` terminal `succeeded`; Finalization Receipt SHA-256 `99dd9949fce105bc7eac3a95cd784834fe9dad72304b2579ac3c60d697d01095`.
 
 Der technische Post-Merge-Acceptancepunkt der Pages-Härtung ist damit erfüllt. T038 bleibt dennoch `active`: die bewusste Kundenauswahl eines Rahmens und die anschließende finale Bildgrößenfestlegung sind weiterhin offen und werden durch diesen Runtime-Nachweis nicht vorweggenommen.
+
+## Statusabgleich 03.11.2026 — technisch fertig, Kundenauswahl offen
+
+- Die Rahmenvergleichs- und Bildgrößenfunktionen sind gemäß den vorstehenden revisionsgebundenen GitHub-Pages- und Browserbelegen technisch ausgeliefert. PR #28 (Bildlade-Consumer) und #33 (öffentlicher Pages-Readback) sind gemergt; weitere technische Rahmenvarianten liegen im Bestand vor.
+- Die letzte eigene Aufgabenabnahme nennt ausdrücklich noch **keine bestätigte Wahl des finalen Rahmens und keine endgültige Bildgrößenfestlegung**. Dies ist eine konkrete externe Kundenentscheidung, kein offener Neubau.
+- Deshalb `blocked_external` statt pauschal `active` oder fälschlich `done`. T038 darf den Stage-1/Stage-2-Inquiry-Launch nicht blockieren. T044/T058 bleiben getrennte nachgelagerte Arbeiten.
