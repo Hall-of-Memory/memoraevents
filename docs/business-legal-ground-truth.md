@@ -215,3 +215,38 @@ Keine zusätzliche Plattform auf Vorrat. Nach realer Nutzung wird nur wiederholt
 ## 5. Closeout-Kriterium T057
 
 T057 bleibt `blocked_external` und kann geschlossen werden, sobald D1–D7 mit Primärevidenz bzw. dokumentierter Betreiberentscheidung befüllt sind und T008/T049/T011 die Werte revisionsgebunden übernehmen können. `deferred` bzw. separat geführte Punkte verhindern den T057-Closeout nicht, solange sie in dieser Lane nicht fälschlich als erledigt oder freigegeben dargestellt werden.
+
+## 6. Einheitliche Betreiber-/Launch-Entscheidungsvorlage — 03.11.2026
+
+**Benutzung:** Dieser eine Bogen konsolidiert D1–D7 dieses Dokuments und die getrennten öffentlichen Inhalts-/Medienfreigaben aus T010. Bereits bestätigte Fakten aus Abschnitt 1 nicht erneut abfragen. Keine geheimen Schlüssel, privaten Adminadressen, Kundenidentitäten oder Postfachzugänge in das öffentliche GitHub-Repository eintragen: dort nur Freigabestatus, verantwortliche Rolle und verifizierbare **Belegreferenz** dokumentieren; eigentliche Secrets bleiben im entsprechenden Cloudflare-/GitHub-Secretstore.
+
+| Kennung / Owner | Tatsächlich noch benötigte Betreiberentscheidung (bei Nichtanwendbarkeit ausdrücklich „nicht einschlägig“) | Freigabe- und Belegstand |
+|---|---|---|
+| **F1 / T057→T008** | Richtiger Betreiber/Firmenname, ggf. Rechtsform und Vertretung, ladungsfähige Anschrift, gesetzlich einschlägige Register-/Steuerangaben, öffentlich zulässige Kontaktangaben | **ausstehend**; Rechts-/Betreiber-Primärbeleg fehlt |
+| **F2 / T057→T009** | Verifiziertes produktives Empfangspostfach, autorisierte Absenderadresse und Reply-to-Verhalten für **Betreiberhinweise**; tatsächliche Zuordnung zu Kundenkonto | **ausstehend**; weder Dummy-Empfänger noch automatische Kundenmail |
+| **F3 / T057→T006/T049** | Berechtigte Betreiber-/Adminidentitäten, Cloudflare-Access-Team, App-Audience und Prüfverfahren für den echten Adminzugriff | **ausstehend**; nur Referenz auf vertrauliche Identitätsfreigabe im Repo |
+| **F4 / T057→T049** | Frist in Tagen **und** Beginn der Frist; Regeln für neue, unbeantwortete, abgelehnte, erledigte und später vertraglich relevante Anfragen | **ausstehend**; `retentionDays=null`, keine implizite Standardfrist |
+| **F5 / T057→T049** | Datenlöschung in D1 **und** Outbox/Notification-Metadaten; berechtigter Auslöser, Prüfbarkeit und Ausnahmen bei rechtmäßig erforderlichen Nachweisen | **ausstehend**; technische Reihenfolge ist wegen D1-Fremdschlüssel zu prüfen |
+| **F6 / T057→T049** | Betreiberpostfach, manuelle Exporte und tatsächlich vorhandene Backups: Lebenszyklus, Zugriff, Lösch-/Ausnahmeprozess und verantwortliche Rolle | **ausstehend**; nicht auf D1-Löschung allein verkürzen |
+| **F7 / T057→T008/T009** | Produktiver Dienstleister-/Binding-Readback für Cloudflare Static/Worker/D1/Turnstile/Access und tatsächlichen Maildienst, Datenkategorien, Vertrags-/Datenschutznachweise | **ausstehend**; Repo enthält nur lokale Test- und Platzhalterkonfiguration |
+| **F8 / T057→T008** | Finales Impressum und Datenschutzinformation, tatsächliche Consent-/Cookie-Entscheidung, gewählter interner/externer rechtlicher Prüf-/Freigabepfad (D6/D7) | **ausstehend**; keine fingierte Rechtsprüfung |
+| **F9 / T010** | Finale öffentlich zulässige Produkt-/Event-/Hero-/Galeriebilder, Urheber-, Persönlichkeits- und Werbenutzungsrechte; besonders Familien-/Verlobungsfoto | **ausstehend**; keine ungeprüften Personenfotos veröffentlichen |
+| **F10 / T010/T011/T069** | Finale Produkttexte und Paket-/Preisinhalt bestätigen: zwölf vorhandene Fotobox-/Fotospiegelstufen bereits umgesetzt, Magazinbox ohne erfundenen Festpreis; Extras und variable Kosten nur bei konkreter Einzelfreigabe | **abschließende öffentliche Freigabe ausstehend**; keine Neuimplementierung der zwölf Stufen nötig |
+| **F11 / T009** | Entscheidung über öffentliche Indexierung/Launch, Betreiber- und Domainhoheit, Deploymentzugänge, Kosten und Freigabe des tatsächlichen Inquiry-Sendewegs | **ausstehend**; `launchStatus=draft`, `noindex` und Sendesperre bleiben bestehen |
+| **F12 / T009/T049/T069** | Freigabe einer ausdrücklich berechtigten datensparsamen Testanfrage mit dokumentiertem Zielpostfach; Bestätigung durch berechtigten Postfachinhaber | **ausstehend**; D1/Outbox/HTTP-201 ist kein Postfacheingang |
+
+### Technischer Ist-Befund zum Bogen
+
+- GitHub `main` am 03.11.2026: `611e7aaf37e1deee041ca1d4e254f1b7baf7b35a`; `src/release/production-approvals.json` enthält dreimal `approved:false`, `src/release/inquiry-data-policy.json` ist `blocked_external`, `src/content/site.json` ist `draft`.
+- Der V1-Sendevertrag existiert bereits: öffentliches Formular (nur nach Freigaben) → Worker mit produktivem Turnstile/Rate-Limits → D1-Inquiry und Outbox in einem Batch → Betreiberbenachrichtigung → Cloudflare-Access-Admin. Form- und Backend-Basistests wurden in PR #107/#112 dokumentiert; 54/54 echte Stage-1-Firefox-Browserchecks in PR #113.
+- GitHub-Actions-Readback zeigte zu diesem Stichtag **keine hinterlegten Repo-Variablen/Actions-Secrets** für die Inquiry-Produktivübergabe; `spikes/inquiry-worker/wrangler.production.jsonc` liegt im isolierten Checkout nicht vor. Die Beispielkonfiguration enthält absichtlich `REPLACE_WITH_*`-Platzhalter. Reale Cloudflare-Worker-/D1-/Access-/Turnstile-/Send-Email-Ressourcen sind damit **nicht nachgewiesen** und werden nicht als nicht existent behauptet.
+- D1-Schema: `inquiry_notifications` referenziert `inquiries` mit `ON DELETE RESTRICT`, also kann ein Datensatz nicht vor abhängigen Benachrichtigungsdatensätzen gelöscht werden. Aktuell gibt es **keinen belegten automatischen Retention-Purge**; der Adminvertrag bietet die gezielte Benachrichtigungswiederholung. Nach F4–F6 ist der kleinste nachvollziehbare Lösch- und Verifikationspfad in T049 zu implementieren, ohne eine erfundene Frist.
+
+### Freigabe → technisch zulässige Folgeaktion
+
+1. Betreiber dokumentiert die tatsächlich einschlägigen F1–F12-Entscheidungen mit aussagekräftigen Primärbelegen; T057 verankert die fachliche Wahrheit, T010 die öffentliche Medien-/Produktfreigabe und T049 die umgesetzte Policy.
+2. Erst auf dieser Basis reale Cloudflare-Bindings und produktive Empfänger-/Absenderidentitäten authentisch readbacken; `inquiry-data-policy.json` nur mit freigegebenen Werten und **Enforcement-Nachweis** aktualisieren. Keine geheimen Werte im Repo.
+3. Die bestehenden `check:production-readiness`-/CI-/Deploy-Gates und das Runbook `docs/deployment-handover.md` auf exakt freigegebene Revision anwenden. Stage-1 bis dahin unverändert.
+4. **Abnahmepunkt:** echte öffentliche autorisierte Anfrage, API-201-/D1-/Outbox-Readback, Nachweis `sent` samt Message-ID und **tatsächliche Bestätigung im vorgesehenen Betreiberpostfach**, Adminzugriff, Fehlerfälle, Retention-/Löschung und Kundenanzeige. Mail-Provider-Akzeptanz allein ist kein Betreiberempfang.
+
+Die Tabelle ist eine zentrale **offene Entscheidungsvorlage**, keine erteilte Freigabe, kein juristisches Gutachten und kein Auftrag, unnötige spätere Produkte zu aktivieren. T025/T013/T058/T038/T044 bleiben eigenständige, für den Inquiry-Launch nicht sperrende Themen.

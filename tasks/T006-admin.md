@@ -29,4 +29,8 @@ Der Kunde möchte Preise, Bilder und Angebote später selbst ändern können. Da
 
 Für den letzten Akzeptanzpunkt fehlen weiterhin die Bedien- und Betriebsdetails aus T011: Wie häufig wird geändert, sind Browser-Uploads erforderlich, soll es Vorschau/Freigabe geben und welche Bedienoberfläche ist gewünscht? Erst danach kann Git-basiertes CMS gegen eigenen D1/R2-Admin entschieden werden. Ohne diese Angaben wäre ein eigener CMS-Editor vorzeitige Produktarchitektur.
 
-Zusätzlich braucht der produktive Admin kundeneigene Access-/D1-/Worker-Ressourcen, berechtigte Identitäten und eine reale Domain. Bis diese Inputs vorliegen, ist T006 `blocked_external`; Inquiry-Admin und Authentifizierung sind technisch belegt, Content-Pflege bleibt absichtlich unimplementiert.
+Zusätzlich braucht der produktive Admin kundeneigene Access-/D1-/Worker-Ressourcen, berechtigte Identitäten und eine produktiv verifizierte Access-/Inquiry-Routenbindung. Bis diese Inputs vorliegen, ist T006 `blocked_external`; Inquiry-Admin und Authentifizierung sind technisch belegt, Content-Pflege bleibt absichtlich unimplementiert.
+
+## Stage-2-Abgrenzung 03.11.2026
+
+Die öffentliche Domain `memoraevents.de` ist seit T061 aktiv; das Fehlen einer „realen Domain“ ist kein aktueller Blocker. Der Inquiry-Adminvertrag ist lokal bereits sicherheits- und funktionsgetestet, `scripts/test-admin-data-minimization.mjs` und `scripts/test-admin-page-security.mjs` am 03.11.2026 erneut PASS. Fehlend sind echte kundeneigene Access-App-/D1-/Worker-Bindings und freigegebene Adminidentitäten; siehe F3/F7 in `docs/business-legal-ground-truth.md`. Produktive Admin-Authentifizierung erst nach diesen Belegen abnehmen. Browserbasierte Content-Pflege ist kein zwingender Bestandteil des V1-Inquiry-Launches; Git/Codex bleibt der einfache Pfad, bis realer Bedienbedarf einen Editor rechtfertigt.

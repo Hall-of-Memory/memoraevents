@@ -150,10 +150,14 @@ assert.equal(success.code, 'received');
 assert.match(success.message, /Anfrage wurde empfangen/);
 assert.match(success.message, /keine verbindliche Buchung/);
 assert.doesNotMatch(success.message, /verfügbar|gebucht|bestätigt/i);
-assert.equal(
-  (await outcomeFor(201, { inquiryId: 'inquiry-1', status: 'received', bookingCreated: true })).ok,
-  false,
-);
+const uncertainReceipt = await outcomeFor(201, { inquiryId: 'inquiry-1', status: 'received', bookingCreated: true });
+assert.equal(uncertainReceipt.ok, false);
+assert.equal(uncertainReceipt.code, 'receipt-uncertain');
+assert.match(uncertainReceipt.message, /könnte bereits gespeichert/);
+assert.match(uncertainReceipt.message, /nicht sofort erneut/);
+assert.equal((await outcomeFor(202, { status: 'accepted' })).code, 'receipt-uncertain');
+assert.equal((await requestInquiry('https://inquiry.example.invalid/api/inquiries', normalized, async () => new Response(null, { status: 204 }))).code, 'receipt-uncertain');
+assert.equal((await outcomeFor(409, { error: 'submission-id-conflict' })).code, 'submission-id-conflict');
 assert.equal((await outcomeFor(422, { error: 'validation-failed' })).code, 'validation-failed');
 assert.equal(
   (await outcomeFor(403, { error: 'human-verification-failed' })).code,
@@ -165,7 +169,7 @@ assert.equal(
 );
 assert.equal((await outcomeFor(429, { error: 'rate-limited' })).code, 'rate-limited');
 assert.equal((await outcomeFor(500, { error: 'storage-failed' })).code, 'storage-failed');
-assert.equal((await outcomeFor(502, { error: 'upstream-failed' })).code, 'backend-failed');
+assert.equal((await outcomeFor(502, { error: 'upstream-failed' })).code, 'receipt-uncertain');
 assert.equal((await outcomeFor(500, { error: 'storage-failed' })).ok, false);
 assert.equal(
   (
@@ -202,7 +206,8 @@ for (const scenario of [
   { expected: 'human-verification-unavailable', fetcher: async () => jsonResponse(503, { error: 'human-verification-unavailable' }) },
   { expected: 'rate-limited', fetcher: async () => jsonResponse(429, { error: 'rate-limited' }) },
   { expected: 'storage-failed', fetcher: async () => jsonResponse(500, { error: 'storage-failed' }) },
-  { expected: 'backend-failed', fetcher: async () => jsonResponse(502, { error: 'upstream-failed' }) },
+  { expected: 'submission-id-conflict', fetcher: async () => jsonResponse(409, { error: 'submission-id-conflict' }) },
+  { expected: 'receipt-uncertain', fetcher: async () => jsonResponse(502, { error: 'upstream-failed' }) },
   { expected: 'network-failed', fetcher: async () => { throw new TypeError('offline'); } },
 ]) {
   const errorView = recordedView();
@@ -218,6 +223,31 @@ for (const scenario of [
   assert.equal(errorView.calls.outcomes.at(-1)?.ok, false);
   assert.equal(errorView.calls.reset, 0, `${scenario.expected} must not clear the form`);
 }
+
+// An uncertain retry of an unchanged draft must reuse the same random UUID;
+// changing the actual draft or completing a submission must rotate the key.
+const retryBodies = [];
+const retryController = createInquiryController(
+  'https://inquiry.example.invalid/api/inquiries',
+  recordedView().view,
+  async (_endpoint, init) => {
+    const body = JSON.parse(init.body);
+    retryBodies.push(body);
+    return retryBodies.length === 4
+      ? jsonResponse(201, { inquiryId: body.submissionId, status: 'received', bookingCreated: false })
+      : jsonResponse(502, { error: 'upstream-failed' });
+  },
+);
+assert.equal((await retryController.submit(normalized)).code, 'receipt-uncertain');
+assert.equal((await retryController.submit({ ...normalized, turnstileToken: 'new-token' })).code, 'receipt-uncertain');
+assert.match(retryBodies[0].submissionId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+assert.equal(retryBodies[0].submissionId, retryBodies[1].submissionId);
+assert.equal((await retryController.submit({ ...normalized, location: 'Hamburg' })).code, 'receipt-uncertain');
+assert.notEqual(retryBodies[2].submissionId, retryBodies[1].submissionId);
+assert.equal((await retryController.submit({ ...normalized, location: 'Hamburg' })).code, 'received');
+assert.equal(retryBodies[3].submissionId, retryBodies[2].submissionId);
+assert.equal((await retryController.submit({ ...normalized, location: 'Hamburg' })).code, 'receipt-uncertain');
+assert.notEqual(retryBodies[4].submissionId, retryBodies[3].submissionId);
 
 const missingTokenView = recordedView();
 const missingTokenController = createInquiryController(
