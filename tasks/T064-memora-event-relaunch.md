@@ -1,6 +1,6 @@
 ---
 id: T064
-status: active
+status: blocked_external
 priority: P0
 dependencies: [T010]
 ---
@@ -37,3 +37,9 @@ Kunde lieferte das Designer-ZIP und beauftragte ausdrücklich den Austausch. Ori
 Verifikation Original-SVG: `npm ci` unter Node 22.23.3 erfolgreich; `test:demo` und `test:pages-artifact` bestanden (byteidentischer SVG-Hash, drei Logos, korrekte Pages-Unterpfade). SVG ohne Scripts oder externe Ressourcen. Der kanonische `npm run verify` wurde gestartet und nach dem Hängen bei `test:inquiry-migrations` im lokalen Wrangler/D1-Start abgebrochen; die vollständige CI bleibt vor einem Merge erforderlich. Kein lokaler Chrome/Chromium vorhanden, daher noch keine Browser-Layoutfreigabe.
 
 Zusätzlich `test:quality` bestanden; Astro Check: 74 Dateien, 0 Fehler/Warnings/Hints. `git diff --check` sauber.
+
+## Statusabgleich 03.11.2026 — technischer Relaunch geliefert, finale Betreiberfreigabe offen
+
+- Technische Creme-/Gold-Relaunch-Umsetzung ist in `main` integriert: PR #75, Merge `6d33a649b3fec8b704a9961918bb5da14e0ab4c0`. Das Original-Designerlogo ersetzt seit PR #81, Merge `41bf800ad086466ea5bfe266928eca16a26e884d`, das vorläufige Screenshotlogo.
+- Referenzlayout, Produkte, Angebots-/Preiskarten und direkter vierstufiger Kundenweg sind nachweislich ausgeliefert (PRs #78, #82, #95, #109; Browserabnahme PR #113: 54/54 PASS). Frühere Aussagen „kein Merge/Deployment“ und „Pakete leer“ sind damit historische, nicht aktuelle Zustände.
+- Offen bleiben die ausdrücklich erforderliche abschließende Betreiber-/Inhalts- und Medienfreigabe aus T010/T057 sowie `src/release/production-approvals.json`. Der **Design-/Technik-Slice ist erfüllt**, der vollständige öffentliche Launch jedoch nicht. Deshalb `blocked_external` statt unbegründet `done`; keine erneute Implementierung und keine Änderung der Sendesperre.

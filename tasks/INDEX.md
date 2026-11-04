@@ -40,7 +40,7 @@
 | T036 | done | Rahmen auf Tiefe, konkave Fassung und kontrollierte Materialität verfeinern |
 
 | T037 | cancelled | Schauwerk-Fundus Stellar-Frame Pilot als isolierte Review-Preview; durch T038 superseded |
-| T038 | active | Rahmenvarianten-Vergleich mit neutraler Übersicht, Einzelvarianten mit Eventfoto und stufenloser Bildgröße |
+| T038 | blocked_external | Rahmenvergleich technisch ausgeliefert; finale Kundenwahl des Rahmens und der Bildgröße fehlt |
 | T039 | done | Primärlogo im Demo-Header als stärkeren, responsiven Markenanker kalibriert |
 | T040 | done | Kundenpreview von interner Entwicklungsansicht zu kundennaher Conversion-/UX-Preview poliert |
 | T041 | done | Preview-Pfade für Root- und GitHub-Pages-Unterpfad portabel gemacht und regressionsgesichert |
@@ -67,11 +67,15 @@
 | T062 | done | GitHub-Repository auf `Hall-of-Memory/memoraevents` umbenannt; Repo-/Pages-Verträge, Redirect, Remote und Pages-Runtime verifiziert |
 | T063 | done | Goldletter-Versuch als echte noindex GitHub-Pages-Labseite veröffentlicht und revisionsgebunden verifiziert |
 
-| T064 | active | MEMORA EVENT Relaunch: Creme-/Gold-Design, neues Kundenlogo und Review ohne Deployment |
-| T065 | active | Kundenreferenz: bildfüllender Hero, runde Karten und Produktseiten für MEMORA EVENT |
+| T064 | blocked_external | MEMORA EVENT Relaunch technisch ausgeliefert; endgültige Medien-/Betreiber- und Launchfreigabe fehlt |
+| T065 | done | Kundenreferenz: bildfüllender Hero, runde Karten und Produktseiten für MEMORA EVENT |
 
-| T066 | active | Kundeneigene Gerätefotos auf Angebotskarten und Produktseiten |
+| T066 | done | Gerätefotos ursprünglich integriert, später auf Kundenwunsch durch T067-Illustrationen ersetzt |
 
-| T067 | active | Dunkleres Logo und dezente animierte Produkt-/Servicezeichnungen |
+| T067 | done | Dunkleres Logo und dezente animierte Produkt-/Servicezeichnungen |
 
-| T068 | active | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |
+| T068 | done | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |
+| T069 | active | Vierstufige Vorschau live; echter freigegebener Inquiry-Versand und Betreiberempfang fehlen |
+| T070 | active | MEMORA-Branding und Dokumentationsbereinigung integriert; Legacy-Domain-Redirect/TLS weiterhin offen |
+| T071 | done | Sticky Header über volle Breite: dunkle Randstreifen nach Ankernavigation beheben |
+| T072 | done | iPad-Anfrageformular: Datum und Veranstaltungsart ohne Überlappung |

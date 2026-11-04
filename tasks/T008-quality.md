@@ -47,3 +47,14 @@ Impressum, Datenschutz und das Cookie-Thema sollen ausdrücklich berücksichtigt
 - für den späteren privaten Event-Fotobereich zusätzlich dessen tatsächliche Speicher-/Auslieferungs-, Zugangs- und Löschdaten aus T025
 
 Wenn diese Angaben vorliegen, müssen finale Inhalte, Löschumsetzung und Browser-/Produktionsreadback ergänzt werden. Bis dahin bleibt T008 korrekt `blocked_external`; die bereits technisch umsetzbare Struktur aus T027 ist abgeschlossen.
+
+## Legal-/Privacy-Freigabe-Readback 03.11.2026
+
+Der technische öffentliche Stage-1-Kundenweg und die aktuelle MEMORA-Darstellung sind ausgeliefert; das ist **keine rechtliche Launchfreigabe**. Die aktuellen `production-approvals.json`-Werte für `legal`, `publicMedia` und `productContent` bleiben alle `approved:false`, `launchStatus=draft` und die Indexierung gesperrt. Die verbindliche einheitliche Betreiberentscheidung F1–F12 liegt in `docs/business-legal-ground-truth.md` (T057). Erst nach belegten Impressums-/Datenschutz-/Dienstleister-/Consent- und Freigabeentscheidungen können die rechtlichen Produktionsgates hier und in T009/T049 aktualisiert und real getestet werden. T008 bleibt `blocked_external`; keine allgemeinen Cookies, Drittanbieter oder Rechtstexte hineinphantasieren.
+
+## Technischer Accessibility-Nachtrag — 04.11.2026
+
+- Externe BrowserStack-Site-Scans nach PR #121 (WCAG 2.1 AA, nur automatisch testbare Regeln): `/demo/konfigurator/` **0 Meldungen** (Scan 4304037, Run 2424171); `/preise/` **0 Meldungen** (Scan 4304041, Run 2424174); `/demo/` **13 prüfbedürftige Meldungen** (Scan 4304040, Run 2424172). Davon 12 `color-contrast`-Meldungen teils bei `aria-hidden`-Dekoration, SVG-/Bildüberlagerungen und einer Bildunterschrift; diese sind **nicht als bestätigte WCAG-Verstöße** zu behandeln, bevor sie visuell geprüft wurden.
+- Konkreter ARIA-Befund aus `/demo/`: `div.demo-hero-points` trug `aria-label="MEMORA EVENT auf einen Blick"` ohne erlaubte semantische Rolle. Kleinster Fix: `role="group"` am vorhandenen Container, ohne Änderung an Farbe, Text, Angeboten oder Sende-/Releaseverhalten. `scripts/test-sales-demo.mjs` prüft die Rolle und den bestehenden zugänglichen Gruppennamen am gebauten HTML.
+- Nach Integration ist ein öffentlicher Scan des **geänderten Deployments** für den ARIA-Befund erneut auszuführen. Die 12 Kontrast-Hinweise bleiben gesonderte visuelle Gegenprüfung; kein pauschaler CSS-Umbau auf Vermutung. Rechtliche Betreiber-/Datenschutzfreigaben F1–F12 sind weiterhin offen und T008 bleibt `blocked_external`.
+- **Frische technische Regression auf der geänderten Revision:** Node 22.23.4 und Chromium 156.0.8078.47, kanonisch `npm run verify` mit **23 PASS / 0 FAIL / 0 BLOCKED** einschließlich `sales-demo`, `quality`, `visual-regression` und `astro-check`; terminaler Grabowski-Job `grabowski-job-81a0662c65c4`. Diese grüne technische Suite ersetzt keine externe Freigabe und noch keinen Post-Deployment-Scan.
