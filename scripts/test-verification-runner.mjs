@@ -33,6 +33,8 @@ assert.equal(multiReport.ok, false);
 assert.equal(multiReport.preflightOk, true);
 assert.equal(multiReport.counts.failed, 2);
 assert.deepEqual(multiReport.results.filter(({ status }) => status === 'fail').map(({ id }) => id), ['alpha', 'gamma']);
+assert.match(renderConsoleSummary(multiReport), /MEMORA EVENT VERIFY SUMMARY/);
+assert.doesNotMatch(renderConsoleSummary(multiReport), /HALL OF MEMORY/i);
 assert.match(renderConsoleSummary(multiReport), /VERIFY-INVARIANT-ALPHA/);
 assert.match(renderConsoleSummary(multiReport), /VERIFY-INVARIANT-GAMMA/);
 assert.match(renderMarkdownSummary(multiReport), /DESIGN-SENSITIVE/);
@@ -42,7 +44,7 @@ try {
   const summaryPath = join(reportDir, 'step-summary.md');
   const reportPath = join(reportDir, 'report.json');
   publishVerificationReport(multiReport, { GITHUB_STEP_SUMMARY: summaryPath, VERIFICATION_REPORT_PATH: reportPath }, () => {});
-  assert.match(await readFile(summaryPath, 'utf8'), /Hall of Memory Verify/);
+  assert.match(await readFile(summaryPath, 'utf8'), /MEMORA EVENT Verify/);
   const persisted = JSON.parse(await readFile(reportPath, 'utf8'));
   assert.equal(persisted.counts.failed, 2);
   assert.deepEqual(persisted.results.filter(({ status }) => status === 'fail').map(({ id }) => id), ['alpha', 'gamma']);

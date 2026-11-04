@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parse } from 'parse5';
 import {
@@ -23,6 +25,42 @@ assert.ok(bootstrapGuard >= 0, 'client bootstrap must clamp submit disabled befo
 assert.ok(configGuard > bootstrapGuard, 'required config validation must happen after the fail-closed clamp');
 assert.ok(submitBinding > configGuard, 'submit handler must bind only after required config validation');
 assert.ok(submitEnable > submitBinding, 'submit may enable only after the submit handler is bound');
+const duplicateFence = inquiryClientSource.indexOf("if (form.dataset.received === 'true') return;");
+const handlerGuard = inquiryClientSource.indexOf("const handleSubmit = (event: SubmitEvent)");
+const feedbackClear = inquiryClientSource.indexOf('clearFeedback();', handlerGuard);
+assert.ok(duplicateFence > handlerGuard && duplicateFence < feedbackClear, 'a received wizard must not clear success or submit again');
+
+const wizardSource = readFileSync(join(repo, 'src/scripts/configurator-preview.ts'), 'utf8');
+const receivedEvent = "memora:inquiry-received";
+assert.ok(
+  inquiryClientSource.includes("form.dispatchEvent(new Event('" + receivedEvent + "', { bubbles: true }));"),
+  'confirmed 201 must notify the wizard that its accepted selection is immutable',
+);
+assert.ok(
+  wizardSource.includes("inquiryForm?.addEventListener('" + receivedEvent + "'") &&
+    wizardSource.includes("root.dataset.received = 'true';"),
+  'wizard must receive the accepted inquiry event and latch the submitted state',
+);
+assert.ok(
+  wizardSource.includes('back.disabled = true;') &&
+    wizardSource.includes('next.disabled = true;') &&
+    wizardSource.includes('input.disabled = true;'),
+  'an accepted inquiry must lock both navigation and all product/event controls',
+);
+assert.ok(
+  wizardSource.includes("if (root.dataset.received === 'true' || root.dataset.submitting === 'true') return;"),
+  'wizard handlers must reject navigation both during a pending POST and after receipt',
+);
+assert.ok(
+  inquiryClientSource.includes("new CustomEvent('memora:inquiry-submitting'") &&
+  wizardSource.includes("inquiryForm?.addEventListener('memora:inquiry-submitting'") &&
+  wizardSource.includes("const locked = submitting || root.dataset.received === 'true';"),
+  'pending inquiry must lock the wizard, then re-enable it on a failed request but never after 201',
+);
+
+const turnstileReady = inquiryClientSource.indexOf("turnstileStatus.textContent = 'Sicherheitsprüfung bereit.';");
+const turnstileRender = inquiryClientSource.indexOf('widgetId = api.render(turnstileContainer');
+assert.ok(turnstileReady >= 0 && turnstileReady < turnstileRender, 'a synchronous Turnstile callback must not be overwritten by a stale ready status');
 
 const developmentConfig = resolveInquiryPublicConfig({ development: true });
 assert.equal(developmentConfig.apiUrl, LOCAL_INQUIRY_API_URL);
@@ -112,10 +150,14 @@ assert.equal(success.code, 'received');
 assert.match(success.message, /Anfrage wurde empfangen/);
 assert.match(success.message, /keine verbindliche Buchung/);
 assert.doesNotMatch(success.message, /verfügbar|gebucht|bestätigt/i);
-assert.equal(
-  (await outcomeFor(201, { inquiryId: 'inquiry-1', status: 'received', bookingCreated: true })).ok,
-  false,
-);
+const uncertainReceipt = await outcomeFor(201, { inquiryId: 'inquiry-1', status: 'received', bookingCreated: true });
+assert.equal(uncertainReceipt.ok, false);
+assert.equal(uncertainReceipt.code, 'receipt-uncertain');
+assert.match(uncertainReceipt.message, /könnte bereits gespeichert/);
+assert.match(uncertainReceipt.message, /nicht sofort erneut/);
+assert.equal((await outcomeFor(202, { status: 'accepted' })).code, 'receipt-uncertain');
+assert.equal((await requestInquiry('https://inquiry.example.invalid/api/inquiries', normalized, async () => new Response(null, { status: 204 }))).code, 'receipt-uncertain');
+assert.equal((await outcomeFor(409, { error: 'submission-id-conflict' })).code, 'submission-id-conflict');
 assert.equal((await outcomeFor(422, { error: 'validation-failed' })).code, 'validation-failed');
 assert.equal(
   (await outcomeFor(403, { error: 'human-verification-failed' })).code,
@@ -127,7 +169,7 @@ assert.equal(
 );
 assert.equal((await outcomeFor(429, { error: 'rate-limited' })).code, 'rate-limited');
 assert.equal((await outcomeFor(500, { error: 'storage-failed' })).code, 'storage-failed');
-assert.equal((await outcomeFor(502, { error: 'upstream-failed' })).code, 'backend-failed');
+assert.equal((await outcomeFor(502, { error: 'upstream-failed' })).code, 'receipt-uncertain');
 assert.equal((await outcomeFor(500, { error: 'storage-failed' })).ok, false);
 assert.equal(
   (
@@ -164,7 +206,8 @@ for (const scenario of [
   { expected: 'human-verification-unavailable', fetcher: async () => jsonResponse(503, { error: 'human-verification-unavailable' }) },
   { expected: 'rate-limited', fetcher: async () => jsonResponse(429, { error: 'rate-limited' }) },
   { expected: 'storage-failed', fetcher: async () => jsonResponse(500, { error: 'storage-failed' }) },
-  { expected: 'backend-failed', fetcher: async () => jsonResponse(502, { error: 'upstream-failed' }) },
+  { expected: 'submission-id-conflict', fetcher: async () => jsonResponse(409, { error: 'submission-id-conflict' }) },
+  { expected: 'receipt-uncertain', fetcher: async () => jsonResponse(502, { error: 'upstream-failed' }) },
   { expected: 'network-failed', fetcher: async () => { throw new TypeError('offline'); } },
 ]) {
   const errorView = recordedView();
@@ -180,6 +223,31 @@ for (const scenario of [
   assert.equal(errorView.calls.outcomes.at(-1)?.ok, false);
   assert.equal(errorView.calls.reset, 0, `${scenario.expected} must not clear the form`);
 }
+
+// An uncertain retry of an unchanged draft must reuse the same random UUID;
+// changing the actual draft or completing a submission must rotate the key.
+const retryBodies = [];
+const retryController = createInquiryController(
+  'https://inquiry.example.invalid/api/inquiries',
+  recordedView().view,
+  async (_endpoint, init) => {
+    const body = JSON.parse(init.body);
+    retryBodies.push(body);
+    return retryBodies.length === 4
+      ? jsonResponse(201, { inquiryId: body.submissionId, status: 'received', bookingCreated: false })
+      : jsonResponse(502, { error: 'upstream-failed' });
+  },
+);
+assert.equal((await retryController.submit(normalized)).code, 'receipt-uncertain');
+assert.equal((await retryController.submit({ ...normalized, turnstileToken: 'new-token' })).code, 'receipt-uncertain');
+assert.match(retryBodies[0].submissionId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+assert.equal(retryBodies[0].submissionId, retryBodies[1].submissionId);
+assert.equal((await retryController.submit({ ...normalized, location: 'Hamburg' })).code, 'receipt-uncertain');
+assert.notEqual(retryBodies[2].submissionId, retryBodies[1].submissionId);
+assert.equal((await retryController.submit({ ...normalized, location: 'Hamburg' })).code, 'received');
+assert.equal(retryBodies[3].submissionId, retryBodies[2].submissionId);
+assert.equal((await retryController.submit({ ...normalized, location: 'Hamburg' })).code, 'receipt-uncertain');
+assert.notEqual(retryBodies[4].submissionId, retryBodies[3].submissionId);
 
 const missingTokenView = recordedView();
 const missingTokenController = createInquiryController(
@@ -245,6 +313,13 @@ const ancestor = (node, tagName) => {
 const outDir = join(repo, '.form-test-dist');
 try {
   const document = parse(readFileSync(join(outDir, 'index.html'), 'utf8'));
+  const gatedWizard = parse(readFileSync(join(outDir, 'anfrage/index.html'), 'utf8'));
+  assert.equal(
+    descendants(gatedWizard, (node) => hasAttr(node, 'data-configurator-inquiry')).length,
+    0,
+    'a draft release must never expose an active wizard form even when public env vars are present',
+  );
+  assert.ok(elements(gatedWizard, 'meta').some((node) => attr(node, 'name') === 'robots' && attr(node, 'content') === 'noindex,nofollow'));
   const form = elements(document, 'form').find((node) => hasAttr(node, 'data-inquiry-form'));
   assert.ok(form, 'built page must contain the active inquiry form');
   assert.equal(attr(form, 'data-api-url'), 'https://inquiry.example.invalid/api/inquiries');
@@ -312,6 +387,89 @@ try {
   );
 } finally {
   rmSync(outDir, { recursive: true, force: true });
+}
+
+// Synthetic build fixtures never modify product/legal/retention approvals in the real repo.
+// The normal Stage-1 build above already proved the same environment is blocked.
+const fixtureRoot = mkdtempSync(join(tmpdir(), 'memora-inquiry-gate-test-'));
+try {
+  for (const directory of ['src', 'shared']) {
+    cpSync(join(repo, directory), join(fixtureRoot, directory), { recursive: true });
+  }
+  for (const file of ['astro.config.mjs', 'tsconfig.json', 'package.json']) {
+    cpSync(join(repo, file), join(fixtureRoot, file));
+  }
+  symlinkSync(join(repo, 'node_modules'), join(fixtureRoot, 'node_modules'), 'dir');
+  symlinkSync(join(repo, 'public'), join(fixtureRoot, 'public'), 'dir');
+  const fixtureSite = join(fixtureRoot, 'src/content/site.json');
+  const site = JSON.parse(readFileSync(fixtureSite, 'utf8'));
+  site[0].launchStatus = 'production';
+  writeFileSync(fixtureSite, JSON.stringify(site));
+  const approvalFile = join(fixtureRoot, 'src/release/production-approvals.json');
+  const approvals = JSON.parse(readFileSync(approvalFile, 'utf8'));
+  for (const key of ['legal', 'publicMedia', 'productContent']) {
+    approvals[key] = { approved: true, evidenceRef: 'synthetic-only-not-a-real-approval' };
+  }
+  writeFileSync(approvalFile, JSON.stringify(approvals));
+  const dataPolicyFile = join(fixtureRoot, 'src/release/inquiry-data-policy.json');
+  const dataPolicy = JSON.parse(readFileSync(dataPolicyFile, 'utf8'));
+  Object.assign(dataPolicy, {
+    status: 'approved', retentionDays: 1, deletionMode: 'synthetic-test',
+    policyEvidenceRef: 'synthetic-only', enforcementEvidenceRef: 'synthetic-only',
+  });
+  writeFileSync(dataPolicyFile, JSON.stringify(dataPolicy));
+  const built = spawnSync(join(repo, 'node_modules/.bin/astro'), [
+    'build', '--root', fixtureRoot, '--outDir', join(fixtureRoot, 'dist'),
+  ], {
+    cwd: fixtureRoot, encoding: 'utf8', timeout: 90000,
+    env: {
+      ...process.env,
+      PUBLIC_SITE_URL: 'https://memoraevents.de',
+      PUBLIC_INQUIRY_API_URL: 'https://inquiry.example.invalid/api/inquiries',
+      PUBLIC_TURNSTILE_SITE_KEY: 'synthetic-only-test-site-key',
+    },
+  });
+  assert.equal(built.status, 0, `synthetic Astro build failed: ${built.stdout?.slice(-3000)} ${built.stderr?.slice(-1000)}`);
+  const publicWizard = parse(readFileSync(join(fixtureRoot, 'dist/anfrage/index.html'), 'utf8'));
+  const previewWizard = parse(readFileSync(join(fixtureRoot, 'dist/demo/konfigurator/index.html'), 'utf8'));
+  const productivePrices = parse(readFileSync(join(fixtureRoot, 'dist/preise/index.html'), 'utf8'));
+  const approvedPackages = JSON.parse(readFileSync(join(repo, 'src/content/packages.json'), 'utf8'));
+  for (const item of approvedPackages) {
+    const selected = '/anfrage/?produkt=' + item.offerId + '&paket=' + item.id;
+    assert.ok(
+      elements(productivePrices, 'a').some((node) => attr(node, 'href') === selected),
+      'approved productive package CTA must lead to the V1 inquiry form: ' + item.id,
+    );
+  }
+  const form = descendants(publicWizard, (node) => node.nodeName === 'form' && hasAttr(node, 'data-configurator-inquiry'))[0];
+  assert.ok(form, 'a fully authorized synthetic production build must contain the V1 inquiry form');
+  assert.ok(hasAttr(form, 'data-inquiry-form'), 'wizard must reuse the existing inquiry controller');
+  assert.equal(attr(form, 'data-api-url'), 'https://inquiry.example.invalid/api/inquiries');
+  for (const name of ['offerId', 'packageId', 'date', 'eventType', 'location', 'name', 'email', 'privacyConsent']) {
+    assert.ok(descendants(form, (node) => attr(node, 'name') === name)[0], `missing V1 submission field ${name}`);
+  }
+  for (const name of ['date', 'eventType', 'location']) {
+    const field = descendants(form, (node) => attr(node, 'name') === name)[0];
+    assert.equal(attr(field, 'type'), 'hidden', `${name} must be owned by the wizard, not copied by the user`);
+  }
+  assert.equal(
+    descendants(form, (node) => ['price', 'subtotalCents', 'extraIds', 'wizardPackage'].includes(attr(node, 'name'))).length,
+    0,
+    'browser prices or unapproved extras must never enter the production V1 payload',
+  );
+  const submit = descendants(form, (node) => node.nodeName === 'button' && attr(node, 'type') === 'submit')[0];
+  assert.ok(submit && hasAttr(submit, 'disabled'), 'SSR must keep submit disabled until the actual client controller is bound');
+  assert.ok(descendants(form, (node) => hasAttr(node, 'data-turnstile-container'))[0]);
+  assert.ok(descendants(form, (node) => attr(node, 'name') === 'privacyConsent' && hasAttr(node, 'required'))[0]);
+  assert.equal(
+    elements(publicWizard, 'meta').some((node) => attr(node, 'name') === 'robots' && attr(node, 'content') === 'noindex,nofollow'),
+    false,
+    'synthetic approved production route may be indexable only after actual launch gating',
+  );
+  assert.equal(descendants(previewWizard, (node) => hasAttr(node, 'data-inquiry-form')).length, 0);
+  assert.ok(elements(previewWizard, 'meta').some((node) => attr(node, 'name') === 'robots' && attr(node, 'content') === 'noindex,nofollow'));
+} finally {
+  rmSync(fixtureRoot, { recursive: true, force: true });
 }
 
 console.log('inquiry-form-ui-ok');

@@ -1,0 +1,249 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MemoraHeader from './landing/MemoraHeader.astro';
+import { demoOffers, demoPackages, demoSite } from '../data/demo';
+import extraEntries from '../content/extras.json';
+import type { ConfiguratorExtra } from '../lib/configurator-preview';
+import { eventTypes, inquiryLimits } from '../lib/inquiry';
+import { resolveInquiryPublicConfig } from '../lib/inquiry-config';
+import productionApprovals from '../release/production-approvals.json';
+import inquiryDataPolicy from '../release/inquiry-data-policy.json';
+import { centsFromApprovedPriceLabel, euroAmount } from '../lib/configurator-preview';
+import '../styles/demo.css';
+import '../styles/configurator-preview.css';
+
+const assetBase = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
+interface Props { mode?: 'preview' | 'production'; }
+const { mode = 'preview' } = Astro.props;
+const home = mode === 'production' ? assetBase : assetBase + 'demo/';
+const packagesFor = (id: string) => demoPackages.filter((item) => item.offerId === id);
+const steps = ['Produkt', 'Veranstaltung', 'Pakete & Extras', 'Übersicht'];
+const extras = extraEntries as Array<ConfiguratorExtra & { description: string }>;
+const inquiryConfig = resolveInquiryPublicConfig({
+  apiUrl: mode === 'production' ? import.meta.env.PUBLIC_INQUIRY_API_URL : undefined,
+  siteKey: mode === 'production' ? import.meta.env.PUBLIC_TURNSTILE_SITE_KEY : undefined,
+  development: mode === 'production' && import.meta.env.DEV,
+});
+// Content/legal/retention approvals and a real API configuration are mandatory.
+// Extra selections cannot be sent until the shared V1 contract supports them.
+const isProduction = mode === 'production' && demoSite.launchStatus === 'production'
+  && productionApprovals.legal.approved && !!productionApprovals.legal.evidenceRef
+  && productionApprovals.productContent.approved && !!productionApprovals.productContent.evidenceRef
+  && productionApprovals.publicMedia.approved && !!productionApprovals.publicMedia.evidenceRef
+  && inquiryDataPolicy.status === 'approved'
+  && Number.isInteger(inquiryDataPolicy.retentionDays) && (inquiryDataPolicy.retentionDays ?? 0) > 0
+  && !!inquiryDataPolicy.deletionMode && !!inquiryDataPolicy.policyEvidenceRef
+  && !!inquiryDataPolicy.enforcementEvidenceRef && inquiryConfig.configured
+  && extras.length === 0;
+---
+<BaseLayout
+  title={isProduction ? "Unverbindliche Anfrage – MEMORA EVENT" : "Anfrage zusammenstellen – MEMORA EVENT Vorschau"}
+  description={isProduction ? "Stelle deine unverbindliche Anfrage mit Produkt, Paket und Eventdaten zusammen." : "Unverbindliche Vorschau: Produkte, Datum und freigegebene Pakete zusammenstellen. Noch keine Übermittlung."}
+  noIndex={!isProduction}
+  bodyClass="demo-page"
+  formActionSource={isProduction ? "'self'" : "'none'"}
+  apiConnectSource={isProduction ? inquiryConfig.apiConnectSource : "'self'"}
+>
+  <MemoraHeader homeHref={home} {assetBase} />
+  <main id="main-content" tabindex="-1" class="wizard-shell shell">
+    <a class="wizard-back-link" href={assetBase + 'preise/'}>← Zur Preisübersicht</a>
+    <header class="wizard-heading">
+      <p class="eyebrow">MEMORA EVENT · Auswahlvorschau</p>
+      <h1>Dein Event.<br /><em>Deine Auswahl.</em></h1>
+      <p>{isProduction ? "Wähle dein Erlebnis und sende eine unverbindliche Anfrage. Erst nach dem Absenden werden deine Angaben übertragen." : "Stelle das gewünschte Erlebnis in vier Schritten zusammen. Deine Auswahl bleibt ausschließlich in diesem Browserfenster; es werden keine Daten übertragen."}</p>
+    </header>
+
+    <div class="wizard-notice" role="status">
+      {isProduction ? <><strong>Unverbindliche Anfrage.</strong> Wir prüfen deine Wünsche und melden uns persönlich; es wird keine Buchung ausgelöst.</> : <><strong>Interaktive Vorschau.</strong> Die Anfrageübermittlung ist bis zur Freigabe der Kontaktdaten und Rechtstexte deaktiviert. Es wird keine Buchung ausgelöst.</>}
+    </div>
+
+    <nav aria-label="Schritte der Auswahl" class="wizard-progress">
+      <ol>{steps.map((label, index) => <li data-wizard-progress={index} aria-current={index === 0 ? 'step' : undefined}><span>{index + 1}</span>{label}</li>)}</ol>
+    </nav>
+
+    <div class="wizard-layout" data-configurator-preview>
+      <div class="wizard-content">
+        <section class="wizard-step" data-wizard-step="0" aria-labelledby="wizard-offer-title">
+          <p class="eyebrow">Schritt 1 von 4</p>
+          <h2 id="wizard-offer-title">Was möchtest du mieten?</h2>
+          <p>Bitte wähle zunächst ein Produkt. Kombinationen sind erst nach Bestätigung der Angebotsregeln möglich.</p>
+          <fieldset class="wizard-choices">
+            <legend>Produkt auswählen</legend>
+            {demoOffers.map((offer) => <label class="wizard-choice">
+              <input type="radio" name="wizardOffer" value={offer.id} data-offer-title={offer.title} />
+              <span><strong>{offer.title}</strong><small>{offer.description}</small></span>
+            </label>)}
+          </fieldset>
+        </section>
+
+        <section class="wizard-step" data-wizard-step="1" aria-labelledby="wizard-event-title" hidden>
+          <p class="eyebrow">Schritt 2 von 4</p>
+          <h2 id="wizard-event-title">Deine Veranstaltung</h2>
+          <p>{isProduction ? "Wunschdatum und Stadt helfen uns bei der Angebotserstellung; deine Angaben werden erst mit der ausdrücklichen Anfrage übertragen." : "Diese Angaben werden nicht gespeichert oder versendet. Bitte keine personenbezogenen Details eingeben."}</p>
+          <div class="wizard-fields">
+            <label>Veranstaltungsart
+              <select name="wizardEvent" required>
+                <option value="">Bitte auswählen</option>
+                {eventTypes.map((event) => <option value={event}>{event}</option>)}
+              </select>
+            </label>
+            <label>Wunschdatum
+              <input name="wizardDate" type="date" required />
+            </label>
+            <label>Veranstaltungsort (nur Stadt)
+              <input name="wizardLocation" type="text" minlength="2" maxlength="80" placeholder="z. B. Lübeck" required autocomplete="off" />
+            </label>
+          </div>
+          <p class="wizard-hint">Das Datum ist eine Anfrage, keine Zusage der Verfügbarkeit.</p>
+        </section>
+
+        <section class="wizard-step" data-wizard-step="2" aria-labelledby="wizard-packages-title" hidden>
+          <p class="eyebrow">Schritt 3 von 4</p>
+          <h2 id="wizard-packages-title">Paket & Zusatzleistungen</h2>
+          <p>Es gelten ausschließlich die bestätigten MEMORA-EVENT-Paketpreise. Noch nicht freigegebene Extras werden nicht angeboten.</p>
+          {demoOffers.map((offer) => <fieldset class="wizard-packages" data-packages-for={offer.id} hidden>
+            <legend>{offer.title}: Paket wählen</legend>
+            {packagesFor(offer.id).length ? <>
+              <label class="wizard-choice">
+                <input type="radio" name="wizardPackage" value="" data-offer-id={offer.id} />
+                <span><strong>Beratung gewünscht</strong><small>Paket und Preis werden individuell abgestimmt.</small></span>
+              </label>
+              {packagesFor(offer.id).map((item) => <label class="wizard-choice">
+                <input
+                  type="radio"
+                  name="wizardPackage"
+                  value={item.id}
+                  data-offer-id={item.offerId}
+                  data-package-name={item.name}
+                  data-package-price-label={item.priceLabel ?? undefined}
+                  data-price-cents={centsFromApprovedPriceLabel(item.priceLabel) ?? ''}
+                />
+                <span><strong>{item.name}</strong><small>{item.summary} · {item.priceLabel}</small></span>
+              </label>)}
+            </> : <p>Für dieses Produkt liegt noch keine freigegebene Preistabelle vor. Wir erstellen ein individuelles Angebot.</p>}
+          </fieldset>)}
+          <section class="wizard-extras" aria-labelledby="wizard-extras-title">
+            <h3 id="wizard-extras-title">Optionale Zusatzleistungen</h3>
+            {extras.length ? <fieldset class="wizard-choices">
+              <legend>Verfügbare Extras</legend>
+              {extras.map((extra) => <label class="wizard-choice" data-extra-offers={extra.offerIds.join(',')}>
+                <input
+                  type="checkbox"
+                  name="wizardExtra"
+                  value={extra.id}
+                  data-extra-pricing={extra.pricing}
+                  data-extra-price-cents={extra.priceCents ?? ''}
+                />
+                <span><strong>{extra.title}</strong><small>{extra.description} · {extra.priceCents !== null ? euroAmount(extra.priceCents) : 'Preis auf Anfrage'}</small></span>
+              </label>)}
+            </fieldset> : <p class="wizard-empty-extras">Zusatzleistungen mit bestätigten Preisen werden hier ergänzt. Derzeit ist noch kein Extra freigegeben.</p>}
+          </section>
+        </section>
+
+        <section class="wizard-step" data-wizard-step="3" aria-labelledby="wizard-review-title" hidden>
+          <p class="eyebrow">Schritt 4 von 4</p>
+          <h2 id="wizard-review-title">Deine Auswahl im Überblick</h2>
+          <p>Prüfe deine Zusammenstellung. Die endgültigen Konditionen, Verfügbarkeit und mögliche variable Kosten klären wir im persönlichen Angebot.</p>
+          <dl class="wizard-review">
+            <div><dt>Produkt</dt><dd data-review-offer>–</dd></div>
+            <div><dt>Veranstaltung</dt><dd data-review-event>–</dd></div>
+            <div><dt>Paket</dt><dd data-review-package>–</dd></div>
+            <div><dt>Extras</dt><dd data-review-extras>Keine freigegebenen Extras ausgewählt</dd></div>
+            <div><dt>Voraussichtlicher Paketpreis</dt><dd data-review-price>Individuelles Angebot</dd></div>
+          </dl>
+          {isProduction ? (
+            <div class="wizard-contact-active">
+              <h3>Deine Kontaktdaten</h3>
+              <p>Bitte kontrolliere die Auswahl oben. Erst ein erfolgreiches Absenden führt zu einer unverbindlichen Anfrage – keine Buchung und keine Verfügbarkeitszusage.</p>
+              <form
+                class="inquiry-card demo-inquiry-card"
+                aria-label="Unverbindliche Anfrage absenden"
+                aria-busy="false"
+                data-inquiry-form
+                data-configurator-inquiry
+                data-api-url={inquiryConfig.apiUrl}
+                data-turnstile-site-key={inquiryConfig.siteKey}
+              >
+                <div hidden aria-hidden="true">
+                  <select name="offerId" data-offer-select required>
+                    <option value="">Bitte auswählen</option>
+                    {demoOffers.map((offer) => <option value={offer.id}>{offer.title}</option>)}
+                  </select>
+                  <select name="packageId" data-package-select disabled>
+                    <option value="">Kein bestimmtes Paket</option>
+                    {demoPackages.map((item) => <option value={item.id} data-offer-id={item.offerId}>{item.name}</option>)}
+                  </select>
+                  <input type="hidden" name="date" />
+                  <input type="hidden" name="eventType" />
+                  <input type="hidden" name="location" />
+                </div>
+                <div class="form-grid-two">
+                  <label>Name
+                    <input type="text" name="name" minlength="2" maxlength={inquiryLimits.name} autocomplete="name" required />
+                  </label>
+                  <label>E-Mail
+                    <input type="email" name="email" maxlength={inquiryLimits.email} autocomplete="email" required />
+                  </label>
+                </div>
+                <label>Telefonnummer <span class="optional">optional</span>
+                  <input type="tel" name="phone" maxlength={inquiryLimits.phone} autocomplete="tel" />
+                </label>
+                <label>Weitere Wünsche <span class="optional">optional</span>
+                  <textarea name="message" maxlength={inquiryLimits.message} rows="4"></textarea>
+                </label>
+                <label class="consent-row">
+                  <input type="checkbox" name="privacyConsent" value="true" required aria-describedby="wizard-privacy-note" />
+                  <span>Ich habe die Datenschutzinformationen zur Anfrage gelesen und stimme der Verarbeitung zu.</span>
+                </label>
+                <p class="form-note" id="wizard-privacy-note">
+                  Informationen zur Datenverarbeitung findest du in unserer <a href={assetBase + 'datenschutz/'}>Datenschutzerklärung</a>.
+                </p>
+                <fieldset class="turnstile-field">
+                  <legend>Sicherheitsprüfung</legend>
+                  <div class="turnstile-wrap" data-turnstile-container tabindex="-1" aria-describedby="wizard-turnstile-help wizard-turnstile-status"></div>
+                  <p class="form-note" id="wizard-turnstile-help">Diese Prüfung schützt unser Anfrageformular vor Missbrauch.</p>
+                  <p class="turnstile-status" id="wizard-turnstile-status" data-turnstile-status aria-live="polite"></p>
+                </fieldset>
+                <div class="form-feedback">
+                  <p class="form-error" data-form-error role="alert" tabindex="-1" hidden></p>
+                  <p class="form-success" data-form-success role="status" aria-live="polite" aria-atomic="true" tabindex="-1" hidden></p>
+                </div>
+                <button type="submit" class="button button-primary demo-submit" disabled>
+                  <span data-submit-idle>Unverbindliche Anfrage senden</span>
+                  <span data-submit-busy hidden>Anfrage wird gesendet …</span>
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div class="wizard-contact-disabled">
+              <strong>Kontaktaufnahme folgt nach der Freigabe.</strong>
+              <p>Bis die produktiven Kontakt- und Datenschutzangaben bestätigt sind, werden keine Kontaktdaten abgefragt und keine Anfrage versendet.</p>
+              <button type="button" disabled>Unverbindliche Anfrage – noch nicht aktiv</button>
+            </div>
+          )}
+        </section>
+
+        <p class="wizard-error" role="alert" data-wizard-error hidden></p>
+        <div class="wizard-actions">
+          <button type="button" data-wizard-back disabled>Zurück</button>
+          <button type="button" data-wizard-next>Weiter</button>
+        </div>
+      </div>
+
+      <aside class="wizard-summary" aria-labelledby="wizard-summary-title">
+        <p class="eyebrow">Deine Zusammenstellung</p>
+        <h2 id="wizard-summary-title">Preisübersicht</h2>
+        <p data-wizard-selection>Wähle ein Produkt aus.</p>
+        <p class="wizard-summary-price" data-wizard-price>Preis nach Paketauswahl</p>
+        <p class="wizard-price-note">Unverbindliche Paket-Zwischensumme. Mögliche Anfahrt, Betreuung und individuell abzustimmende Leistungen sind nicht enthalten.</p>
+      </aside>
+    </div>
+    <noscript><p class="wizard-notice">Für die interaktive Auswahl ist JavaScript erforderlich. Preise und Pakete kannst du auch auf der Preisübersicht ansehen.</p></noscript>
+  </main>
+  <footer class="site-footer demo-footer shell">
+    <a href={home}>MEMORA EVENT</a>
+    <p><a href={assetBase + 'impressum/'}>Impressum</a> · <a href={assetBase + 'datenschutz/'}>Datenschutz</a></p>
+  </footer>
+  <script>import '../scripts/configurator-preview';</script>
+  {isProduction && <script src="../scripts/inquiry-form.ts"></script>}
+</BaseLayout>
