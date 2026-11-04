@@ -50,7 +50,7 @@ try {
   assert.equal(attr(htmlElement, 'lang'), 'de');
   const documentTitles = elements(head, 'title');
   assert.equal(documentTitles.length, 1, 'document head must contain exactly one page title');
-  assert.ok(textContent(documentTitles[0]).includes('Hall of Memory'));
+  assert.ok(textContent(documentTitles[0]).includes('MEMORA EVENT'));
 
   const meta = elements(head, 'meta');
   const metaByName = (name) => meta.find((node) => attr(node, 'name') === name);
@@ -143,7 +143,7 @@ try {
   assert.match(attr(csp, 'content'), /object-src 'none'/);
   assert.match(attr(csp, 'content'), /https:\/\/inquiry\.example\.invalid/);
   for (const script of elements(document, 'script').filter((node) => attr(node, 'src'))) {
-    assert.ok(attr(script, 'src').startsWith('/_astro/'), 'shipped scripts must be first-party bundles');
+    assert.ok((attr(script, 'src').startsWith('/_astro/') || attr(script, 'src') === '/memora-navigation.js'), 'shipped scripts must be first-party bundles');
     assert.ok(
       attr(script, 'type') === 'module' || hasAttr(script, 'defer') || hasAttr(script, 'async'),
       'scripts must not block HTML parsing',

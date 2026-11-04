@@ -42,7 +42,23 @@ assert.equal((demo.match(/data-demo-offer-choice=/g) ?? []).length, 0);
 assert.match(demo, /data-demo-inquiry-disabled/);
 assert.match(demo, /Anfrageformular noch nicht aktiv/);
 assert.doesNotMatch(demo, /demo-inquiry\.js/);
-assert.match(demo, /Paket gemeinsam auswählen/);
+assert.ok(demo.includes(`${base}preise/`), 'price overview link must respect preview base');
+const prices = await readFile(path.join(root, 'preise/index.html'), 'utf8');
+assert.match(prices, /249 €|249 &#/);
+assert.ok(prices.includes(`${base}produkte/fotobox/`));
+assert.ok(prices.includes(`${base}produkte/fotospiegel/`));
+const wizard = await readFile(path.join(root, 'demo/konfigurator/index.html'), 'utf8');
+assert.match(wizard, /noindex,nofollow/);
+assert.match(wizard, /form-action 'none'/);
+assert.match(wizard, /data-wizard-step="0"/);
+assert.match(wizard, /data-wizard-step="3"/);
+assert.doesNotMatch(wizard, /name="email"|name="phone"|type="submit"/);
+const approvedWizardPackages = JSON.parse(await readFile('src/content/packages.json','utf8'));
+for (const entry of approvedWizardPackages) {
+  assert.ok(prices.includes(base + 'demo/konfigurator/?produkt=' + entry.offerId + '&amp;paket=' + entry.id),
+    'preview-base price deep link must preserve offer+package: ' + entry.id);
+}
+
 assert.match(demo, /Vorschau Kundenbereich/);
 assert.doesNotMatch(demo, /Beispielzugang ansehen/);
 assert.doesNotMatch(demo, /Customer Journey|Datenstruktur|Private Formular-Preview|Business-Nummer noch offen/i);
@@ -51,6 +67,18 @@ assert.match(demo, /<aside class="hom-customer-card" aria-label="Vorschau des pe
 assert.doesNotMatch(demo, /<div class="hom-gallery-grid"/);
 assert.equal((demo.match(/aria-label="Unverbindliche Anfrage für (?:Fotobox|Fotospiegel|Magazinbox)"/g) ?? []).length, 3);
 
+for (const slug of ['fotobox', 'fotospiegel', 'magazinbox']) {
+  assert.ok(demo.includes(`${base}produkte/${slug}/`), `product link escaped preview base: ${slug}`);
+  const product = await readFile(path.join(root, `produkte/${slug}/index.html`), 'utf8');
+  const expectedWizard = `${base}demo/konfigurator/?produkt=${slug}`;
+  assert.ok(product.includes(expectedWizard), `product CTA must preselect the product with preview base: ${slug}`);
+  for (const item of approvedWizardPackages.filter((item) => item.offerId === slug)) {
+    assert.ok(product.includes(expectedWizard + '&amp;paket=' + item.id),
+      `product package CTA must preselect exact offer+package: ${item.id}`);
+  }
+  assert.match(product, /noindex,nofollow/);
+}
+
 const demoCssSource = await readFile(path.resolve('src/styles/demo.css'), 'utf8');
 const productionCssSource = await readFile(path.resolve('src/styles/inquiry-production.css'), 'utf8');
 for (const selector of ['demo-page', 'demo-header', 'demo-hero']) {
@@ -58,11 +86,11 @@ for (const selector of ['demo-page', 'demo-header', 'demo-hero']) {
   assert.equal(baseRules.length, 1, `demo.css must keep one top-level .${selector} base rule, got ${baseRules.length}`);
 }
 const reducedMotionIndex = demoCssSource.lastIndexOf('@media (prefers-reduced-motion: reduce)');
-const productMotionIndex = demoCssSource.lastIndexOf('.hom-product-card:hover');
+const productMotionIndex = demoCssSource.indexOf('.hom-product-card:hover');
 assert.ok(reducedMotionIndex > productMotionIndex, 'reduced-motion contract must follow product motion rules in the cascade');
 assert.match(demoCssSource.slice(reducedMotionIndex), /\.demo-offer-details summary span\{transition:none\}/);
 const forcedColorsIndex = demoCssSource.lastIndexOf('@media (forced-colors: active)');
-const heroBorderIndex = demoCssSource.lastIndexOf('.demo-hero-image-wrap{');
+const heroBorderIndex = demoCssSource.indexOf('.demo-hero-image-wrap{');
 assert.ok(forcedColorsIndex > heroBorderIndex, 'forced-colors contract must follow normal hero border rules in the cascade');
 assert.match(demoCssSource, /\.demo-inquiry-card\{[^}]*color-scheme:light[^}]*\}/, 'light inquiry controls must opt out of the global dark color scheme');
 assert.match(demoCssSource, /outline-color:var\(--hom-focus-light\)/, 'light redesign surfaces must override the global gold focus color');
@@ -144,7 +172,7 @@ const overview = await readFile(path.join(root, 'demo/rahmen/index.html'), 'utf8
 for (let variant = 1; variant <= 10; variant += 1) {
   assert.match(overview, new RegExp(`${base}demo/rahmen/${variant}/`));
 }
-assert.doesNotMatch(overview, /hall-of-memory-example-event\.webp|type="range"/);
+assert.doesNotMatch(overview, /memora-event-example-event\.webp|type="range"/);
 
 const tree = createHash('sha256');
 for (const file of files) {

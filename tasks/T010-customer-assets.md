@@ -30,11 +30,9 @@ dependencies: []
 - Originalbilder / freigegebenes Galerie-, Produkt- und Eventmaterial
 - gegebenenfalls freigegebenes kurzes Hero-Video
 - angekündigte zusätzliche Referenz-Websites
-- konkrete Pakete und Preise
 - finale Texte
 - echte Hall-of-Memory-WhatsApp-Businessnummer
 - produktives Kontaktziel / Betreiberadresse für Anfragen
-- Domainstatus
 
 ## Akzeptanz nach weiterer Zulieferung
 
@@ -46,3 +44,11 @@ dependencies: []
 ## Entblockt durch
 
 Lieferung beziehungsweise Bestätigung der noch fehlenden Originaldaten. T010 bleibt bis dahin `blocked_external`.
+
+## Abgleich mit dem aktuell integrierten MEMORA-Angebot — 03.11.2026
+
+**Überholte Fehlbestände korrigiert:** Die zwölf von Kunden ausdrücklich gewählten Fotobox-/Fotospiegelpakete sind bereits seit PR #82 (`8441a32bfb73380ba87898309e5d201fdf82ca36`) integriert und durch PR #113 im Kundenweg getestet. Die kanonische Domain `memoraevents.de` ist seit T061 aktiv. Das aktuelle MEMORA-Original-SVG `public/brand/memora-event-logo.svg` wurde mit PR #81 (`41bf800ad086466ea5bfe266928eca16a26e884d`) integriert; die obigen älteren Hall-of-Memory-Assets bleiben ausschließlich historische Quellbelege. Gerätefotos T066 wurden auf ausdrücklichen Kundenwunsch durch Illustrationen T067 ersetzt; kein Reaktivierungsauftrag.
+
+**Tatsächlich verbleibende externe Inputs:** abschließende Freigabe der heute öffentlich sichtbaren Medien einschließlich Nutzungs-/Persönlichkeitsrechten (besonders Magazinbox-Familienfoto, weiterhin nicht ohne Rechte veröffentlichen); finale Produkttexte und Darstellung tatsächlich angebotener Leistungen; ausdrückliche Produktinhaltsfreigabe einschließlich der zwölf bereits umgesetzten Preisstufen; bestätigter öffentlicher Betreiberkontakt sowie tatsächliche Empfänger-/Absender-/Adminziele über T057. Falls weitere Eventbilder oder ein Hero-Video eingesetzt werden sollen, erst nach Lieferung und Freigabe. Eine angekündigte, nicht zwingende Referenzseite ist **kein Stage-2-Blocker**.
+
+Die kanonische Antwortvorlage für Betreiberangaben, reale Dienstleister und Medien-/Produktfakten befindet sich gesammelt in `docs/business-legal-ground-truth.md`. `src/release/production-approvals.json` bleibt bis zur expliziten belegten Freigabe `false`; T010 bleibt `blocked_external`. Keine fiktiven Kontaktdaten, Preis-Extras oder Bildrechte einsetzen.

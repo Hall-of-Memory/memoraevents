@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 export async function loadSiteContent() {
   const [siteEntry] = await getCollection('site');
   if (!siteEntry) {
-    throw new Error('Hall of Memory site settings are missing.');
+    throw new Error('MEMORA EVENT site settings are missing.');
   }
 
   const byOrder = <T extends { data: { sortOrder: number } }>(a: T, b: T) =>

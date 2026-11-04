@@ -1,1 +1,146 @@
-[]
+[
+  {
+    "id": "fotobox-digital",
+    "offerId": "fotobox",
+    "name": "Digital",
+    "summary": "Ohne Ausdrucke",
+    "priceLabel": "249 € / Event",
+    "features": [
+      "Ohne Ausdrucke"
+    ],
+    "sortOrder": 0,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotobox-starter",
+    "offerId": "fotobox",
+    "name": "Starter",
+    "summary": "150 Ausdrucke",
+    "priceLabel": "299 € / Event",
+    "features": [
+      "150 Ausdrucke"
+    ],
+    "sortOrder": 10,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotobox-classic",
+    "offerId": "fotobox",
+    "name": "Classic",
+    "summary": "300 Ausdrucke",
+    "priceLabel": "349 € / Event",
+    "features": [
+      "300 Ausdrucke"
+    ],
+    "sortOrder": 20,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotobox-premium",
+    "offerId": "fotobox",
+    "name": "Premium",
+    "summary": "450 Ausdrucke",
+    "priceLabel": "399 € / Event",
+    "features": [
+      "450 Ausdrucke"
+    ],
+    "sortOrder": 30,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotobox-party",
+    "offerId": "fotobox",
+    "name": "Party",
+    "summary": "700 Ausdrucke",
+    "priceLabel": "449 € / Event",
+    "features": [
+      "700 Ausdrucke"
+    ],
+    "sortOrder": 40,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotobox-flatrate",
+    "offerId": "fotobox",
+    "name": "Flatrate",
+    "summary": "Unbegrenzte Ausdrucke",
+    "priceLabel": "549 € / Event",
+    "features": [
+      "Unbegrenzte Ausdrucke"
+    ],
+    "sortOrder": 50,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotospiegel-digital",
+    "offerId": "fotospiegel",
+    "name": "Digital",
+    "summary": "Ohne Ausdrucke",
+    "priceLabel": "299 € / Event",
+    "features": [
+      "Ohne Ausdrucke"
+    ],
+    "sortOrder": 60,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotospiegel-starter",
+    "offerId": "fotospiegel",
+    "name": "Starter",
+    "summary": "150 Ausdrucke",
+    "priceLabel": "349 € / Event",
+    "features": [
+      "150 Ausdrucke"
+    ],
+    "sortOrder": 70,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotospiegel-classic",
+    "offerId": "fotospiegel",
+    "name": "Classic",
+    "summary": "300 Ausdrucke",
+    "priceLabel": "399 € / Event",
+    "features": [
+      "300 Ausdrucke"
+    ],
+    "sortOrder": 80,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotospiegel-premium",
+    "offerId": "fotospiegel",
+    "name": "Premium",
+    "summary": "450 Ausdrucke",
+    "priceLabel": "449 € / Event",
+    "features": [
+      "450 Ausdrucke"
+    ],
+    "sortOrder": 90,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotospiegel-party",
+    "offerId": "fotospiegel",
+    "name": "Party",
+    "summary": "700 Ausdrucke",
+    "priceLabel": "499 € / Event",
+    "features": [
+      "700 Ausdrucke"
+    ],
+    "sortOrder": 100,
+    "source": "customer-provided"
+  },
+  {
+    "id": "fotospiegel-flatrate",
+    "offerId": "fotospiegel",
+    "name": "Flatrate",
+    "summary": "Unbegrenzte Ausdrucke",
+    "priceLabel": "599 € / Event",
+    "features": [
+      "Unbegrenzte Ausdrucke"
+    ],
+    "sortOrder": 110,
+    "source": "customer-provided"
+  }
+]

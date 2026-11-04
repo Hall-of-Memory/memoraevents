@@ -95,7 +95,7 @@ try {
     const metalProfiles = descendants(hero, (node) => hasClass(node, 'demo-frame-metal-profile'));
     assert.equal(metalProfiles.length, 0, `variant ${variant} must render the supplied transparent frame asset directly without synthetic metal-offset layers`);
     const variantEventPhoto = descendants(hero, (node) => hasClass(node, 'demo-hero-event-photo'))[0];
-    assert.equal(attr(variantEventPhoto, 'src'), '/demo/hall-of-memory-example-event.webp', `variant ${variant} must keep the sample event photo`);
+    assert.equal(attr(variantEventPhoto, 'src'), '/demo/memora-event-example-event.webp', `variant ${variant} must keep the sample event photo`);
     assert.match(variantHtml, /\/frame-comparison\.js/);
     assert.ok(statSync(localAssetPath(mask)).size > 0, `missing local frame asset ${mask}`);
     assert.doesNotMatch(attr(hero, 'style') ?? '', /https?:/i, `variant ${variant} frame introduced a remote dependency`);
@@ -114,7 +114,7 @@ try {
   assert.equal(descendants(comparison, (node) => hasAttr(node, 'data-frame-mode')).length, 0, 'overview must not expose image-mode controls');
   assert.equal(descendants(comparison, (node) => hasAttr(node, 'data-frame-shell-toggle')).length, 0, 'overview must not expose the shell control');
   assert.equal(descendants(comparison, (node) => hasAttr(node, 'data-frame-size')).length, 0, 'overview must not expose the image-size slider');
-  assert.equal(elements(comparison, 'img').filter((node) => attr(node, 'src') === '/demo/hall-of-memory-example-event.webp').length, 0, 'overview must not render the sample event photo');
+  assert.equal(elements(comparison, 'img').filter((node) => attr(node, 'src') === '/demo/memora-event-example-event.webp').length, 0, 'overview must not render the sample event photo');
   assert.doesNotMatch(comparisonHtml, /\/frame-comparison\.js/, 'overview must not load the detail-page frame control script');
   const floralOverview = descendants(comparison, (node) => attr(node, 'data-frame-kind') === 'floral-source')[0];
   assert.ok(floralOverview, 'V6 overview must render the replacement full-frame source directly');
@@ -135,6 +135,10 @@ try {
   assert.equal(attr(elements(demo, 'html')[0], 'lang'), 'de');
   assert.equal(attr(elements(demo, 'body')[0], 'class'), 'demo-page');
   assert.equal(elements(demo, 'h1').length, 1);
+  const heroSummary = descendants(demo, (node) => hasClass(node, 'demo-hero-points'))[0];
+  assert.ok(heroSummary, 'demo hero summary must remain available');
+  assert.equal(attr(heroSummary, 'role'), 'group', 'a named non-landmark group must expose an allowed ARIA role');
+  assert.equal(attr(heroSummary, 'aria-label'), 'MEMORA EVENT auf einen Blick');
   assert.equal(elements(demo, 'nav').length, 1);
   assert.ok(attr(elements(demo, 'nav')[0], 'aria-label'));
   assert.equal(elements(demo, 'main').length, 1);
@@ -162,11 +166,11 @@ try {
   assert.match(attr(csp, 'content'), /form-action 'none'/);
 
   assert.match(demoText, /Private Designpreview/);
-  assert.match(demoText, /Every Star Has a Memory/);
+  assert.match(demoText, /Momente. Stilvoll inszeniert./);
   assert.match(demoText, /Fotobox/);
   assert.match(demoText, /Fotospiegel/);
   assert.match(demoText, /Magazinbox/);
-  assert.match(demoText, /Warum Hall of Memory/);
+  assert.match(demoText, /Warum MEMORA EVENT/);
   assert.match(demoText, /Pakete/);
   assert.match(demoText, /Galerie/);
   assert.match(demoText, /So funktioniert/);
@@ -190,18 +194,48 @@ try {
   assert.equal(inquiryChoices.length, 0, 'disabled Stage-1 inquiry must not expose product-preselection behavior');
   assert.doesNotMatch(demoHtml, /mailto:|tel:/i);
   assert.doesNotMatch(demoHtml, /wa\.me\//i, 'WhatsApp must stay unlinked until a real business number is configured');
-  assert.doesNotMatch(demoText, /€|EUR|\b[0-9]+(?:[.,][0-9]{2})?\s*Euro\b/i);
+  const approvedPackages = JSON.parse(readFileSync(join(repo, 'src/content/packages.json'), 'utf8'));
+  const pricePageText = textContent(parse(readFileSync(join(outDir, 'preise/index.html'), 'utf8')));
+  for (const item of approvedPackages) assert.ok(pricePageText.includes(item.priceLabel.replace(' / Event', '')), `missing approved package price ${item.id}`);
+  assert.match(demoHtml, /href="\/preise\/"/);
+
+  // T069: choice preview is truly side-effect-free until inquiry production approval.
+  const configuratorHtml = readFileSync(join(outDir, 'demo', 'konfigurator', 'index.html'), 'utf8');
+  const configurator = parse(configuratorHtml);
+  assert.match(configuratorHtml, /noindex,nofollow/);
+  assert.match(configuratorHtml, /form-action 'none'/);
+  assert.equal(elements(configurator, 'form').length, 0, 'preview must not collect or submit personal data');
+  assert.equal(elements(configurator, 'section').filter((node) => hasAttr(node, 'data-wizard-step')).length, 4);
+  assert.equal(elements(configurator, 'input').filter((node) => ['name','email','phone','message'].includes(attr(node, 'name'))).length, 0);
+  const wizardPackages = elements(configurator, 'input').filter((node) => attr(node, 'name') === 'wizardPackage' && attr(node, 'value'));
+  assert.equal(wizardPackages.length, approvedPackages.length);
+  for (const item of approvedPackages) {
+    assert.ok(wizardPackages.some((node) =>
+      attr(node, 'value') === item.id &&
+      attr(node, 'data-offer-id') === item.offerId &&
+      attr(node, 'data-package-price-label') === item.priceLabel
+    ), 'configurator package must retain approved price and offer binding: ' + item.id);
+    const expected = '/demo/konfigurator/?produkt=' + item.offerId + '&paket=' + item.id;
+    const priceOverview = parse(readFileSync(join(outDir, 'preise', 'index.html'), 'utf8'));
+    assert.ok(elements(priceOverview, 'a').some((node) => attr(node, 'href') === expected), 'price overview must preselect exact package: ' + item.id);
+  }
+  assert.match(configuratorHtml, /Die Anfrageübermittlung ist bis zur Freigabe/);
+  assert.match(configuratorHtml, /Unverbindliche Anfrage – noch nicht aktiv/);
+  assert.ok(elements(configurator, 'button').some((node) => hasAttr(node, 'disabled') && /noch nicht aktiv/.test(textContent(node))), 'preview submit must remain disabled');
+  const configuratorClient = readFileSync(join(repo, 'src/scripts/configurator-preview.ts'), 'utf8');
+  assert.doesNotMatch(configuratorClient, /fetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|FormData/, 'selection preview must never transmit or persist inputs');
+
 
   const images = elements(demo, 'img');
-  assert.equal(images.length, 4, 'two primary logo placements, one contextual dark logo and one event photo should be visible');
+  assert.equal(images.length, 4, 'three logos and one event photo; products use decorative SVG illustrations');
   const imageSources = images.map((image) => attr(image, 'src'));
-  assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-primary.svg').length, 2);
-  assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-dark.jpg').length, 1);
+  assert.equal(imageSources.filter((src) => src === '/brand/memora-event-logo.svg').length, 3);
+  assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-dark.jpg').length, 0);
   assert.equal(imageSources.filter((src) => src === '/brand/hall-of-memory-logo-light.jpg').length, 0);
-  assert.equal(imageSources.filter((src) => src === '/demo/hall-of-memory-example-event.webp').length, 1);
+  assert.equal(imageSources.filter((src) => src === '/demo/memora-event-example-event.webp').length, 1);
   for (const image of images) {
     const src = attr(image, 'src');
-    assert.ok(['/brand/hall-of-memory-logo-primary.svg', '/brand/hall-of-memory-logo-dark.jpg', '/demo/hall-of-memory-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
+    assert.ok(['/brand/memora-event-logo.svg', '/demo/memora-event-example-event.webp'].includes(src), `unexpected demo image source ${src}`);
     assert.ok(attr(image, 'alt'), 'every visible demo image needs alt text');
     assert.ok(statSync(localAssetPath(src)).size > 0, `missing local image asset ${src}`);
   }
@@ -226,16 +260,16 @@ try {
   assert.equal(stellarFundusPackage.source_image_brief_sha256, 'db8702a797fff95c0380c2e8d320d9fd9dee139b57c2b653478eaf89b1bd7442');
   assert.equal(sha256(join(stellarFundusRoot, 'package', 'assets', 'hall-of-memory-stellar-frame-primary-raster.png')), '0a5e97d3f2593168929b2e8067141dd1834f2cf305d8e84ce89b8cf8ca23acef');
   const publicBrand = join(repo, 'public', 'brand');
-  const publicBrandFiles = {
-    'hall-of-memory-logo-primary.svg': '76f3055f5e16081ad58b555263b4a92dec5fc52a87abe238c8f8c6459f573c13',
-    'hall-of-memory-logo-dark.jpg': '4bf4bd0a524af72cc7a9375531e1a00f9d385d62318666fb662aef5f3f040c22',
-    'hall-of-memory-logo-light.jpg': '7bd29e4f79b830ea6c97a75118098abfc36a70d616bfba8093b8f01253211c3e',
-  };
+  const publicBrandFiles = { 'memora-event-logo.svg': 'e7ec7c3c25905f706eab5c116187ca601d15b89c13d828966b80ab75da3278a4' };
   for (const [name, expectedHash] of Object.entries(publicBrandFiles)) {
     assert.equal(sha256(join(publicBrand, name)), expectedHash, `public customer brand export drifted: ${name}`);
   }
   assert.doesNotMatch(demoHtml, /hall-of-memory-mark-0[12]\.webp/);
-  assert.match(demoHtml, /\/demo\/hall-of-memory-example-event\.webp/);
+  assert.match(demoHtml, /\/demo\/memora-event-example-event\.webp/);
+  // Regressionsschutz MEMORA EVENT: sichtbarer Name und aktiver Bildpfad.
+  assert.match(demoHtml, /<title>MEMORA EVENT/);
+  assert.match(demoHtml, /<meta property="og:title" content="MEMORA EVENT/);
+  assert.doesNotMatch(demoText, /Hall of Memory|hallofmemory/i);
   assert.match(demoText, /Eventaufnahme/);
   assert.doesNotMatch(demoText, /Kein Logo wird mehr als vermeintliches Eventfoto eingesetzt/);
 
@@ -253,8 +287,34 @@ try {
       );
     } else {
       assert.ok(
-        ['/demo/', '/impressum/', '/datenschutz/'].includes(href),
+        ['/preise/', '/demo/', '/demo/konfigurator/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href),
         `unexpected external or dead demo link ${href}`,
+      );
+    }
+  }
+
+  // T065: public product links must resolve to real static pages with unchanged customer content.
+  const offers = JSON.parse(readFileSync(join(repo, 'src/content/offers.json'), 'utf8'));
+  for (const offer of offers) {
+    const productHtml = readFileSync(join(outDir, 'produkte', offer.slug, 'index.html'), 'utf8');
+    const product = parse(productHtml);
+    const productText = textContent(elements(product, 'main')[0]);
+    assert.equal(elements(product, 'h1').length, 1);
+    assert.ok(productText.includes(offer.description), `${offer.slug}: customer description changed`);
+    assert.ok(productText.includes(offer.moreInfo), `${offer.slug}: customer details changed`);
+    for (const highlight of offer.highlights) assert.ok(productText.includes(highlight));
+    assert.equal(elements(product, 'form').length, 0, 'product pages must not bypass disabled inquiry');
+    assert.doesNotMatch(productHtml, /melody-fotobox|maps\.app\.goo\.gl|tel:|mailto:/i);
+    const heroWizardUrl = '/demo/konfigurator/?produkt=' + offer.id;
+    assert.equal(
+      elements(product, 'a').filter((node) => attr(node, 'href') === heroWizardUrl).length,
+      2,
+      `${offer.slug}: hero and footer CTA must preselect this product in the sendefrei wizard`,
+    );
+    for (const item of approvedPackages.filter((item) => item.offerId === offer.id)) {
+      assert.ok(
+        elements(product, 'a').some((node) => attr(node, 'href') === heroWizardUrl + '&paket=' + item.id),
+        `${offer.slug}: package card must preselect its exact package ${item.id}`,
       );
     }
   }
@@ -289,7 +349,10 @@ try {
   assert.equal(descendants(form, (node) => hasAttr(node, 'data-demo-inquiry-status')).length, 0);
 
   const demoScripts = elements(demo, 'script').filter((node) => attr(node, 'src'));
-  assert.equal(demoScripts.length, 0, 'base Stage-1 demo must not ship mock inquiry behavior');
+  assert.equal(demoScripts.length, 1, 'Stage-1 demo ships only its navigation script');
+  assert.equal(attr(demoScripts[0], 'src'), '/memora-navigation.js');
+  const navigationSource = readFileSync(join(outDir, 'memora-navigation.js'), 'utf8');
+  assert.doesNotMatch(navigationSource, /fetch\s*\(|XMLHttpRequest|sendBeacon|inquiry|submit|FormData/i, 'navigation must not send inquiries or network requests');
   assert.doesNotMatch(demoHtml, /demo-inquiry\.js/);
 
   assert.ok(descendants(production, (node) => hasAttr(node, 'data-inquiry-form'))[0]);
@@ -321,7 +384,7 @@ try {
   assert.match(demoPageSource, /DemoExperience/);
   assert.match(demoExperienceSource, /from '\.\.\/data\/demo'/);
   assert.match(demoExperienceSource, /PUBLIC_WHATSAPP_NUMBER/);
-  assert.match(demoExperienceSource, /hall-of-memory-logo-dark\.jpg/);
+  assert.match(demoExperienceSource, /memora-event-logo\.svg/);
   assert.match(demoExperienceSource, /wa\.me/);
   assert.match(demoExperienceSource, /frameMaskByVariant/);
   assert.match(demoExperienceSource, /import\.meta\.env\.BASE_URL/);

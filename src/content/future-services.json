@@ -1,0 +1,23 @@
+[
+  {
+    "id": "eventdekoration",
+    "title": "Eventdekoration",
+    "status": "planned",
+    "sortOrder": 10,
+    "source": "customer-provided"
+  },
+  {
+    "id": "gastgeschenke",
+    "title": "Gastgeschenke",
+    "status": "planned",
+    "sortOrder": 20,
+    "source": "customer-provided"
+  },
+  {
+    "id": "papeterie",
+    "title": "Einladungskarten & Papeterie",
+    "status": "planned",
+    "sortOrder": 30,
+    "source": "customer-provided"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "codex/memora-event-relaunch": false,
+      "codex/memora-reference-design": false,
+      "codex/memora-product-photos": false,
+      "codex/memora-animated-illustrations": false
+    }
+  }
+}
