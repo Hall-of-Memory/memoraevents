@@ -37,6 +37,13 @@ const draft = {
 };
 assert.equal(inquirySchema.safeParse(draft).success, true);
 assert.equal(inquirySchema.safeParse({ ...draft, email: 'not-an-email' }).success, false);
+assert.equal(parseInquirySubmission({ ...draft, submissionId: 'bad-id', turnstileToken: 'valid' }).success, false);
+assert.equal(parseInquirySubmission({ ...draft, submissionId: '00000000-0000-1000-8000-000000000000', turnstileToken: 'valid' }).success, false);
+const idempotentSubmission = parseInquirySubmission({
+  ...draft, submissionId: 'f68ad760-bd99-4ab4-8d6b-a325b45247aa', turnstileToken: 'valid',
+});
+assert.equal(idempotentSubmission.success, true);
+assert.equal(idempotentSubmission.success && idempotentSubmission.data.submissionId, 'f68ad760-bd99-4ab4-8d6b-a325b45247aa');
 
 const submission = parseInquirySubmission({
   ...draft,

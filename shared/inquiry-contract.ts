@@ -57,6 +57,8 @@ export const inquirySchema = z.object({
   phone: z.string().trim().max(inquiryLimits.phone).optional(),
   message: z.string().trim().max(inquiryLimits.message).optional(),
   privacyConsent: z.literal(true),
+  // Optional for compatibility with older callers; new forms use a fresh UUIDv4 per draft.
+  submissionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/).optional(),
 });
 
 function normalizeOptionalFields(value: unknown): unknown {
