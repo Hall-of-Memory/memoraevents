@@ -38,15 +38,15 @@
     "test:pages-artifact": "astro --base /memoraevents build --outDir .pages-artifact-source-test-dist && node scripts/test-pages-artifact.mjs"
   },
   "dependencies": {
-    "astro": "7.2.9",
+    "astro": "7.4.5",
     "jose": "6.2.10",
-    "zod": "4.4.3"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "parse5": "8.0.1",
     "typescript": "6.0.3",
-    "wrangler": "4.131.1"
+    "wrangler": "4.157.0"
   },
   "engines": {
     "node": ">=22.0.0 <23.0.0"
