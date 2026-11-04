@@ -14,6 +14,7 @@ export type InquiryOutcomeCode =
   | 'rate-limited'
   | 'storage-failed'
   | 'network-failed'
+  | 'receipt-uncertain'
   | 'backend-failed'
   | 'duplicate-ignored';
 
@@ -128,6 +129,13 @@ const outcomes = {
     message:
       'Die Verbindung ist fehlgeschlagen. Es ist unklar, ob die Anfrage angekommen ist; bitte sende sie nicht sofort mehrfach und versuche es später erneut.',
   }),
+  receiptUncertain: (): InquiryOutcome => ({
+    ok: false,
+    code: 'receipt-uncertain',
+    focus: 'status',
+    message:
+      'Der Anfragedienst hat keine eindeutige Empfangsbestätigung geliefert. Deine Anfrage könnte bereits gespeichert sein. Bitte sende sie nicht sofort erneut, um doppelte Anfragen zu vermeiden.',
+  }),
   duplicateIgnored: (): InquiryOutcome => ({
     ok: false,
     code: 'duplicate-ignored',
@@ -180,8 +188,11 @@ export async function requestInquiry(
     } catch {
       // A malformed success response must never produce a success message.
     }
-    return outcomes.backendFailed();
+    // A 201 may follow successful persistence even if its receipt is unreadable.
+    return outcomes.receiptUncertain();
   }
+  // Other 2xx statuses may mean the data was accepted; do not suggest safe resubmission.
+  if (response.ok) return outcomes.receiptUncertain();
 
   const code = await errorCode(response);
   if (response.status === 422) {
@@ -201,7 +212,7 @@ export async function requestInquiry(
   }
   if (response.status === 429) return outcomes.rateLimited();
   if (response.status === 500 && code === 'storage-failed') return outcomes.storageFailed();
-  if (response.status >= 500) return outcomes.backendFailed();
+  if (response.status >= 500) return outcomes.receiptUncertain();
   if (response.status === 413) {
     return outcomes.validationFailed('Die Anfrage ist zu umfangreich. Bitte kürze deine Nachricht.');
   }

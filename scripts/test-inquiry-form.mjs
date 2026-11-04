@@ -150,10 +150,13 @@ assert.equal(success.code, 'received');
 assert.match(success.message, /Anfrage wurde empfangen/);
 assert.match(success.message, /keine verbindliche Buchung/);
 assert.doesNotMatch(success.message, /verfügbar|gebucht|bestätigt/i);
-assert.equal(
-  (await outcomeFor(201, { inquiryId: 'inquiry-1', status: 'received', bookingCreated: true })).ok,
-  false,
-);
+const uncertainReceipt = await outcomeFor(201, { inquiryId: 'inquiry-1', status: 'received', bookingCreated: true });
+assert.equal(uncertainReceipt.ok, false);
+assert.equal(uncertainReceipt.code, 'receipt-uncertain');
+assert.match(uncertainReceipt.message, /könnte bereits gespeichert/);
+assert.match(uncertainReceipt.message, /nicht sofort erneut/);
+assert.equal((await outcomeFor(202, { status: 'accepted' })).code, 'receipt-uncertain');
+assert.equal((await requestInquiry('https://inquiry.example.invalid/api/inquiries', normalized, async () => new Response(null, { status: 204 }))).code, 'receipt-uncertain');
 assert.equal((await outcomeFor(422, { error: 'validation-failed' })).code, 'validation-failed');
 assert.equal(
   (await outcomeFor(403, { error: 'human-verification-failed' })).code,
@@ -165,7 +168,7 @@ assert.equal(
 );
 assert.equal((await outcomeFor(429, { error: 'rate-limited' })).code, 'rate-limited');
 assert.equal((await outcomeFor(500, { error: 'storage-failed' })).code, 'storage-failed');
-assert.equal((await outcomeFor(502, { error: 'upstream-failed' })).code, 'backend-failed');
+assert.equal((await outcomeFor(502, { error: 'upstream-failed' })).code, 'receipt-uncertain');
 assert.equal((await outcomeFor(500, { error: 'storage-failed' })).ok, false);
 assert.equal(
   (
@@ -202,7 +205,7 @@ for (const scenario of [
   { expected: 'human-verification-unavailable', fetcher: async () => jsonResponse(503, { error: 'human-verification-unavailable' }) },
   { expected: 'rate-limited', fetcher: async () => jsonResponse(429, { error: 'rate-limited' }) },
   { expected: 'storage-failed', fetcher: async () => jsonResponse(500, { error: 'storage-failed' }) },
-  { expected: 'backend-failed', fetcher: async () => jsonResponse(502, { error: 'upstream-failed' }) },
+  { expected: 'receipt-uncertain', fetcher: async () => jsonResponse(502, { error: 'upstream-failed' }) },
   { expected: 'network-failed', fetcher: async () => { throw new TypeError('offline'); } },
 ]) {
   const errorView = recordedView();
