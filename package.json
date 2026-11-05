@@ -12,6 +12,7 @@
     "check": "astro check",
     "deploy": "npm run check:production-readiness && npm run build && wrangler deploy",
     "verify": "node scripts/run-verification.mjs",
+    "smoke:live:stage1": "node scripts/smoke-live-stage-one.mjs",
     "check:install-state": "node scripts/check-installed-dependencies.mjs",
     "check:production-readiness": "node scripts/check-production-readiness.mjs",
     "test:install-state": "node scripts/test-installed-dependencies.mjs",
