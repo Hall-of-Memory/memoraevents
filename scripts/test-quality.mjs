@@ -197,6 +197,8 @@ try {
   });
   assert.match(notification, /inquiry-1/);
   assert.match(notification, /fotobox/);
+  assert.match(notification, /MEMORA EVENT/, 'operator notification must use current brand');
+  assert.doesNotMatch(notification, /Hall of Memory/i, 'legacy brand must not reach operator inbox');
   for (const privateValue of ['Person Name', 'person@example.invalid', '+49 123', 'private message']) {
     assert.doesNotMatch(notification, new RegExp(privateValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }

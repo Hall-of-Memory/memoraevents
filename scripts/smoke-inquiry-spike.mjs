@@ -329,6 +329,20 @@ try {
     403,
   );
   const token = await tokenFor();
+  // Malformed percent encoding in an authenticated write route is a client
+  // error, not an unhandled URIError / Worker 500.
+  for (const [path, init] of [
+    ['/api/admin/inquiries/%ZZ', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ status: 'contacted' }),
+    }],
+    ['/api/admin/inquiries/%ZZ/notify', { method: 'POST' }],
+  ]) {
+    const response = await adminFetch(path, token, init);
+    assert.equal(response.status, 400, 'malformed admin path must be rejected: ' + path);
+    assert.deepEqual(await response.json(), { error: 'invalid-inquiry-id' });
+  }
   assert.equal((await adminFetch('/admin', token)).status, 200);
   const capabilities = await adminFetch('/api/admin/capabilities', token);
   assert.equal(capabilities.status, 200);
