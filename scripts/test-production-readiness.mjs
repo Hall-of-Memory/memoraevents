@@ -54,6 +54,20 @@ assert.equal(incompleteProductionGate.skipped, false, 'production builds must ne
 assert.equal(incompleteProductionGate.ready, false, 'incomplete production builds must fail closed');
 
 const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const pinnedNode = readFileSync(new URL('../.nvmrc', import.meta.url), 'utf8').trim();
+assert.match(pinnedNode, /^22\.\d+\.\d+$/, '.nvmrc must select an exact supported Node 22 runtime');
+assert.equal(packageJson.engines?.node, `>=${pinnedNode} <23.0.0`, 'Node engine lower bound must match the Cloudflare .nvmrc pin');
+const lockfile = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8'));
+const actualNodeParts = pinnedNode.split('.').map(Number);
+for (const packageName of ['astro', '@astrojs/prism', '@astrojs/telemetry']) {
+  const requiredEngine = lockfile.packages?.[`node_modules/${packageName}`]?.engines?.node;
+  const minimum = /^>=([0-9]+\.[0-9]+\.[0-9]+)$/.exec(requiredEngine ?? '');
+  assert.ok(minimum, `${packageName} must declare an explicit Node minimum in the locked tree`);
+  const requiredParts = minimum[1].split('.').map(Number);
+  const compatible = actualNodeParts.findIndex((value, index) => value !== requiredParts[index]);
+  assert.ok(compatible === -1 || actualNodeParts[compatible] > requiredParts[compatible],
+    `pinned Node ${pinnedNode} is older than ${packageName} minimum ${minimum[1]}`);
+}
 const buildScript = packageJson.scripts?.build ?? '';
 const verificationBuildScript = packageJson.scripts?.['build:verification'] ?? '';
 const pagesBuildScript = packageJson.scripts?.['build:pages'] ?? '';
@@ -79,6 +93,11 @@ assert.match(
   /^npm run check:production-readiness && npm run build && wrangler deploy$/,
   'npm run deploy must require strict readiness and a fresh gated build before Wrangler deploy',
 );
+
+const siteWorker = JSON.parse(readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
+assert.equal(siteWorker.name, 'hall-of-memory', 'Worker Builds must target the configured static-site Worker');
+assert.equal(siteWorker.assets?.directory, './dist', 'Worker Preview must serve the same verified static asset directory');
+assert.deepEqual(siteWorker.previews, {}, 'Workers Builds preview command requires an explicit previews block');
 
 const injectedWorkerConfig = `{"main":"${PRODUCTION_INQUIRY_ENTRY}","vars":{"SPIKE_MODE":"production"}}`;
 const injectedWorkerState = loadRepositoryReadinessInput({ env: { PRODUCTION_WORKER_CONFIG_JSON: injectedWorkerConfig } });
