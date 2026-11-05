@@ -397,7 +397,7 @@ const main = async () => {
         summaries.push({ view: viewport.name, route: '/demo/', screenshotBytes, settled: demo.settled });
         if (viewport.name === 'desktop') {
           const controlledCases = [
-            { id: 't072-date-overflow', css: '.demo-inquiry input[type=date]{min-width:450px!important}', expected: 'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP' },
+            { id: 't075-preview-cta-hidden', css: '.demo-inquiry [data-demo-inquiry-disabled] > a.button{display:none!important}', expected: 'VIS-INVARIANT-INQUIRY-PREVIEW-CTA' },
             { id: 't053-logo-self-hidden', css: '.demo-header .demo-brand > img{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-logo-ancestor-hidden', css: '.demo-header .demo-brand{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-process-hidden', css: '.hom-process-grid{display:none!important}', expected: 'VIS-INVARIANT-PROCESS-HIDDEN' },
