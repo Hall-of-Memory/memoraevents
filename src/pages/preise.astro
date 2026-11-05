@@ -3,15 +3,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MemoraHeader from '../components/landing/MemoraHeader.astro';
 import { demoOffers, demoPackages, demoSite } from '../data/demo';
 import { packagesForOffer } from '../lib/package-projection';
+import { resolveSeoState } from '../lib/seo';
 import '../styles/demo.css';
 const assetBase = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const home = `${assetBase}demo/`;
+const home = demoSite.launchStatus === 'production' ? assetBase : assetBase + 'demo/';
+const seo = resolveSeoState(Astro.site?.href, demoSite.launchStatus, Astro.url.pathname);
 // The static release gate prevents a public launch before operational approvals.
 const wizardRoute = demoSite.launchStatus === 'production' ? 'anfrage/' : 'demo/konfigurator/';
+const inquiryHref = assetBase + wizardRoute;
 const groups = demoOffers.map((offer) => ({ offer, packages: packagesForOffer(demoPackages, offer.id) })).filter((group) => group.packages.length);
 ---
-<BaseLayout title="Pakete & Preise — MEMORA EVENT" description="Fotobox ab 249 Euro und Fotospiegel ab 299 Euro pro Event. Vergleiche unsere Digital- und Druckpakete." noIndex={true} bodyClass="demo-page" formActionSource="'none'">
-  <MemoraHeader homeHref={home} {assetBase} />
+<BaseLayout title="Pakete & Preise — MEMORA EVENT" description="Fotobox ab 249 Euro und Fotospiegel ab 299 Euro pro Event. Vergleiche unsere Digital- und Druckpakete." noIndex={!seo.indexable} canonicalUrl={seo.canonicalUrl} bodyClass="demo-page" formActionSource="'none'">
+  <MemoraHeader homeHref={home} {assetBase} inquiryHref={inquiryHref} />
   <main id="main-content" tabindex="-1" class="shell memora-prices">
     <p class="eyebrow">Dein Event. Dein Paket.</p>
     <h1>Pakete <em>& Preise.</em></h1>

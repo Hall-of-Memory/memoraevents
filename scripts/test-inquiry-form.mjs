@@ -433,7 +433,30 @@ try {
   const publicWizard = parse(readFileSync(join(fixtureRoot, 'dist/anfrage/index.html'), 'utf8'));
   const previewWizard = parse(readFileSync(join(fixtureRoot, 'dist/demo/konfigurator/index.html'), 'utf8'));
   const productivePrices = parse(readFileSync(join(fixtureRoot, 'dist/preise/index.html'), 'utf8'));
+  const productiveHome = parse(readFileSync(join(fixtureRoot, 'dist/index.html'), 'utf8'));
   const approvedPackages = JSON.parse(readFileSync(join(repo, 'src/content/packages.json'), 'utf8'));
+  const priceHead = elements(productivePrices, 'head')[0];
+  assert.equal(elements(priceHead, 'meta').some((node) => attr(node, 'name') === 'robots'), false, 'approved production prices must become indexable');
+  assert.equal(attr(elements(priceHead, 'link').find((node) => attr(node, 'rel') === 'canonical'), 'href'), 'https://memoraevents.de/preise/');
+  assert.ok(elements(productivePrices, 'a').some((node) => attr(node, 'href') === '/'), 'production price logo must lead to canonical homepage');
+  assert.ok(elements(productivePrices, 'a').some((node) => attr(node, 'href') === '/anfrage/'), 'production price nav must lead to working inquiry wizard');
+  for (const offer of JSON.parse(readFileSync(join(repo, 'src/content/offers.json'), 'utf8'))) {
+    const product = parse(readFileSync(join(fixtureRoot, 'dist/produkte', offer.slug, 'index.html'), 'utf8'));
+    const productHead = elements(product, 'head')[0];
+    assert.equal(elements(productHead, 'meta').some((node) => attr(node, 'name') === 'robots'), false, 'approved product must become indexable: ' + offer.slug);
+    assert.equal(attr(elements(productHead, 'link').find((node) => attr(node, 'rel') === 'canonical'), 'href'), 'https://memoraevents.de/produkte/' + offer.slug + '/');
+    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/'), 'production product home link must not point to /demo/: ' + offer.slug);
+    assert.ok(elements(product, 'a').some((node) => attr(node, 'href') === '/anfrage/?produkt=' + offer.id), 'production product CTA missing: ' + offer.id);
+    const homeCard = descendants(productiveHome, (node) => attr(node, 'id') === 'angebot-' + offer.slug)[0];
+    assert.ok(homeCard);
+    assert.ok(elements(homeCard, 'a').some((node) => attr(node, 'href') === '/anfrage/?produkt=' + offer.id), 'production homepage card must preselect product: ' + offer.id);
+  }
+  const approvedSitemap = readFileSync(join(fixtureRoot, 'dist/sitemap.xml'), 'utf8');
+  assert.equal((approvedSitemap.match(/<loc>/g) ?? []).length, 5, 'approved sitemap must list homepage, prices and products');
+  assert.doesNotMatch(approvedSitemap, /\/demo\//);
+  for (const route of ['/', '/preise/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/']) {
+    assert.ok(approvedSitemap.includes('<loc>https://memoraevents.de' + route + '</loc>'), 'approved sitemap misses ' + route);
+  }
   for (const item of approvedPackages) {
     const selected = '/anfrage/?produkt=' + item.offerId + '&paket=' + item.id;
     assert.ok(

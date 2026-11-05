@@ -375,7 +375,9 @@ const main = async () => {
               clientWidth:document.documentElement.clientWidth, menuCollapsed:nav.hidden};
           });
         })()`);
-        visualEqual(anchorStates.length, 5, 'VIS-INVARIANT-NAV-ANCHORS', viewport.name + ': expected five navigation anchors');
+        visualEqual(anchorStates.length, 4, 'VIS-INVARIANT-NAV-ANCHORS', viewport.name + ': expected four section anchors plus direct wizard CTA');
+        const navWizard = await evaluate(cdp, demo.sessionId, 'document.querySelector("#memora-navigation .nav-cta")?.getAttribute("href")');
+        visualEqual(navWizard, '/demo/konfigurator/', 'VIS-INVARIANT-NAV-CTA', viewport.name + ': navigation CTA must open send-free wizard');
         for (const anchor of anchorStates) {
           visualEqual(anchor.hash, anchor.href, 'VIS-INVARIANT-NAV-ANCHORS', viewport.name + ': anchor did not navigate');
           visualCheck(Math.abs(anchor.top) <= 1 && Math.abs(anchor.left) <= 1 && Math.abs(anchor.right - anchor.clientWidth) <= 1,
@@ -407,6 +409,24 @@ const main = async () => {
             await evaluate(cdp, demo.sessionId, `document.querySelector(${JSON.stringify(`#${controlled.id}`)})?.remove()`);
           }
         }
+        // T075: click one real homepage product card per viewport (not just href inspection).
+        const chosenOffer = viewport.name === 'desktop' ? 'fotobox' : viewport.name === 'tablet' ? 'fotospiegel' : 'magazinbox';
+        const clicked = await evaluate(cdp, demo.sessionId, '(() => { const a = document.querySelector("#angebot-' + chosenOffer + ' .hom-product-actions a"); if (!a) return false; a.click(); return true; })()');
+        visualCheck(clicked, 'VIS-INVARIANT-HOMEPAGE-CTA', viewport.name + ': selected product card had no CTA');
+        let selected = null;
+        for (let attempt = 0; attempt < 100; attempt += 1) {
+          try {
+            selected = await evaluate(cdp, demo.sessionId, '({path:location.pathname, offer:document.querySelector("input[name=wizardOffer]:checked")?.value, forms:document.querySelectorAll("form").length, robots:document.querySelector("meta[name=robots]")?.content})');
+          } catch {
+            // Browser may briefly lose its execution context during navigation.
+          }
+          if (selected?.path === '/demo/konfigurator/' && selected.offer === chosenOffer) break;
+          await delay(50);
+        }
+        visualCheck(selected?.path === '/demo/konfigurator/' && selected.offer === chosenOffer,
+          'VIS-INVARIANT-HOMEPAGE-CTA', viewport.name + ': product card click did not preselect ' + chosenOffer);
+        visualCheck(selected.forms === 0 && selected.robots === 'noindex,nofollow',
+          'VIS-INVARIANT-HOMEPAGE-CTA-SENDFREE', viewport.name + ': homepage CTA left the send-free preview');
       } finally {
         await cdp.send('Target.closeTarget', { targetId: demo.targetId });
       }

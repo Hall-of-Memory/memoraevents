@@ -9,7 +9,7 @@
   {
     "id": "anfrage",
     "question": "Wie stelle ich eine Anfrage?",
-    "answer": "Im Anfrageformular werden gewünschtes Produkt, Paket, Veranstaltungsdatum, Ort, Veranstaltungsart und Kontaktdaten zusammengeführt. Eine Anfrage ist noch keine verbindliche Buchung.",
+    "answer": "Im Konfigurator wählst du Produkt, Paket und Veranstaltungsdaten. Im freigeschalteten Anfragebetrieb ergänzt du deine Kontaktdaten und sendest eine unverbindliche Anfrage. Eine Anfrage ist keine Buchung.",
     "sortOrder": 20,
     "source": "internal-draft"
   },
@@ -23,7 +23,7 @@
   {
     "id": "paket",
     "question": "Kann ich direkt ein Paket auswählen?",
-    "answer": "Die konkreten Paketvarianten werden nach Freigabe mit Leistungen und Preisen vergleichbar angeboten. Bis dahin wählen wir das passende Paket im Anfrageweg gemeinsam aus.",
+    "answer": "Ja. Die Fotobox- und Fotospiegelpakete mit Preisen und Druckumfängen kannst du auf der Preisseite vergleichen und im Konfigurator auswählen. Für die Magazinbox wird ein individuelles Angebot erstellt.",
     "sortOrder": 40,
     "source": "internal-draft"
   }

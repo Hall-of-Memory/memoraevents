@@ -37,6 +37,7 @@ assert.deepEqual(badRootRefs, [], `root refs escaped preview base: ${JSON.string
 
 const demo = await readFile(path.join(root, 'demo/index.html'), 'utf8');
 assert.match(demo, /noindex,nofollow/);
+assert.ok(demo.includes(base + 'demo/konfigurator/'), 'homepage should expose working preview wizard CTA');
 assert.equal((demo.match(/demo-offer-details/g) ?? []).length, 3);
 assert.equal((demo.match(/data-demo-offer-choice=/g) ?? []).length, 0);
 assert.match(demo, /data-demo-inquiry-disabled/);
@@ -65,10 +66,11 @@ assert.doesNotMatch(demo, /Customer Journey|Datenstruktur|Private Formular-Previ
 assert.match(demo, /<ul class="hom-gallery-grid" aria-label="Gestalterische Platzhalter für künftige Kundenfotos">/);
 assert.match(demo, /<aside class="hom-customer-card" aria-label="Vorschau des persönlichen Kundenbereichs">/);
 assert.doesNotMatch(demo, /<div class="hom-gallery-grid"/);
-assert.equal((demo.match(/aria-label="Unverbindliche Anfrage für (?:Fotobox|Fotospiegel|Magazinbox)"/g) ?? []).length, 3);
+assert.equal((demo.match(/aria-label="(?:Fotobox|Fotospiegel|Magazinbox) auswählen"/g) ?? []).length, 3);
 
 for (const slug of ['fotobox', 'fotospiegel', 'magazinbox']) {
   assert.ok(demo.includes(`${base}produkte/${slug}/`), `product link escaped preview base: ${slug}`);
+  assert.ok(demo.includes(`${base}demo/konfigurator/?produkt=${slug}`), `homepage card escaped preview base or omitted product: ${slug}`);
   const product = await readFile(path.join(root, `produkte/${slug}/index.html`), 'utf8');
   const expectedWizard = `${base}demo/konfigurator/?produkt=${slug}`;
   assert.ok(product.includes(expectedWizard), `product CTA must preselect the product with preview base: ${slug}`);

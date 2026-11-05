@@ -44,7 +44,7 @@ const isProduction = mode === 'production' && demoSite.launchStatus === 'product
   formActionSource={isProduction ? "'self'" : "'none'"}
   apiConnectSource={isProduction ? inquiryConfig.apiConnectSource : "'self'"}
 >
-  <MemoraHeader homeHref={home} {assetBase} />
+  <MemoraHeader homeHref={home} {assetBase} inquiryHref={assetBase + (isProduction ? "anfrage/" : "demo/konfigurator/")} />
   <main id="main-content" tabindex="-1" class="wizard-shell shell">
     <a class="wizard-back-link" href={assetBase + 'preise/'}>← Zur Preisübersicht</a>
     <header class="wizard-heading">

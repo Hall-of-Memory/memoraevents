@@ -4,6 +4,7 @@ import MemoraHeader from '../../components/landing/MemoraHeader.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { demoOffers, demoPackages, demoSite } from '../../data/demo';
 import { packagesForOffer } from '../../lib/package-projection';
+import { resolveSeoState } from '../../lib/seo';
 import '../../styles/demo.css';
 import '../../styles/product.css';
 export function getStaticPaths() {
@@ -11,14 +12,15 @@ export function getStaticPaths() {
 }
 const { offer } = Astro.props;
 const assetBase = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const home = `${assetBase}demo/`;
+const home = demoSite.launchStatus === 'production' ? assetBase : assetBase + 'demo/';
+const seo = resolveSeoState(Astro.site?.href, demoSite.launchStatus, Astro.url.pathname);
 const wizardPath = demoSite.launchStatus === 'production' ? 'anfrage/' : 'demo/konfigurator/';
 const wizardFor = (packageId?: string) => `${assetBase}${wizardPath}?produkt=${encodeURIComponent(offer.id)}${packageId ? `&paket=${encodeURIComponent(packageId)}` : ''}`;
 const packages = packagesForOffer(demoPackages, offer.id);
 const others = demoOffers.filter((item) => item.id !== offer.id);
 ---
-<BaseLayout title={`${offer.title} — MEMORA EVENT`} description={offer.description} noIndex={demoSite.launchStatus !== 'production'} bodyClass="demo-page" formActionSource="'none'">
-  <MemoraHeader homeHref={home} {assetBase} />
+<BaseLayout title={`${offer.title} — MEMORA EVENT`} description={offer.description} noIndex={!seo.indexable} canonicalUrl={seo.canonicalUrl} bodyClass="demo-page" formActionSource="'none'">
+  <MemoraHeader homeHref={home} {assetBase} inquiryHref={assetBase + wizardPath} />
   <main id="main-content" tabindex="-1">
     <section class="memora-product-hero shell">
       <div>

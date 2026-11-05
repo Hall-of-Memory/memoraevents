@@ -102,9 +102,23 @@ export function renderRobotsTxt(state: SeoState): string {
   return `User-agent: *\nAllow: /\nSitemap: ${new URL('/sitemap.xml', state.siteUrl).href}\n`;
 }
 
-export function renderSitemapXml(state: SeoState): string {
-  const entry = state.indexable && state.canonicalUrl
-    ? `<url><loc>${state.canonicalUrl.replaceAll('&', '&amp;')}</loc></url>`
-    : '';
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entry}</urlset>\n`;
+export function renderSitemapXml(state: SeoState, additionalPaths: readonly string[] = []): string {
+  const urls: string[] = [];
+  if (state.indexable && state.canonicalUrl && state.siteUrl) {
+    urls.push(state.canonicalUrl);
+    for (const path of additionalPaths) {
+      if (!path.startsWith('/') || path.startsWith('//') || path.includes('?') || path.includes('#')) {
+        throw new Error('Sitemap paths must be local absolute paths without query or fragment.');
+      }
+      const url = new URL(path, state.siteUrl);
+      if (url.origin !== new URL(state.siteUrl).origin) {
+        throw new Error('Sitemap path must remain on the configured origin.');
+      }
+      urls.push(url.href);
+    }
+  }
+  const entries = [...new Set(urls)]
+    .map((url) => '<url><loc>' + url.replaceAll('&', '&amp;') + '</loc></url>')
+    .join('');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + entries + '</urlset>\n';
 }

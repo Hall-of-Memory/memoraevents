@@ -48,10 +48,11 @@ interface Props {
   benefits: Benefit[];
   steps: Step[];
   assetBase: string;
+  wizardHref: string;
   productWhatsAppHref: (product: string) => string | undefined;
 }
 
-const { offers, packages, gallery, benefits, steps, assetBase, productWhatsAppHref } = Astro.props;
+const { offers, packages, gallery, benefits, steps, assetBase, wizardHref, productWhatsAppHref } = Astro.props;
 const packageGroups = offers
   .map((offer) => ({ offer, packages: packagesForOffer(packages, offer.id) }))
   .filter(({ packages: offerPackages }) => offerPackages.length > 0);
@@ -61,7 +62,7 @@ const packageGroups = offers
     <header class="hom-section-heading">
       <p class="eyebrow">Unsere Produkte</p>
       <h2 id="hom-products-title">Drei Möglichkeiten.<br /><em>Dein besonderer Moment.</em></h2>
-      <p>Fotobox, Fotospiegel oder Magazinbox: Alle drei Angebote setzen den Fotomoment anders in Szene. Die Details stimmen wir passend zu deinem Anlass ab.</p>
+      <p>Fotobox, Fotospiegel oder Magazinbox – drei Erlebnisse für deinen besonderen Anlass.</p>
     </header>
 
     <div class="hom-product-grid">
@@ -81,7 +82,7 @@ const packageGroups = offers
             </details>
             <a class="memora-product-link" href={`${assetBase}produkte/${offer.slug}/`}>Produkt entdecken <span aria-hidden="true">→</span></a>
             <div class="hom-product-actions">
-              <a href="#anfrage" aria-label={`Unverbindliche Anfrage für ${offer.title}`}>Unverbindlich anfragen</a>
+              <a href={wizardHref + "?produkt=" + encodeURIComponent(offer.id)} aria-label={`${offer.title} auswählen`}>Auswahl zusammenstellen</a>
               {productWhatsAppHref(offer.title) && (
                 <a
                   href={productWhatsAppHref(offer.title)}
@@ -149,13 +150,13 @@ const packageGroups = offers
           <li>Wünsche und gewünschte Ausstattung abstimmen</li>
           <li>Danach ein passendes Angebot erhalten</li>
         </ul>
-        <a href="#anfrage">Paket gemeinsam auswählen <span aria-hidden="true">→</span></a>
+        <a href={wizardHref}>Paketauswahl zusammenstellen <span aria-hidden="true">→</span></a>
       </div>
     ) : (
       <div class="hom-packages-copy hom-package-groups">
         {packageGroups.map(({ offer, packages: offerPackages }) => <p><strong>{offer.title} ab {offerPackages[0]?.priceLabel}</strong></p>)}
         <a href={`${assetBase}preise/`}>Alle Pakete & Preise ansehen →</a>
-        <a href="#anfrage">Passendes Paket anfragen <span aria-hidden="true">→</span></a>
+        <a href={wizardHref}>Passendes Paket zusammenstellen <span aria-hidden="true">→</span></a>
       </div>
     )}
   </div>
@@ -182,7 +183,7 @@ const packageGroups = offers
       <p class="eyebrow">Galerie</p>
       <h2 id="hom-gallery-title">Momente bekommen <em>eine Bühne.</em></h2>
       {gallery.length === 0 && (
-        <p>Die finalen Kundenfotos folgen nach Freigabe. Bis dahin zeigt die Galerie bewusst nur die gestalterische Richtung – ohne fremde oder erfundene Produktbilder.</p>
+        <p>Kundenfotos folgen nach Freigabe. Bis dahin zeigen wir gestalterische Platzhalter.</p>
       )}
     </header>
     {gallery.length === 0 ? (

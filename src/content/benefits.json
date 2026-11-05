@@ -16,14 +16,14 @@
   {
     "id": "bilder-danach",
     "title": "Bilder danach",
-    "text": "Nach dem Event führt dein geschützter persönlicher Zugang direkt zu den Bildern deiner Veranstaltung.",
+    "text": "Deine Eventbilder sollen später über einen geschützten Link erreichbar sein.",
     "sortOrder": 30,
     "source": "internal-draft"
   },
   {
     "id": "offen-fuer-mehr",
     "title": "Offen für mehr",
-    "text": "Neben den drei aktuellen Erlebnissen kann MEMORA EVENT das Angebot später um weitere Event-Ideen ergänzen.",
+    "text": "Weitere Event-Ideen sind in Planung.",
     "sortOrder": 40,
     "source": "internal-draft"
   }

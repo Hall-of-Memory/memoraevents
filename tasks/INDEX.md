@@ -81,4 +81,4 @@
 | T072 | done | iPad-Anfrageformular: Datum und Veranstaltungsart ohne Überlappung |
 | T073 | active | NixOS-Bootpersistenz / Grabowski-Wiederanlauf (bestehende Projektaufgabe) |
 | T074 | done | Codeaudit: zwei Workerfehler korrigiert, PR #125 gemergt und nach Merge verifiziert |
-| T075 | planned | UX-/Conversion- und Release-SEO-Verbesserungen aus Live-Prüfung 05.11.2026 |
+| T075 | active | Produkt-CTAs, FAQ und produktionsfähige Navigation/SEO in Umsetzung; Medien und Paketdetails extern offen |

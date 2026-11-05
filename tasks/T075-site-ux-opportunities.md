@@ -1,6 +1,6 @@
 ---
 id: T075
-status: planned
+status: active
 priority: P1
 dependencies: []
 ---
@@ -37,3 +37,12 @@ Verbesserungen aus der Live-/Quellprüfung am **05.11.2026** auf `main@d28771a01
 ## Umsetzung und Akzeptanz
 
 P0 in kleinen reversiblen Tests/PRs, möglichst beim bestehenden T069/T008-Codepfad; danach P1-Inhaltskorrektur und produktionsfähige SEO-Regressionsprüfung. Bei jeder Änderung `npm ci`, `npm run verify` und reale 390/834/1440-px-Interaktionen, GitHub-/Cloudflare-Checks sowie revisionsgebundener Domain-Readback. F1–F12/Content-/Media-/Mailfreigaben sind weiterhin separat offen. **Nichts an `launchStatus=draft`, `noindex`, Inquiry-Sendesperre, D1, Access, Turnstile oder E-Mail-Zielen ohne Betreiberfreigabe ändern.**
+
+## Umsetzung 05.11.2026 – technisch weitestgehend abgeschlossen, Produktivprüfung folgt
+
+- **P0 CTAs:** Startseiten-Produktkarten führen direkt mit gewähltem Produkt in den vierstufigen Konfigurator statt zum deaktivierten Formular. Header, Hero, Paketauswahl, Kontaktblock und Footer verweisen ebenfalls auf den funktionierenden Wizard. Der Demo-Modus bleibt sendefrei. Die Landing-Produktlinks werden in allen 1440/1024/834/390-Browserbreiten mit tatsächlichem Klick und Vorauswahl geprüft.
+- **P0 Produktionsnavigation:** Produkt- und Preisseiten verlinken nur während Draft auf /demo/. Nach bestätigter Freigabe führen Logo und Home-Links nach /, die Anfragelinks nach /anfrage/.
+- **P0/P1 SEO:** Preis- und Produktseiten erhalten indexierbare Canonical- und OG-URLs ausschließlich bei Produktionsstatus und gültiger HTTPS-Site-Origin. Draft-Pfade behalten noindex und keinen Canonical. Die Produktions-Sitemap enthält Root, Preise und alle drei Produktdetailseiten aus dem bestehenden Angebotskatalog, keine Demorouten.
+- **P1 Kundenansprache:** Veraltete FAQ-Antworten zu bereits auswählbaren Paketen und Anfrageversand aktualisiert. Platzhalter-Galerie und noch nicht freigegebener persönlicher Bildzugang werden wahrheitsgemäß als geplant beschrieben. Keine neuen Produkt- oder Leistungsversprechen, keine Kundenfotos erfunden.
+- **Regressionen:** Bestehende Sales-, Form-, SEO-/Quality-, Pages-Base- und Visual-Browsertests um Vorbelegung, echte CTA-Klicks, Produktions-/Draft-Navigation und Sitemap erweitert; das 32-KiB-HTML-Budget bleibt unverändert. Vollständig lokaler npm-run-verify auf Host-Node 24.22.1: **22 PASS / 1 FAIL / 0 BLOCKED** (Grabowski-Job grabowski-job-cecae14b8410); einzig visual-regression kann mangels ausführbarem Chrome/Chromium auf dem Operatorhost nicht starten, keine Layout-Assertion fehlgeschlagen. GitHub-CI auf dem exakten PR-Head muss das visuelle Gate mit Node 22 und Chromium übernehmen.
+- **Scopegrenzen:** src/content/site.json bleibt draft; Produktionsfreigaben bleiben false; Inquiry-Data-Policy bleibt blocked_external. Keine echte Anfrage, kein D1/Access/Turnstile/Mail-Eingriff. Originalmedia und Paketdetails erfordern weiterhin Arams Freigaben; P2-UX-Hypothesen sind nicht als erledigt ausgegeben.
