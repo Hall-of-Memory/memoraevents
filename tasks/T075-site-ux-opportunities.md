@@ -1,6 +1,6 @@
 ---
 id: T075
-status: active
+status: done
 priority: P1
 dependencies: []
 ---
@@ -66,3 +66,14 @@ P0 in kleinen reversiblen Tests/PRs, möglichst beim bestehenden T069/T008-Codep
 - **Ausführbarkeit:** Ein manuell startbarer GitHub-Actions-Workflow `.github/workflows/live-stage1-smoke.yml` verwendet den vorhandenen Smoke auf Ubuntu mit installiertem Chrome; keine Secrets, keine schreibenden Netzwerkzugriffe und keine automatische Aktivierung des Anfrageversands.
 - **Abnahmestand:** Code/Workflow zunächst nur im isolierten Feature-Branch. Erst nach PR-Review, grüner CI, revisionsgebundenem produktiven Deployment und erfolgreichem manuell ausgelöstem **öffentlichen** Live-Smoke als technisch abgenommen ausweisen. Die externen F1–F12-Entscheidungen und T069/T009 bleiben unangetastet.
 - **PR #130 / CI-Gegenprobe:** Der erste `verify`-Lauf auf Head `81c3c8d` scheiterte allein am künstlichen T072-CSS-Negativtest auf einem nicht mehr vorhandenen Draft-Datumsfeld (`VIS-EVIDENCE-CONTROLLED-REGRESSION`: erwarteter Overlap, tatsächlich kein Fehler). Diese veraltete Testinjektion ist durch eine gezielte, nun relevante Manipulation des sichtbaren Wizard-CTAs mit erwarteter `VIS-INVARIANT-INQUIRY-PREVIEW-CTA` ersetzt. Die tatsächliche Browser-Abnahme dieser Korrektur steht bis zum erneuten GitHub-CI-Lauf aus; kein Wegdefinieren der Sichtbarkeitsinvariante.
+
+## Technischer Abschluss nach öffentlichem Ende-zu-Ende-Test – 05.11.2026
+
+**T075 ist für die ohne Betreiberfreigaben umsetzbare Website-/Vorschau-UX abgeschlossen; dies ist ausdrücklich keine Freigabe des produktiven Anfrageversands oder des Gesamtlaunchs.**
+
+- [PR #130](https://github.com/Hall-of-Memory/memoraevents/pull/130) mit Feature-Head `e7563170d6b12bb4b68d7e59c0c108c5da64149f` wurde am 05.11.2026 18:48:51 UTC regulär über Grabowski Captain gemergt. Authentifiziertes First-Party-Fünfachsen-Review `high_critical`, signierter Review-Audit-SHA-256 `06a722e4889fff2e771b36de04e6859e8df6c9d467751c85735ca984542b239b`, null materielle Findings. Merge-/Main-Commit `960d6deea635871a648203947b92f07a07edb5ac`; kein Branchschutz-Bypass.
+- [Main-Verify-Run 42087856971](https://github.com/Hall-of-Memory/memoraevents/actions/runs/42087856971): auf **genau diesem Mergecommit** `verify: success` und `pages-runtime: success`. Auch der Cloudflare-Check `Workers Builds: hall-of-memory` und Vercel-Status sind auf derselben SHA `success`.
+- **Öffentliches Produktions-HTML frisch gelesen:** `https://memoraevents.de/` liefert 302 auf `/demo/`; die öffentliche `/demo/` enthält die neue Karte „Dein Erlebnis zusammenstellen“ mit aktivem Wizard-Link und **kein** Kontaktformular. `/demo/konfigurator/` ebenfalls ohne `<form>`; beide bleiben `noindex,nofollow` und tragen `form-action 'none'`.
+- **Echter öffentlicher Browsertest erfolgreich:** [Public Stage-1 Browser Smoke, Run 42088042836](https://github.com/Hall-of-Memory/memoraevents/actions/runs/42088042836), Checkout-Head **`960d6deea635871a648203947b92f07a07edb5ac`**, GitHub-Runner mit Chrome: `status: PASS` bei **1440 / 1024 / 834 / 390 px**. Tatsächliche Klicks für Fotobox, Fotospiegel und Magazinbox auf Start- und Produktseiten samt Vorauswahl bestanden. Zwölf Paketlinks und Classic-Auswahl, invalides Eventdatum, vier Stufen, Rückwärtsbearbeitung und korrekte Preisaktualisierung 349 → 449 € bestanden. Keine horizontale Überlauf-Assertion, keine erlaubte Kundendatenabgabe: `networkWrites: 0`, `customerSubmission: false`. Auch Impressum/Datenschutz bleiben `noindex`.
+- Der zuvor rote, auf nicht mehr vorhandene Draft-Eingabefelder zielende kontrollierte T072-Negativtest wurde **nicht** deaktiviert, sondern auf das tatsächliche Verbergen des Preview-CTAs umgestellt; der neue CI-Visual-Run bestand auf derselben Head-SHA.
+- **Weitere externe Abhängigkeiten bleiben eigenständig offen:** F1–F12/Arams Betreiber- und Rechtsangaben, freigegebener tatsächlich empfangener Anfrageversand (T069/T057/T009), reale Produktfotos und Paketdetails (T010/T064), Legacy-Domain-TLS/Redirect (T070). `launchStatus=draft`, Inquiry-Sendesperre, Retention-Policy, D1, Turnstile, Access und E-Mail-Ziele wurden durch T075 nicht freigeschaltet. Optionales P2-Conversion-Experiment ist keine unbelegte Fertigstellungsvoraussetzung.
