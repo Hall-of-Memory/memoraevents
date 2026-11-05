@@ -30,11 +30,12 @@ const { isPreview, offers, packages, inquiryConfig } = Astro.props;
 ---
 <section class="demo-section demo-inquiry shell" id="anfrage" aria-labelledby="inquiry-title">
   <div class="demo-inquiry-intro">
-    <p class="eyebrow">Anfrage</p>
-    <h2 id="inquiry-title">Erzähl uns,<br /><em>was du vorhast.</em></h2>
+    <p class="eyebrow">{isPreview ? 'Interaktive Auswahlvorschau' : 'Anfrage'}</p>
+    <h2 id="inquiry-title">{isPreview ? 'Dein Event.' : 'Erzähl uns,'}<br /><em>{isPreview ? 'Deine Auswahl.' : 'was du vorhast.'}</em></h2>
     <p>
-      Mit wenigen Angaben können wir deinen Anlass, das gewünschte Erlebnis und den passenden
-      Rahmen für die weitere Abstimmung einordnen.
+      {isPreview
+        ? 'Wähle Produkt, Paket und Veranstaltungsdaten in vier Schritten. Der Versand ist noch nicht freigeschaltet.'
+        : 'Mit wenigen Angaben können wir deinen Anlass, das gewünschte Erlebnis und den passenden Rahmen für die weitere Abstimmung einordnen.'}
     </p>
     <div class="demo-inquiry-shortcuts">
       <span>Produkt</span><span>Paket</span><span>Datum</span><span>Ort</span><span>Veranstaltung</span>
@@ -42,40 +43,13 @@ const { isPreview, offers, packages, inquiryConfig } = Astro.props;
   </div>
 
   {isPreview ? (
-    <form class="inquiry-card demo-inquiry-card" data-demo-inquiry-disabled autocomplete="off" aria-label="Anfrageformular – noch nicht aktiv" aria-disabled="true">
-      <p class="demo-form-legal"><a href={(import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/') + 'demo/konfigurator/'}>Produkte und Pakete interaktiv zusammenstellen (ohne Versand) →</a></p>
-      <p class="demo-form-legal" role="status"><strong>Entwicklungsstand:</strong> Das Anfrageformular ist noch nicht aktiv. Bitte noch keine Kontaktdaten eintragen; es werden derzeit keine Anfragen übermittelt.</p>
-      <InquiryEventFields
-        {offers}
-        {packages}
-        showStepLegends={true}
-        emptyPackageLabel="Beratung gewünscht"
-        disabled={true}
-      />
-      <fieldset class="inquiry-field-group inquiry-step" disabled>
-        <legend><span aria-hidden="true">03</span> Kontaktdetails</legend>
-        <div class="form-grid-two">
-          <label>
-            Name
-            <input type="text" name="name" minlength="2" maxlength={inquiryLimits.name} autocomplete="name" required />
-          </label>
-          <label>
-            E-Mail
-            <input type="email" name="email" maxlength={inquiryLimits.email} autocomplete="email" required />
-          </label>
-        </div>
-        <label>
-          Telefonnummer <span class="optional">optional</span>
-          <input type="tel" name="phone" maxlength={inquiryLimits.phone} autocomplete="tel" />
-        </label>
-        <label>
-          Weitere Wünsche <span class="optional">optional</span>
-          <textarea name="message" maxlength={inquiryLimits.message} rows="4" placeholder="Was sollen wir über dein Event noch wissen?"></textarea>
-        </label>
-      </fieldset>
-      <button type="submit" class="button button-primary demo-submit" disabled>Anfrageformular noch nicht aktiv</button>
-      <p class="demo-form-legal">Eine Anfrage ist keine Buchung und keine Verfügbarkeitsbestätigung.</p>
-    </form>
+    <div class="inquiry-card demo-inquiry-card" data-demo-inquiry-disabled>
+      <p class="eyebrow">Interaktive Vorschau</p>
+      <h3>Dein Erlebnis zusammenstellen.</h3>
+      <p>Produkt, Paket und Eventdaten kannst du jetzt im vierstufigen Konfigurator auswählen – ohne Anfrageversand.</p>
+      <a class="button button-primary" href={(import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/') + 'demo/konfigurator/'}>Auswahl zusammenstellen <span aria-hidden="true">→</span></a>
+      <p class="demo-form-legal">Die Anfrageübermittlung bleibt bis zur Betreiber- und Datenschutzfreigabe deaktiviert. Bitte keine Kontaktdaten eintragen. Eine Auswahl ist keine Buchung.</p>
+    </div>
   ) : (
     <form
       class="inquiry-card demo-inquiry-card"

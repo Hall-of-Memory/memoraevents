@@ -72,7 +72,7 @@ function stageOneSafe(state, path, width) {
   assert.ok(state.csp?.includes("form-action 'none'"), path + ' must forbid form posting');
   assert.ok(state.width <= state.client + 1, path + ' horizontally overflows at ' + width + 'px');
   assert.equal(state.enabledSubmit, false, path + ' has an enabled submit');
-  if (path !== '/demo/') assert.equal(state.forms, 0, path + ' preview has a real form');
+  assert.equal(state.forms, 0, path + ' stage-one preview must not expose any contact form');
 }
 
 const domState = '(() => ({robots:document.querySelector("meta[name=robots]")?.content,'
@@ -111,7 +111,7 @@ async function run() {
       '})();',
     ].join('\n') }, sessionId);
 
-    for (const width of [1440, 390]) {
+    for (const width of [1440, 1024, 834, 390]) {
       await cdp.send('Emulation.setDeviceMetricsOverride', {
         width, height: width === 390 ? 844 : 1000, deviceScaleFactor: 1, mobile: false,
       }, sessionId);

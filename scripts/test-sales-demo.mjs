@@ -21,12 +21,6 @@ const hasAttr = (node, name) => node.attrs?.some((item) => item.name === name) ?
 const hasClass = (node, name) => (attr(node, 'class') ?? '').split(/\s+/).includes(name);
 const textContent = (node) =>
   (node.childNodes ?? []).map((child) => child.value ?? textContent(child)).join('').trim();
-const ancestor = (node, tagName) => {
-  for (let current = node.parentNode; current; current = current.parentNode) {
-    if (current.nodeName === tagName) return current;
-  }
-  return undefined;
-};
 const localAssetPath = (reference) =>
   join(outDir, new URL(reference, 'https://build.invalid').pathname.replace(/^\/+/, ''));
 
@@ -178,12 +172,10 @@ try {
   assert.match(demoText, /persönlich(?:er|en) Link oder Code/);
   assert.match(demoText, /WhatsApp/);
   assert.match(demoText, /Auswahl zusammenstellen/);
-  assert.match(demoText, /Angebot wählen/);
-  assert.match(demoText, /Eventdetails/);
-  assert.match(demoText, /Kontaktdetails/);
-  assert.match(demoText, /Telefonnummer/);
-  assert.match(demoText, /Weitere Wünsche/);
-  assert.match(demoText, /Eine Anfrage ist keine Buchung und keine Verfügbarkeitsbestätigung/);
+  assert.match(demoText, /Dein Erlebnis zusammenstellen/);
+  assert.match(demoText, /ohne Anfrageversand/);
+  assert.match(demoText, /Bitte keine Kontaktdaten eintragen/);
+  assert.match(demoText, /Eine Auswahl ist keine Buchung/);
   assert.doesNotMatch(demoText, /Zukunftsidee|nicht verfügbar|nicht beauftragt/i);
   assert.doesNotMatch(demoText, /Lorem ipsum|TODO|example\.invalid/i);
   assert.doesNotMatch(demoText, /Customer Journey|Datenstruktur|Layoutumbau|Business-Nummer noch offen|Private Formular-Preview|Bestandteil des Zielbilds|Die Website ist so aufgebaut/i);
@@ -340,34 +332,20 @@ try {
     }
   }
 
-  const form = elements(demo, 'form').find((node) => hasAttr(node, 'data-demo-inquiry-disabled'));
-  assert.ok(form, 'disabled Stage-1 inquiry form preview is missing');
-  assert.equal(attr(form, 'aria-disabled'), 'true');
-  assert.equal(hasAttr(form, 'data-demo-inquiry-form'), false);
-  assert.equal(hasAttr(form, 'data-inquiry-form'), false);
-  assert.equal(hasAttr(form, 'data-api-url'), false);
-  assert.equal(hasAttr(form, 'data-turnstile-site-key'), false);
-  assert.equal(elements(form, 'fieldset').length, 3);
-  assert.equal(elements(form, 'legend').length, 3);
-  for (const fieldset of elements(form, 'fieldset')) {
-    assert.equal(hasAttr(fieldset, 'disabled'), true, 'every Stage-1 inquiry field group must be disabled');
-  }
-  for (const control of descendants(form, (node) => ['input', 'select', 'textarea'].includes(node.nodeName))) {
-    assert.ok(ancestor(control, 'label'), `${attr(control, 'name')} must have a real label`);
-  }
-  for (const requiredField of ['offerId', 'packageId', 'date', 'eventType', 'location', 'name', 'email', 'phone', 'message']) {
-    assert.ok(descendants(form, (node) => attr(node, 'name') === requiredField)[0], `missing form field ${requiredField}`);
-  }
-  assert.equal(hasAttr(descendants(form, (node) => attr(node, 'name') === 'offerId')[0], 'required'), true);
-  assert.equal(hasAttr(descendants(form, (node) => attr(node, 'name') === 'date')[0], 'required'), true);
-  const packageSelect = descendants(form, (node) => attr(node, 'name') === 'packageId')[0];
-  assert.equal(hasAttr(packageSelect, 'disabled'), true, 'package field must remain disabled on the public Stage-1 domain');
-  const submit = elements(form, 'button').find((node) => attr(node, 'type') === 'submit');
-  assert.equal(hasAttr(submit, 'disabled'), true, 'Stage-1 inquiry submit must be disabled');
-  assert.match(textContent(submit), /noch nicht aktiv/);
-  assert.match(demoText, /Bitte noch keine Kontaktdaten eintragen/);
-  assert.match(demoText, /keine Anfragen übermittelt/);
-  assert.equal(descendants(form, (node) => hasAttr(node, 'data-demo-inquiry-status')).length, 0);
+  const previewCard = descendants(demo, (node) => hasAttr(node, 'data-demo-inquiry-disabled'))[0];
+  assert.ok(previewCard, 'sendefrei Stage-1 selection preview is missing');
+  assert.equal(previewCard.nodeName, 'div', 'draft must not look like a disabled contact form');
+  assert.equal(elements(demo, 'form').length, 0, 'public draft homepage must contain no form');
+  assert.equal(descendants(previewCard, (node) => ['input', 'select', 'textarea', 'button'].includes(node.nodeName)).length, 0);
+  assert.equal(hasAttr(previewCard, 'data-inquiry-form'), false);
+  assert.ok(
+    elements(previewCard, 'a').some((node) => attr(node, 'href') === '/demo/konfigurator/'
+      && /Auswahl zusammenstellen/.test(textContent(node))),
+    'draft preview must offer the working sendefrei wizard',
+  );
+  assert.match(textContent(previewCard), /ohne Anfrageversand/);
+  assert.match(textContent(previewCard), /Bitte keine Kontaktdaten eintragen/);
+  assert.doesNotMatch(demoHtml, /data-api-url=|data-turnstile-site-key=|name="email"|name="phone"|type="submit"/);
 
   const demoScripts = elements(demo, 'script').filter((node) => attr(node, 'src'));
   assert.equal(demoScripts.length, 1, 'Stage-1 demo ships only its navigation script');

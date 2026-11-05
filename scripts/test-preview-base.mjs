@@ -41,7 +41,8 @@ assert.ok(demo.includes(base + 'demo/konfigurator/'), 'homepage should expose wo
 assert.equal((demo.match(/demo-offer-details/g) ?? []).length, 3);
 assert.equal((demo.match(/data-demo-offer-choice=/g) ?? []).length, 0);
 assert.match(demo, /data-demo-inquiry-disabled/);
-assert.match(demo, /Anfrageformular noch nicht aktiv/);
+assert.match(demo, /ohne Anfrageversand/);
+assert.doesNotMatch(demo, /<form(?:\s|>)/i, 'public preview must not expose a contact form');
 assert.doesNotMatch(demo, /demo-inquiry\.js/);
 assert.ok(demo.includes(`${base}preise/`), 'price overview link must respect preview base');
 const prices = await readFile(path.join(root, 'preise/index.html'), 'utf8');
