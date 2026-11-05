@@ -12,7 +12,7 @@ export async function actorRateLimitKey(offerId: string, email: string): Promise
 
 export function ownerNotificationText(row: NotificationReference): string {
   return [
-    'Neue Anfrage über Hall of Memory', '', `Angebot: ${row.offer_id}`,
+    'Neue Anfrage über MEMORA EVENT', '', `Angebot: ${row.offer_id}`,
     `Veranstaltungsdatum: ${row.event_date}`, `Anfrage-ID: ${row.id}`, '',
     'Kontaktdaten und Nachricht sind ausschließlich im geschützten Adminbereich einsehbar.',
   ].join('\n');

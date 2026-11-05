@@ -227,6 +227,11 @@ async function updateInquiryStatus(request: Request, env: Env, id: string): Prom
   if ((result.meta?.changes ?? 0) === 0) return json({ error: 'inquiry-not-found' }, 404);
   return json({ inquiryId: id, status });
 }
+// Malformed path escapes must never escape an authenticated write handler.
+function decodeAdminInquiryId(encoded: string): string | null {
+  try { return decodeURIComponent(encoded); }
+  catch { return null; }
+}
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContextLike): Promise<Response> {
     const url = new URL(request.url);
@@ -249,9 +254,21 @@ export default {
       if(request.method==='GET'&&url.pathname==='/admin')return html(adminPage(identity));
       if(request.method==='GET'&&url.pathname==='/api/admin/inquiries')return listInquiries(env);
       if(request.method==='GET'&&url.pathname==='/api/admin/notifications')return listNotifications(env);
-      const match=url.pathname.match(/^\/api\/admin\/inquiries\/([^/]+)$/); if(request.method==='PATCH'&&match)return updateInquiryStatus(request,env,decodeURIComponent(match[1]));
+      const match=url.pathname.match(/^\/api\/admin\/inquiries\/([^/]+)$/);
+      if(request.method==='PATCH'&&match){
+        const id=decodeAdminInquiryId(match[1]);
+        if(id===null)return json({error:'invalid-inquiry-id'},400);
+        return updateInquiryStatus(request,env,id);
+      }
       const retryMatch=url.pathname.match(/^\/api\/admin\/inquiries\/([^/]+)\/notify$/);
-      if(request.method==='POST'&&retryMatch){const inquiryId=decodeURIComponent(retryMatch[1]);const exists=await env.DB.prepare('SELECT id FROM inquiries WHERE id=?').bind(inquiryId).first<{id:string}>();if(!exists)return json({error:'inquiry-not-found'},404);ctx.waitUntil(deliverOwnerNotification(inquiryId,env));return json({inquiryId,notification:'retry-queued'},202);}
+      if(request.method==='POST'&&retryMatch){
+        const inquiryId=decodeAdminInquiryId(retryMatch[1]);
+        if(inquiryId===null)return json({error:'invalid-inquiry-id'},400);
+        const exists=await env.DB.prepare('SELECT id FROM inquiries WHERE id=?').bind(inquiryId).first<{id:string}>();
+        if(!exists)return json({error:'inquiry-not-found'},404);
+        ctx.waitUntil(deliverOwnerNotification(inquiryId,env));
+        return json({inquiryId,notification:'retry-queued'},202);
+      }
       if(request.method==='GET'&&url.pathname==='/api/admin/capabilities')return json({authenticatedAs:identity.email,inquiries:{readable:true,statusWritable:true},notifications:{readable:true,retryable:true},content:{readable:true,writable:false,reason:'cms-path-pending-t011'}});
     }
     return json({error:'not-found'},404);
