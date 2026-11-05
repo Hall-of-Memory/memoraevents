@@ -206,7 +206,7 @@ async function run() {
     }
     assert.deepEqual(cdp.nonReadRequests, [], 'browser attempted a network write');
     console.log(JSON.stringify({ status: 'PASS', origin: site.origin, checks,
-      networkWrites: 0, customerSubmission: false, responsiveWidths: [1440,390] }, null, 2));
+      networkWrites: 0, customerSubmission: false, responsiveWidths: [1440,1024,834,390] }, null, 2));
     await cdp.send('Target.closeTarget', { targetId });
   } finally {
     cdp?.socket?.close();
