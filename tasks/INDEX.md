@@ -80,4 +80,4 @@
 | T071 | done | Sticky Header über volle Breite: dunkle Randstreifen nach Ankernavigation beheben |
 | T072 | done | iPad-Anfrageformular: Datum und Veranstaltungsart ohne Überlappung |
 | T073 | active | NixOS-Bootpersistenz / Grabowski-Wiederanlauf (bestehende Projektaufgabe) |
-| T074 | active | Gesamtes MEMORA-EVENT-Codeaudit: aktuelle Main-Revision, Regression und Fehlerkorrekturen |
+| T074 | done | Codeaudit: zwei Workerfehler korrigiert, PR #125 gemergt und nach Merge verifiziert |

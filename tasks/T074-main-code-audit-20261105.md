@@ -1,6 +1,6 @@
 ---
 id: T074
-status: active
+status: done
 priority: P1
 dependencies: []
 ---
@@ -32,9 +32,17 @@ Kanonischen `main` inklusive öffentlicher Astro-Seiten, Inhaltsprojektion und Z
 - [x] Beide Fehler vor Korrektur rot reproduziert und danach fokussiert grün.
 - Nach den Fixes lokaler `npm run verify` unter Node 24.22.1: **22 PASS, 1 FAIL (nur `visual-regression`)**, Job `grabowski-job-2037d10e6101`. Grund der Abweichung: Das inzwischen fehlende ausführbare Chrome/Chromium auf dem Betreiberhost (`No Chrome/Chromium executable found`), **kein nachgewiesener Layoutfehler**. Die volle gültige visuelle/Node22-Gegenprobe wird daher bewusst der neuen exakten GitHub-CI auf dem PR-Head überlassen.
 - Gezielt geänderte Worker- und Qualitätsregression sind trotz der lokalen Browserumgebungsgrenze jeweils PASS; kein Versuch, die Visualprüfung aus dem kanonischen Verify zu entfernen.
-- [ ] Vollständiges Verify auf dem endgültigen Diff und exakte Node22-/Chrome-Umgebung abgenommen.
-- [ ] GitHub-Required-CI und Cloudflare Preview auf dem veröffentlichten PR-Head grün; zulässiger Merge, Source-Readback.
+- [x] Vollständiges GitHub-Verify auf dem endgültigen PR-Head unter der gepinnten Node-22-/Chromium-CI erfolgreich; lokaler Chrome-Umgebungsfehler blieb unverändert dokumentiert.
+- [x] Required-CI und Cloudflare Preview auf exakt `c779c7e3615a642ba958d007787f16781ceaca3b` grün, Merge PR #125 und frischer Main-/Pages-/HTTP-Readback erfolgreich.
 
 ## Unveränderte Produktions- und Beleggrenzen
 
 `launchStatus=draft`, `noindex`, deaktivierter öffentlicher Anfrageversand, nicht bestätigte F1–F12, drei Production-Approvals `false` und `inquiry-data-policy=blocked_external` bleiben bestehen. Authentifizierte produktive Worker-/D1-/Access-/Mail-/Postfacheingangsabnahme ist ohne Betreiberfreigabe nicht möglich; lokal simulierte Mailzustellung ist keine echte Operator-Zustellung. T070 bleibt für den Legacy-Host-`www`-TLS-Fehler und Cloudflare-Zonenredirect zuständig. Keine Secrets, Personen-/Kundendaten oder fiktive Freigaben eingetragen.
+
+## Integrations- und Post-Merge-Abnahme — 05.11.2026
+
+- PR [#125](https://github.com/Hall-of-Memory/memoraevents/pull/125) ist laut GitHub um **11:48:29 UTC** gemergt, Head `c779c7e3615a642ba958d007787f16781ceaca3b`, Merge `93303cb574598f7d044318e4271db60f211c2829`.
+- Revisionsgebundener Selfreview-Audit (lokaler privater Operatorbeleg, **nicht** ins öffentliche Repo kopiert), zwei inhaltlich unterschiedliche Durchgänge, Gate **PASS**, exakter Diff-SHA-256 `c4f1a027cfbb2e1b822469055ef3c1e133c2c01b52e47ece0d69f5173d7e94f8`, keine untriagierten materiellen Befunde. Captain meldete beim nachfolgenden Mergeversuch den bereits erfolgten Merge und führte **keinen** zweiten aus.
+- Für den exakten PR-Head waren GitHub-`verify`, Cloudflare Workers Builds und Vercel **SUCCESS**. Auf dem tatsächlich gemergten `main@93303cb5` bestätigt GitHub Workflow [42021943734](https://github.com/Hall-of-Memory/memoraevents/actions/runs/42021943734) die Jobs `verify` und `pages-runtime` mit `success`; Cloudflare Workers Builds meldet für denselben Commit `SUCCESS`.
+- GitHub-Pages-Livereceipt `https://hall-of-memory.github.io/memoraevents/hall-of-memory-deployment.json` meldet exakt `sourceRevision=93303cb574598f7d044318e4271db60f211c2829`, `verifyRunId=42021943734`. Der öffentliche Kundenpfad `https://memoraevents.de/demo/konfigurator/` liefert HTTP 200, weiterhin `noindex,nofollow`, **0 Formulare und keine aktive Submitfunktion**.
+- Dies schließt den **Codeaudit- und Fix-Scope T074**. Nicht nachgewiesen sind reale Cloudflare-Worker-/D1-/Turnstile-/Access-/Mail-Bindings und ein tatsächlich eingegangenes Betreiberpostfach. Diese ausdrücklich noch nicht freigegebene Stage-2-Abnahme verbleibt in T009/T049/T057/T069; Legacy-Domain-Fehler bleibt T070. Weder `launchStatus=draft` noch die Freigabe- oder Sendesperren wurden geändert.
