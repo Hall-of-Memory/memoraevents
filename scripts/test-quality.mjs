@@ -174,6 +174,14 @@ try {
   });
   assert.match(renderRobotsTxt(productionSeo), /Sitemap: https:\/\/site\.example\.invalid\/sitemap\.xml/);
   assert.match(renderSitemapXml(productionSeo), /<loc>https:\/\/site\.example\.invalid\/<\/loc>/);
+  const publicSitemap = renderSitemapXml(productionSeo, ['/preise/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/']);
+  assert.equal((publicSitemap.match(/<loc>/g) ?? []).length, 5, 'production sitemap must include homepage, prices and three products');
+  for (const path of ['/', '/preise/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/']) {
+    assert.ok(publicSitemap.includes('<loc>https://site.example.invalid' + path + '</loc>'), 'missing canonical sitemap path: ' + path);
+  }
+  assert.doesNotMatch(publicSitemap, /\/demo\//);
+  assert.throws(() => renderSitemapXml(productionSeo, ['//not-ours.invalid/']), /Sitemap paths/);
+  assert.doesNotMatch(renderSitemapXml(resolveSeoState('https://site.example.invalid', 'draft'), ['/preise/']), /<loc>/);
   const productionStructured = buildStructuredData({
     canonicalUrl: productionSeo.canonicalUrl,
     name: 'Site',

@@ -177,7 +177,7 @@ try {
   assert.match(demoText, /Deine Erinnerungen/);
   assert.match(demoText, /persönlich(?:er|en) Link oder Code/);
   assert.match(demoText, /WhatsApp/);
-  assert.match(demoText, /Anfragebereich/);
+  assert.match(demoText, /Auswahl zusammenstellen/);
   assert.match(demoText, /Angebot wählen/);
   assert.match(demoText, /Eventdetails/);
   assert.match(demoText, /Kontaktdetails/);
@@ -195,7 +195,27 @@ try {
   assert.doesNotMatch(demoHtml, /mailto:|tel:/i);
   assert.doesNotMatch(demoHtml, /wa\.me\//i, 'WhatsApp must stay unlinked until a real business number is configured');
   const approvedPackages = JSON.parse(readFileSync(join(repo, 'src/content/packages.json'), 'utf8'));
-  const pricePageText = textContent(parse(readFileSync(join(outDir, 'preise/index.html'), 'utf8')));
+  const mainOffers = JSON.parse(readFileSync(join(repo, 'src/content/offers.json'), 'utf8'));
+  for (const offer of mainOffers) {
+    const card = descendants(demo, (node) => attr(node, 'id') === 'angebot-' + offer.slug)[0];
+    assert.ok(card, 'missing product card: ' + offer.slug);
+    const selected = '/demo/konfigurator/?produkt=' + encodeURIComponent(offer.id);
+    const direct = elements(card, 'a').filter((node) => attr(node, 'href') === selected);
+    assert.equal(direct.length, 1, offer.slug + ': product card must lead directly to preselected preview wizard');
+    assert.match(textContent(direct[0]), /Auswahl zusammenstellen/);
+    assert.equal(attr(direct[0], 'aria-label'), offer.title + ' auswählen');
+  }
+  const heroActions = descendants(demo, (node) => hasClass(node, 'hero-actions'))[0];
+  assert.ok(elements(heroActions, 'a').some((node) => attr(node, 'href') === '/demo/konfigurator/'), 'homepage hero must lead to functional wizard');
+  const navCta = descendants(demo, (node) => hasClass(node, 'nav-cta'))[0];
+  assert.equal(attr(navCta, 'href'), '/demo/konfigurator/', 'primary navigation must not lead to the disabled inquiry form');
+  assert.doesNotMatch(demoText, /Die konkreten Paketvarianten werden nach Freigabe/, 'FAQ must reflect existing public packages');
+  assert.match(demoText, /Die Fotobox- und Fotospiegelpakete mit Preisen und Druckumfängen/);
+  const draftPricePage = parse(readFileSync(join(outDir, 'preise/index.html'), 'utf8'));
+  const draftPriceHead = elements(draftPricePage, 'head')[0];
+  assert.ok(elements(draftPriceHead, 'meta').some((node) => attr(node, 'name') === 'robots' && attr(node, 'content') === 'noindex,nofollow'), 'draft price page must stay noindex');
+  assert.equal(elements(draftPriceHead, 'link').some((node) => attr(node, 'rel') === 'canonical'), false, 'draft price page must not publish a canonical');
+  const pricePageText = textContent(draftPricePage);
   for (const item of approvedPackages) assert.ok(pricePageText.includes(item.priceLabel.replace(' / Event', '')), `missing approved package price ${item.id}`);
   assert.match(demoHtml, /href="\/preise\/"/);
 
@@ -277,6 +297,7 @@ try {
     assert.ok(descendants(demo, (node) => attr(node, 'id') === id)[0], `missing customer-requested section #${id}`);
   }
 
+  const directOfferHrefs = new Set(mainOffers.map((offer) => '/demo/konfigurator/?produkt=' + encodeURIComponent(offer.id)));
   for (const link of elements(demo, 'a')) {
     const href = attr(link, 'href');
     assert.ok(href, 'every demo link must have a destination');
@@ -287,7 +308,7 @@ try {
       );
     } else {
       assert.ok(
-        ['/preise/', '/demo/', '/demo/konfigurator/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href),
+        ['/preise/', '/demo/', '/demo/konfigurator/', '/impressum/', '/datenschutz/', '/produkte/fotobox/', '/produkte/fotospiegel/', '/produkte/magazinbox/'].includes(href) || directOfferHrefs.has(href),
         `unexpected external or dead demo link ${href}`,
       );
     }

@@ -122,6 +122,18 @@ async function run() {
         checks.push(width + ' ' + path + ' sendefrei');
       }
       for (const offer of ['fotobox', 'fotospiegel', 'magazinbox']) {
+        await navigate(cdp, sessionId, '/demo/');
+        const clicked = await evaluate(cdp, sessionId, '(() => {'
+          + 'const a=document.querySelector("#angebot-' + offer + ' .hom-product-actions a");'
+          + 'if(!a)return false;a.click();return true;})()');
+        assert.equal(clicked, true, 'homepage product CTA missing: ' + offer);
+        await waitFor(cdp, sessionId,
+          'location.pathname==="/demo/konfigurator/" && document.querySelector("input[name=wizardOffer]:checked")?.value==="' + offer + '"',
+          offer + ' clicked homepage CTA and preselected wizard');
+        stageOneSafe(await evaluate(cdp, sessionId, domState), '/demo/konfigurator/', width);
+        checks.push(width + ' homepage ' + offer + ' CTA');
+      }
+      for (const offer of ['fotobox', 'fotospiegel', 'magazinbox']) {
         const path = '/produkte/' + offer + '/';
         await navigate(cdp, sessionId, path);
         const activated = await evaluate(cdp, sessionId, '(() => {'

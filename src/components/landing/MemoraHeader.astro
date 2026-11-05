@@ -1,6 +1,6 @@
 ---
-interface Props { homeHref: string; assetBase: string; local?: boolean; }
-const { homeHref, assetBase, local = false } = Astro.props;
+interface Props { homeHref: string; assetBase: string; local?: boolean; inquiryHref?: string; }
+const { homeHref, assetBase, local = false, inquiryHref } = Astro.props;
 const sectionHref = (id: string) => local ? `#${id}` : `${homeHref}#${id}`;
 ---
 <header class="site-header demo-header">
@@ -15,7 +15,7 @@ const sectionHref = (id: string) => local ? `#${id}` : `${homeHref}#${id}`;
       <a href={sectionHref('pakete')}>Pakete & Preise</a>
       <a href={sectionHref('galerie')}>Galerie</a>
       <a href={sectionHref('kontakt')}>FAQ & Kontakt</a>
-      <a href={sectionHref('anfrage')} class="nav-cta">Anfragebereich</a>
+      <a href={inquiryHref ?? sectionHref('anfrage')} class="nav-cta">{inquiryHref ? "Auswahl zusammenstellen" : "Anfragebereich"}</a>
     </nav>
   </div>
 </header>
