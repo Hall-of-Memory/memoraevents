@@ -187,6 +187,8 @@ const measureDemo = (cdp, sessionId) => evaluate(cdp, sessionId, `(()=>{
       bounds:rect(label),field:rect(label.querySelector('input,select')),
     })),
   }));
+  const inquiryPreview=document.querySelector('.demo-inquiry [data-demo-inquiry-disabled]');
+  const inquiryPreviewAction=inquiryPreview?.querySelector('a[href*="demo/konfigurator/"]');
   const logo=document.querySelector('.demo-header .demo-brand > img');
   const header=document.querySelector('.demo-header');
   const nav=document.querySelector('.demo-header .demo-nav');
@@ -205,7 +207,9 @@ const measureDemo = (cdp, sessionId) => evaluate(cdp, sessionId, `(()=>{
     eventPhoto:eventPhoto?{rect:rect(eventPhoto),naturalWidth:eventPhoto.naturalWidth,naturalHeight:eventPhoto.naturalHeight}:null,
     process:process?{...paint(process),columns:getComputedStyle(process).gridTemplateColumns,items:processItems}:null,
     customerPreview:customerPreview?{tag:customerPreview.tagName,text:customerPreview.textContent.trim(),borderTop:getComputedStyle(customerPreview).borderTopWidth,borderRight:getComputedStyle(customerPreview).borderRightWidth,borderBottom:getComputedStyle(customerPreview).borderBottomWidth,borderLeft:getComputedStyle(customerPreview).borderLeftWidth}:null,
-    inquiryRows,links,title:document.title,
+    inquiryRows,
+    inquiryPreview:inquiryPreview?{...paint(inquiryPreview),tag:inquiryPreview.tagName,formControls:inquiryPreview.querySelectorAll('form,input,select,textarea,button').length,action:inquiryPreviewAction?{...paint(inquiryPreviewAction),href:inquiryPreviewAction.getAttribute('href')}:null}:null,
+    links,title:document.title,
   };
 })()`);
 
@@ -249,7 +253,12 @@ const visualCode = (error) => String(error?.message ?? error).split(':', 1)[0];
 const within = (value, minimum, maximum) => value >= minimum && value <= maximum;
 
 const assertDemo = (measurement, viewport) => {
-  visualCheck(measurement.inquiryRows.length >= 3, 'VIS-INVARIANT-INQUIRY-ROWS-MISSING', viewport.name + ': inquiry grid rows are missing');
+  visualCheck(measurement.inquiryPreview?.rendered, 'VIS-INVARIANT-INQUIRY-PREVIEW-MISSING', viewport.name + ': selection preview must be visibly painted');
+  visualEqual(measurement.inquiryPreview?.tag, 'DIV', 'VIS-INVARIANT-INQUIRY-FORMLESS', viewport.name + ': public draft must not render a disabled contact form');
+  visualEqual(measurement.inquiryPreview?.formControls, 0, 'VIS-INVARIANT-INQUIRY-FORMLESS', viewport.name + ': public preview must not collect contact details');
+  visualCheck(measurement.inquiryPreview?.action?.rendered && measurement.inquiryPreview.action.href?.endsWith('/demo/konfigurator/'),
+    'VIS-INVARIANT-INQUIRY-PREVIEW-CTA', viewport.name + ': working wizard CTA is not visible');
+  visualEqual(measurement.inquiryRows.length, 0, 'VIS-INVARIANT-INQUIRY-FORMLESS', viewport.name + ': disabled form grid unexpectedly returned');
   for (const [rowIndex,row] of measurement.inquiryRows.entries()) {
     visualEqual(row.labels.length, 2, 'VIS-INVARIANT-INQUIRY-CELLS-MISSING', viewport.name + ': inquiry grid row ' + rowIndex + ' needs two cells');
     for (const [cellIndex,cell] of row.labels.entries()) {
@@ -388,7 +397,7 @@ const main = async () => {
         summaries.push({ view: viewport.name, route: '/demo/', screenshotBytes, settled: demo.settled });
         if (viewport.name === 'desktop') {
           const controlledCases = [
-            { id: 't072-date-overflow', css: '.demo-inquiry input[type=date]{min-width:450px!important}', expected: 'VIS-INVARIANT-INQUIRY-FIELD-OVERLAP' },
+            { id: 't075-preview-cta-hidden', css: '.demo-inquiry [data-demo-inquiry-disabled] > a.button{display:none!important}', expected: 'VIS-INVARIANT-INQUIRY-PREVIEW-CTA' },
             { id: 't053-logo-self-hidden', css: '.demo-header .demo-brand > img{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-logo-ancestor-hidden', css: '.demo-header .demo-brand{display:none!important}', expected: 'VIS-INVARIANT-LOGO-HIDDEN' },
             { id: 't053-process-hidden', css: '.hom-process-grid{display:none!important}', expected: 'VIS-INVARIANT-PROCESS-HIDDEN' },
