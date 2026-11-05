@@ -57,6 +57,13 @@ const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.me
 const pinnedNode = readFileSync(new URL('../.nvmrc', import.meta.url), 'utf8').trim();
 assert.match(pinnedNode, /^22\.\d+\.\d+$/, '.nvmrc must select an exact supported Node 22 runtime');
 assert.equal(packageJson.engines?.node, `>=${pinnedNode} <23.0.0`, 'Node engine lower bound must match the Cloudflare .nvmrc pin');
+const workflow = readFileSync(new URL('../.github/workflows/verify.yml', import.meta.url), 'utf8');
+assert.equal(
+  (workflow.match(/^\s*node-version-file:\s*['"]?\.nvmrc['"]?\s*$/gm) ?? []).length,
+  2,
+  'both GitHub Verify jobs must use the exact .nvmrc version instead of floating Node 22',
+);
+assert.doesNotMatch(workflow, /^\s*node-version:\s*['"]?22['"]?\s*$/m, 'floating Node 22 selection risks failing the Astro engine floor');
 const lockfile = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8'));
 const actualNodeParts = pinnedNode.split('.').map(Number);
 for (const packageName of ['astro', '@astrojs/prism', '@astrojs/telemetry']) {
