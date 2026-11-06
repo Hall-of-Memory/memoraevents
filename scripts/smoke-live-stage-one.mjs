@@ -196,6 +196,28 @@ async function run() {
         'price must follow package changes on back/forward');
       assert.equal(result.forms, 0, 'wizard became submit-capable');
       checks.push(width + ' 12 package links, invalid event, 4 steps, back/edit, 349->449');
+      const copyResult = await evaluate(cdp, sessionId, '(async()=>{'
+        + 'Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async text=>{window.__memoraCopied=text;}}});'
+        + 'document.querySelector("[data-wizard-copy]").click();'
+        + 'await new Promise(resolve=>setTimeout(resolve,0));'
+        + 'return {value:window.__memoraCopied,status:document.querySelector("[data-wizard-copy-status]")?.textContent,'
+        + 'forms:document.querySelectorAll("form").length};})()');
+      assert.ok(copyResult.value?.includes('Fotobox') && copyResult.value.includes('Hochzeit')
+        && copyResult.value.includes('Lübeck') && copyResult.value.includes('449')
+        && copyResult.value.includes('Keine Buchung'), 'preview selection cannot be copied at ' + width + 'px');
+      assert.ok(copyResult.status?.includes('nicht versendet') && copyResult.forms === 0, 'copy is not send-free at ' + width + 'px');
+      const copyFallback = await evaluate(cdp, sessionId, '(async()=>{'
+        + 'Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async()=>{throw Error("permission denied");}}});'
+        + 'document.querySelector("[data-wizard-copy]").click();'
+        + 'await new Promise(resolve=>setTimeout(resolve,0));'
+        + 'const area=document.querySelector("[data-wizard-copy-text]");'
+        + 'return {hidden:document.querySelector("[data-wizard-copy-fallback]")?.hidden,'
+        + 'value:area?.value,focus:document.activeElement===area,'
+        + 'selection:area?.selectionStart===0&&area?.selectionEnd===area?.value.length};})()');
+      assert.ok(!copyFallback.hidden && copyFallback.value?.includes('449') && copyFallback.focus
+        && copyFallback.selection, 'clipboard-denied fallback not usable at ' + width + 'px');
+      stageOneSafe(await evaluate(cdp, sessionId, domState), '/demo/konfigurator/', width);
+      checks.push(width + ' selection copy, denied-permission fallback, 0 network writes');
 
       for (const path of ['/impressum/', '/datenschutz/']) {
         await navigate(cdp, sessionId, path);

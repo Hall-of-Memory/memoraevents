@@ -232,9 +232,17 @@ try {
     assert.ok(elements(priceOverview, 'a').some((node) => attr(node, 'href') === expected), 'price overview must preselect exact package: ' + item.id);
   }
   assert.match(configuratorHtml, /Die Anfrageübermittlung ist bis zur Freigabe/);
-  assert.match(configuratorHtml, /Unverbindliche Anfrage – noch nicht aktiv/);
-  assert.ok(elements(configurator, 'button').some((node) => hasAttr(node, 'disabled') && /noch nicht aktiv/.test(textContent(node))), 'preview submit must remain disabled');
+  const copyAction = elements(configurator, 'button').filter((node) => hasAttr(node, 'data-wizard-copy'));
+  assert.equal(copyAction.length, 1, 'preview must provide a copyable selection after four steps');
+  assert.equal(hasAttr(copyAction[0], 'disabled'), false, 'copying is enabled without activating submission');
+  assert.match(textContent(copyAction[0]), /Auswahl kopieren/);
+  assert.equal(elements(configurator, 'button').filter((node) => attr(node, 'type') === 'submit').length, 0, 'draft must never expose a submit control');
+  const copyFallback = descendants(configurator, (node) => hasAttr(node, 'data-wizard-copy-fallback'))[0];
+  assert.ok(copyFallback && hasAttr(copyFallback, 'hidden'), 'manual copy fallback must initially be hidden');
+  const fallbackInput = descendants(copyFallback, (node) => node.nodeName === 'textarea')[0];
+  assert.ok(fallbackInput && hasAttr(fallbackInput, 'readonly') && !hasAttr(fallbackInput, 'name'), 'fallback is local read-only text, not a form field');
   const configuratorClient = readFileSync(join(repo, 'src/scripts/configurator-preview.ts'), 'utf8');
+  assert.match(configuratorClient, /navigator\.clipboard\.writeText/, 'clipboard must be used only on explicit user action');
   assert.doesNotMatch(configuratorClient, /fetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|FormData/, 'selection preview must never transmit or persist inputs');
 
 

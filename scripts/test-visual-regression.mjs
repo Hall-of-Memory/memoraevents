@@ -497,6 +497,29 @@ const main = async () => {
           visualEqual(flow.finalStep, '3', 'VIS-INVARIANT-WIZARD-STEPS', 'desktop: edited package did not return to review');
           visualCheck(flow.summary.includes('349') && flow.upgraded.includes('449'), 'VIS-INVARIANT-WIZARD-PRICE', 'desktop: price did not update after back/edit');
           visualCheck(flow.errors, 'VIS-INVARIANT-WIZARD-FORM', 'desktop: valid event details were rejected');
+          const copied = await evaluate(cdp, wizardPage.sessionId, '(async()=>{'
+            + 'Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async text=>{window.__memoraCopiedText=text;}}});'
+            + 'document.querySelector("[data-wizard-copy]").click();'
+            + 'await new Promise(resolve=>setTimeout(resolve,0));'
+            + 'return {value:window.__memoraCopiedText,status:document.querySelector("[data-wizard-copy-status]")?.textContent,'
+            + 'hidden:document.querySelector("[data-wizard-copy-fallback]")?.hidden,forms:document.querySelectorAll("form").length};})()');
+          visualCheck(copied.value?.includes('Fotobox') && copied.value.includes('Hochzeit') && copied.value.includes('Lübeck')
+            && copied.value.includes('449') && copied.value.includes('Keine Buchung'),
+            'VIS-INVARIANT-WIZARD-COPY-CONTENT', 'desktop: local clipboard must contain edited choice and no booking promise');
+          visualCheck(copied.status?.includes('nicht versendet') && copied.hidden && copied.forms === 0,
+            'VIS-INVARIANT-WIZARD-COPY-SENDFREE', 'desktop: successful copy must not transmit anything');
+          const fallback = await evaluate(cdp, wizardPage.sessionId, '(async()=>{'
+            + 'Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async()=>{throw new Error("permission denied");}}});'
+            + 'document.querySelector("[data-wizard-copy]").click();'
+            + 'await new Promise(resolve=>setTimeout(resolve,0));'
+            + 'const area=document.querySelector("[data-wizard-copy-text]");'
+            + 'return {hidden:document.querySelector("[data-wizard-copy-fallback]")?.hidden,'
+            + 'text:area?.value,focused:document.activeElement===area,'
+            + 'selected:area?.selectionStart===0&&area?.selectionEnd===area?.value.length,'
+            + 'status:document.querySelector("[data-wizard-copy-status]")?.textContent};})()');
+          visualCheck(!fallback.hidden && fallback.text?.includes('449') && fallback.focused && fallback.selected
+            && fallback.status?.includes('manuell kopiert werden'),
+            'VIS-INVARIANT-WIZARD-COPY-FALLBACK', 'desktop: denied Clipboard API must expose focused selected readonly fallback');
         }
         const screenshotBytes = await captureFullPage(cdp, wizardPage.sessionId, join(artifacts, viewport.name + '-wizard.png'));
         summaries.push({ view: viewport.name, route: '/demo/konfigurator/', screenshotBytes, settled: wizardPage.settled });

@@ -46,6 +46,11 @@
 .wizard-contact-disabled{background:#f7eedc;border-radius:14px;padding:22px;margin-top:24px;color:#3f3324}
 .wizard-contact-disabled p{line-height:1.6}
 .wizard-contact-disabled button{max-width:100%;white-space:normal;height:auto;text-align:center}
+.wizard-copy-status:empty{display:none}
+.wizard-copy-fallback{display:grid;gap:8px;margin-top:14px}
+.wizard-copy-fallback[hidden]{display:none}
+.wizard-copy-fallback label{font-weight:650}
+.wizard-copy-fallback textarea{box-sizing:border-box;width:100%;min-height:140px;border:1px solid #b9a990;border-radius:10px;background:#fff;color:#30281e;padding:12px;font:inherit}
 @media(max-width:840px){.wizard-layout{grid-template-columns:1fr}.wizard-summary{position:static;grid-row:1}.wizard-progress li{font-size:.7rem;gap:7px;padding:8px}.wizard-progress li span{flex-basis:24px;height:24px}}
 @media(max-width:520px){.wizard-progress li{flex-direction:column;text-align:center}.wizard-shell{padding-block:28px 75px}.wizard-summary-price{font-size:1.6rem}.wizard-content,.wizard-summary{padding:22px 16px}.wizard-review div{display:block}.wizard-review dd{text-align:left;margin-top:4px}}
 @media(forced-colors:active){.wizard-choice:has(input:checked){outline:2px solid Highlight}.wizard-progress li[aria-current=step]{outline:2px solid Highlight}}
