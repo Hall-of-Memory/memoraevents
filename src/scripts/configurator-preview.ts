@@ -22,6 +22,10 @@ if (root) {
   const eventDate = root.querySelector<HTMLInputElement>('input[name="wizardDate"]');
   const eventLocation = root.querySelector<HTMLInputElement>('input[name="wizardLocation"]');
   const inquiryForm = root.querySelector<HTMLFormElement>('form[data-configurator-inquiry]');
+  const copyButton = root.querySelector<HTMLButtonElement>('[data-wizard-copy]');
+  const copyStatus = root.querySelector<HTMLElement>('[data-wizard-copy-status]');
+  const copyFallback = root.querySelector<HTMLElement>('[data-wizard-copy-fallback]');
+  const copyText = root.querySelector<HTMLTextAreaElement>('[data-wizard-copy-text]');
 
   const offers: ConfiguratorOffer[] = offerInputs.map((input) => ({
     id: input.value,
@@ -51,6 +55,11 @@ if (root) {
       if (target) target.textContent = text;
     };
     const clearError = () => { error.hidden = true; error.textContent = ''; };
+    const clearCopyFeedback = () => {
+      if (copyStatus) copyStatus.textContent = '';
+      if (copyFallback) copyFallback.hidden = true;
+      if (copyText) copyText.value = '';
+    };
     // Feed the existing inquiry-form controller its exact V1 field names.
     // The browser-side price, extras and any unapproved fields are NEVER sent.
     const syncInquiryDraft = () => {
@@ -96,6 +105,7 @@ if (root) {
     };
 
     const updateSummary = () => {
+      clearCopyFeedback();
       syncInquiryDraft();
       const offerId = chosenOffer();
       if (!offerId) {
@@ -191,6 +201,33 @@ if (root) {
       if (activeStep > 0) { activeStep -= 1; renderStep(); }
     });
     next.addEventListener('click', nextStep);
+    if (copyButton && copyStatus && copyFallback && copyText) {
+      copyButton.addEventListener('click', async () => {
+        if (activeStep !== 3) return;
+        updateSummary();
+        const review = (field: string) => root.querySelector<HTMLElement>('[data-review-' + field + ']')?.textContent?.trim() ?? '–';
+        const summary = [
+          'MEMORA EVENT – unverbindliche Auswahlvorschau',
+          'Produkt: ' + review('offer'),
+          'Veranstaltung: ' + review('event'),
+          'Paket: ' + review('package'),
+          'Extras: ' + review('extras'),
+          'Voraussichtlicher Paketpreis: ' + review('price'),
+          'Keine Buchung, keine Verfügbarkeitszusage und keine versendete Anfrage.',
+        ].join('\n');
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable');
+          await navigator.clipboard.writeText(summary);
+          copyStatus.textContent = 'Auswahl kopiert. Eine Anfrage wurde nicht versendet.';
+        } catch {
+          copyText.value = summary;
+          copyFallback.hidden = false;
+          copyText.focus();
+          copyText.select();
+          copyStatus.textContent = 'Automatisches Kopieren nicht verfügbar. Die Auswahl ist unten markiert und kann manuell kopiert werden. Es wurde nichts versendet.';
+        }
+      });
+    }
     inquiryForm?.addEventListener('memora:inquiry-submitting', (event) => {
       const submitting = (event as CustomEvent<{ submitting: boolean }>).detail.submitting === true;
       root.dataset.submitting = String(submitting);

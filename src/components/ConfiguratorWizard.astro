@@ -50,7 +50,7 @@ const isProduction = mode === 'production' && demoSite.launchStatus === 'product
     <header class="wizard-heading">
       <p class="eyebrow">MEMORA EVENT · Auswahlvorschau</p>
       <h1>Dein Event.<br /><em>Deine Auswahl.</em></h1>
-      <p>{isProduction ? "Wähle dein Erlebnis und sende eine unverbindliche Anfrage. Erst nach dem Absenden werden deine Angaben übertragen." : "Stelle das gewünschte Erlebnis in vier Schritten zusammen. Deine Auswahl bleibt ausschließlich in diesem Browserfenster; es werden keine Daten übertragen."}</p>
+      <p>{isProduction ? "Wähle dein Erlebnis und sende eine unverbindliche Anfrage. Erst nach dem Absenden werden deine Angaben übertragen." : "Stelle das gewünschte Erlebnis in vier Schritten zusammen. Es wird nichts versendet; am Ende kannst du die Auswahl auf Wunsch lokal kopieren."}</p>
     </header>
 
     <div class="wizard-notice" role="status">
@@ -217,8 +217,13 @@ const isProduction = mode === 'production' && demoSite.launchStatus === 'product
           ) : (
             <div class="wizard-contact-disabled">
               <strong>Kontaktaufnahme folgt nach der Freigabe.</strong>
-              <p>Bis die produktiven Kontakt- und Datenschutzangaben bestätigt sind, werden keine Kontaktdaten abgefragt und keine Anfrage versendet.</p>
-              <button type="button" disabled>Unverbindliche Anfrage – noch nicht aktiv</button>
+              <p>Bis die produktiven Kontakt- und Datenschutzangaben bestätigt sind, werden keine Kontaktdaten abgefragt und keine Anfrage versendet. Du kannst deine Auswahl für später kopieren.</p>
+              <button type="button" data-wizard-copy>Auswahl kopieren</button>
+              <p class="wizard-copy-status" role="status" aria-live="polite" data-wizard-copy-status></p>
+              <div class="wizard-copy-fallback" data-wizard-copy-fallback hidden>
+                <label for="wizard-copy-text">Auswahl zum manuellen Kopieren</label>
+                <textarea id="wizard-copy-text" data-wizard-copy-text rows="8" readonly></textarea>
+              </div>
             </div>
           )}
         </section>
