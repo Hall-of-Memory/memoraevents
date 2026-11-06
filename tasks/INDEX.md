@@ -76,7 +76,7 @@
 
 | T068 | done | Kundenauftrag: Fotobox-/Fotospiegel-Preisstufen nach Melody-Referenz |
 | T069 | active | Vierstufige Vorschau live; echter freigegebener Inquiry-Versand und Betreiberempfang fehlen |
-| T070 | active | MEMORA-Branding und Dokumentationsbereinigung integriert; Legacy-Domain-Redirect/TLS weiterhin offen |
+| T070 | done | MEMORA-Branding und Dokumentationsbereinigung erledigt; alte Domain-Weiterleitung/www-TLS auf Kundenwunsch gestrichen (06.11.2026) |
 | T071 | done | Sticky Header über volle Breite: dunkle Randstreifen nach Ankernavigation beheben |
 | T072 | done | iPad-Anfrageformular: Datum und Veranstaltungsart ohne Überlappung |
 | T073 | active | NixOS-Bootpersistenz / Grabowski-Wiederanlauf (bestehende Projektaufgabe) |

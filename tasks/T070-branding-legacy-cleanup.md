@@ -1,10 +1,12 @@
 ---
 id: T070
-status: active
+status: done
 priority: P1
 dependencies: [T061, T064]
 ---
 # Aktive Altmarke Hall of Memory aus MEMORA EVENT entfernen
+
+**Aktueller Abschluss:** Der technische Marken-/Dokumentationsumfang wurde bereits über PR #96, #97, #98 und #100 integriert. Der separate Plan zur alten Domain wurde am 06.11.2026 vom Auftraggeber gestrichen. Alle folgenden älteren Providerbefunde/Anweisungen dienen nur der historischen Nachvollziehbarkeit und sind **keine aktuelle Umsetzungsaufforderung**.
 
 ## Kundenauftrag und Live-Befund (01.11.2026)
 
@@ -15,7 +17,7 @@ Der sichtbare Markenname ist laut T064 MEMORA EVENT; die kanonische Domain laute
 - Aktive Hero-Bilddatei ohne Pixeländerung auf memora-event-example-event.webp migrieren, Referenzen und Tests anpassen.
 - Interne Site-ID, aktuelle Einstiegs-/Entwicklerdokumentation und Verify-Ausgabe umstellen.
 - npm ci + npm run verify, gezielte Asset-/Browser-Prüfung, PR und revisionsgebundener Produktions-Readback.
-- Legacy-Domain nach frischem Cloudflare-DNS-/Redirect-/TLS-Readback auf memoraevents.de umleiten. Kein unkontrollierter DNS-, Worker- oder Secret-Eingriff.
+- Keine Legacy-Domain-Weiterleitung und keine Reparatur des früheren `www.hallofmemory.de`-TLS-Problems: auf Kundenwunsch vom 06.11.2026 ausdrücklich aus dem Auftrag gestrichen.
 
 ## Bewusst unverändert
 
@@ -26,7 +28,7 @@ GitHub-Org Hall-of-Memory, bestehender Cloudflare-Worker hall-of-memory, Pages-R
 - Besucherseiten ausschließlich mit MEMORA EVENT in Titel und sichtbaren Texten; aktives Hero-Asset und Site-ID ohne Altmarke.
 - Alle betroffenen Tests sowie der kanonische Verify erfolgreich.
 - Integration und tatsächlicher Readback an memoraevents.de belegt, sonst Status offen.
-- Legacy-Redirect erst nach Provider- und HTTP-/TLS-Nachweis; sonst verbleibender Blocker dokumentieren.
+- Legacy-Redirect und Legacy-www-TLS sind kein Akzeptanzkriterium mehr; die aktive MEMORA-Markenbereinigung ist separat erfolgreich integriert.
 - 01.11.2026: Ausgangs-main 8441a32bfb73380ba87898309e5d201fdf82ca36, separater T070-Writer-Branch.
 
 ## Prüfung 01.11.2026
@@ -72,7 +74,7 @@ Die erste T070-Fassung bündelte 19 Dateien einschließlich AGENTS.md und Deploy
 - Öffentliche DNS-Readbacks von 01.11.2026 zeigen für `hallofmemory.de` ebenfalls Cloudflare-Nameserver `quentin.ns.cloudflare.com` und `tia.ns.cloudflare.com`; Apex und www lösen Cloudflare-Anycast-Adressen auf. Der lokale Wrangler ist dennoch nicht authentifiziert, und es existiert kein nachgewiesener Schreibzugriff auf die Legacy-Zone. Daher keine erfundene Redirect-/TLS-Provideränderung; `hallofmemory.de` und `www.hallofmemory.de` müssen nach realem Provider-Write nochmals extern abgenommen werden.
 
 
-## Provider-spezifische Restmaßnahme: alte Domain (noch nicht ausgeführt)
+## Historische Provider-Notiz (seit 06.11.2026 ausdrücklich abbestellt)
 
 - Live-Abnahme am 01.11.2026: `https://hallofmemory.de/` und `/demo/rahmen/?t070=check` liefern unter der **alten** Hostadresse HTTP 200 statt zur Hauptdomain zu wechseln. Beide Hostnamen haben proxied Cloudflare-DNS-Antworten; `https://www.hallofmemory.de/` und `/demo/?t070=check` liefern weiterhin Cloudflare HTTP 525. Die gleichnamigen Seiten auf `memoraevents.de` liefern HTTP 200. Das ist ein **Provider-Routing-/Origin-TLS-Problem**, kein Fehler in den statischen HTML-Markenbezeichnungen.
 - **Neu und auf drei Routen reproduziert (01.11.2026):** `http://www.hallofmemory.de/`, `/demo/` und `/produkte/fotobox/` liefern jeweils `200` mit dem HTML-Titel `STRATO - Domain reserved` über den Cloudflare-Proxy (`CF-Cache-Status: DYNAMIC`); die zugehörigen HTTPS-URLs liefern weiterhin `525`. Der `www`-Host führt also öffentlich zu einer **geparkten Fremd-Origin-Seite**, nicht zur MEMORA-EVENT-Anwendung; die konkrete Origin-IP und Zoneneinstellung sind ohne authentifizierten Provider-Readback noch nicht bewiesen. **Nicht** nur einen neuen TLS-Ursprung konfigurieren oder STRATO-DNS nach Vermutung entfernen: Zuerst die Cloudflare-Zonen-Redirectregel auf beide Hostnamen legen, damit Besucher weder die Parkseite noch den Origin-TLS-Fehler erreichen. Anschließend beide Schemes und Pfad/Query mit realem 302-`Location` readbacken.
@@ -95,3 +97,9 @@ Die erste T070-Fassung bündelte 19 Dateien einschließlich AGENTS.md und Deploy
 - `https://hallofmemory.de/` endet dagegen weiterhin bei `https://hallofmemory.de/demo/` mit HTTP 200 **unter dem Legacy-Host**, nicht bei `memoraevents.de`. `https://www.hallofmemory.de/` liefert weiterhin HTTP 525. Dieser Provider-Redirect-/TLS-Fehler ist damit erneut nachgewiesen; PR #100 hat ihn nicht repariert.
 - `wrangler whoami` am Betreiberhost meldet weiterhin `not authenticated`. Ohne authentifizierten Zugriff auf die Legacy-Cloudflare-Zone werden keine DNS-/TLS-/Redirectregeln fingiert oder gesetzt. Kleinste noch nötige Aktion bleibt die bereits oben spezifizierte reversible Legacy-Zonen-Redirectregel mit anschließendem Host-/TLS-Readback beider Schemes.
 - **T070 bleibt `active`**, blockiert jedoch nicht den sendefreien Konfigurator und ersetzt keine F1–F12-Betreiberfreigabe.
+
+## Abschlussentscheidung – 06.11.2026
+
+- **Kundenentscheidung:** „Legacy domain weiterleitung kannst du streichen. kein interesse“. Damit werden **Weiterleitung von `hallofmemory.de` und `www.hallofmemory.de` auf `memoraevents.de`**, die ausschließlich dafür vorgesehenen Cloudflare-/DNS-Regeln, Provider-Authentifizierung sowie die Reparatur des zugehörigen Legacy-`www`-TLS-525-Fehlers **nicht weiter verfolgt**. Das alte Routing bleibt ohne Änderung; sein Verhalten ist keine MEMORA-Launch-Abnahmebedingung und kein offener Arbeitsauftrag.
+- **Erledigte T070-Kernarbeit:** MEMORA EVENT ist auf `https://memoraevents.de/demo/` sichtbar und im Seitentitel korrekt; aktuelles Live-Readback am 06.11.2026 bestätigt dies. Hero-Dateiname, aktive Site-ID, aktuelle Entwickler-/Betreiberdokumentation und Verify-Markenbezeichnungen wurden über [PR #96](https://github.com/Hall-of-Memory/memoraevents/pull/96), [#97](https://github.com/Hall-of-Memory/memoraevents/pull/97), [#98](https://github.com/Hall-of-Memory/memoraevents/pull/98) sowie den am 04.11.2026 gemergten [PR #100](https://github.com/Hall-of-Memory/memoraevents/pull/100) abgearbeitet. Historische Fundus-/Assetnamen, GitHub-Org und technische Worker-IDs bleiben absichtlich unverändert.
+- **Status T070: `done`.** Es gibt keine noch offene Legacy-Domain-Weiterleitungs-/TLS-Teilaufgabe und keinen Grund für ein neues Ticket. Der produktive Kundenanfrageweg mit echten Betreiber-/Rechtsfreigaben bleibt ausschließlich T069/T009/T057 zugeordnet. Keine Cloudflare-/DNS-/Worker-/TLS- oder Site-Code-Änderung in diesem Abschluss.
